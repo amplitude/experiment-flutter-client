@@ -1,5 +1,7 @@
 # amplitude_experiment
 
+**Note: iOS is not yet implemented. Application will only work for android.**
+
 A new flutter plugin project.
 
 ## Getting Started
