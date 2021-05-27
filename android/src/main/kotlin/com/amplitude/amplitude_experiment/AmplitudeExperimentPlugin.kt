@@ -56,7 +56,7 @@ class AmplitudeExperimentPlugin: FlutterPlugin, MethodCallHandler {
   // Initialization
 
   private fun init(apiKey: String) {
-    Log.w("Experiment", "init")
+    Log.d("Experiment", "init")
     client = Skylab.init(application, apiKey, SkylabConfig.builder().build())
   }
 
@@ -71,14 +71,14 @@ class AmplitudeExperimentPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun start(user: SkylabUser) {
-    Log.w("Experiment", "start: $client")
+    Log.d("Experiment", "start")
     client?.start(user)?.get()
   }
 
   // Get variant
 
   private fun getVariant(flagKey: String): Map<String, Any?>? {
-    Log.w("Experiment", "getVariant")
+    Log.d("Experiment", "getVariant")
     val variant = client?.getVariant(flagKey)
     val value = variant?.value
     return if (value == null) {
