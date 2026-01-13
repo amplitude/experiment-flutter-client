@@ -1,7 +1,7 @@
 name: experiment_flutter
 description: "A new Flutter plugin project."
 version: 0.0.1
-homepage:
+homepage: "something"
 
 environment:
   sdk: ^3.10.3

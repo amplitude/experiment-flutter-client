@@ -1,12 +1,7 @@
-import 'experiment_flutter_platform_interface.dart';
-import 'experiment_config.dart';
-import 'experiment_client.dart';
+import 'package:experiment_flutter/experiment_config.dart';
+import 'package:experiment_flutter/experiment_client.dart';
 
 class Experiment {
-  Future<String?> getPlatformVersion() {
-    return ExperimentFlutterPlatform.instance.getPlatformVersion();
-  }
-
   static ExperimentClient initialize(String apiKey, ExperimentConfig config) {
     return ExperimentClient(
       apiKey: apiKey,

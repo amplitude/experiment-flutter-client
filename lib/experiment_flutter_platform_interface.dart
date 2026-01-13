@@ -3,7 +3,7 @@ import 'package:experiment_flutter/models/variant.dart';
 import 'package:experiment_flutter/models/experiment_user.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'experiment_flutter_method_channel.dart';
+import 'package:experiment_flutter/experiment_flutter_method_channel.dart';
 
 abstract class ExperimentFlutterPlatform extends PlatformInterface {
   /// Constructs a ExperimentFlutterPlatform.
@@ -24,10 +24,6 @@ abstract class ExperimentFlutterPlatform extends PlatformInterface {
   static set instance(ExperimentFlutterPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
-  }
-
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
   Future<void> init(String apiKey, ExperimentConfig config) {

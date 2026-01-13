@@ -1,5 +1,5 @@
-import 'models/variant.dart';
-import 'constants.dart';
+import 'package:experiment_flutter/models/variant.dart';
+import 'package:experiment_flutter/constants.dart';
 
 enum LogLevel { none, error, warn, info, debug }
 

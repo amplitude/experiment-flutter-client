@@ -3,7 +3,7 @@ import 'package:experiment_flutter/models/variant.dart';
 import 'package:experiment_flutter/models/experiment_user.dart';
 import 'package:experiment_flutter/experiment_client.dart';
 import 'package:experiment_flutter/experiment_config.dart';
-import 'package:experiment_flutter/experiment_flutter.dart';
+import 'package:experiment_flutter/experiment.dart';
 import 'package:experiment_flutter/experiment_flutter_platform_interface.dart';
 import 'package:experiment_flutter/experiment_flutter_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -70,10 +70,6 @@ void main() {
 
   test('ExperimentFlutterPlatform is the default instance', () {
     expect(initialPlatform, isInstanceOf<ExperimentFlutterPlatform>());
-  });
-
-  test('getPlatformVersion', () async {
-    expect(await initialPlatform.getPlatformVersion(), '42');
   });
 
   test('initialize', () async {

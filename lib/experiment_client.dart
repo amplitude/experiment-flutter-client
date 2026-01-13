@@ -1,6 +1,6 @@
 import 'package:experiment_flutter/models/experiment_user.dart';
 import 'package:experiment_flutter/models/variant.dart';
-import 'experiment_config.dart';
+import 'package:experiment_flutter/experiment_config.dart';
 import 'experiment_flutter_platform_interface.dart';
 
 class ExperimentClient {

@@ -1,6 +1,6 @@
-import 'package:experiment_flutter/experiment_config.dart';
-import 'package:experiment_flutter/models/variant.dart';
-import 'package:experiment_flutter/models/experiment_user.dart';
+import 'experiment_config.dart';
+import 'models/variant.dart';
+import 'models/experiment_user.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
@@ -11,14 +11,6 @@ class MethodChannelExperimentFlutter extends ExperimentFlutterPlatform {
   /// The method channel used to interact with the native platform.
   @visibleForTesting
   final methodChannel = const MethodChannel('experiment_flutter');
-
-  @override
-  Future<String?> getPlatformVersion() async {
-    final version = await methodChannel.invokeMethod<String>(
-      'getPlatformVersion',
-    );
-    return version;
-  }
 
   @override
   Future<void> init(String apiKey, ExperimentConfig config) async {

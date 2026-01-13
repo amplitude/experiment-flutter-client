@@ -34,15 +34,15 @@ class _MyAppState extends State<MyApp> {
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
     Amplitude amplitude = Amplitude(
-      Configuration(apiKey: 'API-KEY'),
+      Configuration(apiKey: 'API_KEY'),
     );
     await amplitude.isBuilt;
 
     await amplitude.setUserId('exp.flutter@test.com');
-    await amplitude.setDeviceId('1234567');
+    // await amplitude.setDeviceId('1234567');
 
     ExperimentClient experiment = Experiment.initializeWithAmplitude(
-      'DEPLOYMENT-KEY',
+      DEPLOY_KEY,
       ExperimentConfig(),
     );
 
@@ -50,40 +50,40 @@ class _MyAppState extends State<MyApp> {
      
      */
 
-    ExperimentUser user = ExperimentUser(
-      deviceId: '1234567',
-      userId: 'exp.flutter@test.com',
-      userProperties: {'test': 'test'},
-      groups: {
-        'test': ['test', 'test2'],
-        'test2': ['test3', 'test4'],
-      },
-      groupProperties: {
-        "org id": {
-          "36958": {
-            "analytics quota type": "event-volume",
-            "cohorts reverse trial status": "INELIGIBLE",
-            "features": ["insights", "partial_schema_download"],
-            "is 2023 plan": true,
-            "joinability": "invite only",
-            "joined users": 930,
-          },
-        },
-      },
-    );
+    // ExperimentUser user = ExperimentUser(
+    //   deviceId: '1234567',
+    //   userId: 'exp.flutter@test.com',
+    //   userProperties: {'test': 'test'},
+    //   groups: {
+    //     'test': ['test', 'test2'],
+    //     'test2': ['test3', 'test4'],
+    //   },
+    //   groupProperties: {
+    //     "org id": {
+    //       "36958": {
+    //         "analytics quota type": "event-volume",
+    //         "cohorts reverse trial status": "INELIGIBLE",
+    //         "features": ["insights", "partial_schema_download"],
+    //         "is 2023 plan": true,
+    //         "joinability": "invite only",
+    //         "joined users": 930,
+    //       },
+    //     },
+    //   },
+    // );
 
     await experiment.isBuilt;
-    await experiment.fetch(user);
+    await experiment.fetch();
     Variant? variant = await experiment.variant('plus-v3-for-starter-v2');
     print(variant?.metadata?['evaluationId'].toString());
     ExperimentUser userFromExperiment = await experiment.getUser();
-    print(userFromExperiment.groups?['test']?.toString());
-    print(userFromExperiment.groupProperties.toString());
-    print(
-      userFromExperiment.groupProperties?['org id']?['36958']?['features']
-          ?.toString(),
-    );
-    print(userFromExperiment.userProperties?.toString());
+    // print(userFromExperiment.groups?['test']?.toString());
+    // print(userFromExperiment.groupProperties.toString());
+    // print(
+    //   userFromExperiment.groupProperties?['org id']?['36958']?['features']
+    //       ?.toString(),
+    // );
+    // print(userFromExperiment.userProperties?.toString());
     if (!mounted) return;
 
     setState(() {
