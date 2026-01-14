@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -39,6 +41,9 @@ flutter:
         pluginClass: ExperimentFlutterPlugin
       ios:
         pluginClass: ExperimentFlutterPlugin
+      web: 
+        pluginClass: ExperimentFlutterWeb
+        fileName: experiment_flutter_web.dart
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
