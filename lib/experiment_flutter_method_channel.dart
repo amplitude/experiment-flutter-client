@@ -14,16 +14,18 @@ class MethodChannelExperimentFlutter extends ExperimentFlutterPlatform {
 
   @override
   Future<void> init(String apiKey, ExperimentConfig config) async {
-    Map<String, dynamic> configMap = config.toMap();
-    configMap.putIfAbsent('apiKey', () => apiKey);
-    await methodChannel.invokeMethod<void>('init', configMap);
+    await methodChannel.invokeMethod<void>('init', {
+      'apiKey': apiKey,
+      'config': config.toMap(),
+    });
   }
 
   @override
   Future<void> initWithAmplitude(String apiKey, ExperimentConfig config) async {
-    Map<String, dynamic> configMap = config.toMap();
-    configMap.putIfAbsent('apiKey', () => apiKey);
-    await methodChannel.invokeMethod<void>('initWithAmplitude', configMap);
+    await methodChannel.invokeMethod<void>('initWithAmplitude', {
+      'apiKey': apiKey,
+      'config': config.toMap(),
+    });
   }
 
   @override

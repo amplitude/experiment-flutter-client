@@ -42,19 +42,14 @@ class ExperimentFlutterPlugin :
         call: MethodCall,
         result: Result
     ) {
-        if (call.method == "getPlatformVersion") {
-            result.success("Android ${android.os.Build.VERSION.RELEASE}")
-            return
-        }
-
         if (call.method == "init") {
-            val config = getConfiguration(call)
+            val config = getConfiguration(call)!!
             val client = Experiment.initialize(ctxt as Application, call.argument<String>("apiKey")!!, config)
             instances += mapOf(config.instanceName to client)
             result.success("experiment initialized")
             return
         } else if (call.method == "initWithAmplitude") {
-            val config = getConfiguration(call)
+            val config = getConfiguration(call)!!
             val client = Experiment.initializeWithAmplitudeAnalytics(ctxt as Application, call.argument<String>("apiKey")!!, config)
             instances += mapOf(config.instanceName to client)
             result.success("experiment initialized")
@@ -128,31 +123,58 @@ class ExperimentFlutterPlugin :
         channel.setMethodCallHandler(null)
     }
 
-    private fun getConfiguration(call: MethodCall): ExperimentConfig {
-        val config = ExperimentConfig.builder()
+    private fun getConfiguration(call: MethodCall): ExperimentConfig? {
+        return call.argument<Map<String, Any>>("config")?.let {
+                configMap ->
+            val builder = ExperimentConfig.builder()
 
-        call.argument<String>("instanceName")?.let {config.instanceName(it)}
-        call.argument<Map<String, Any>>("fallbackVariant")?.let {  config.fallbackVariant(parseVariant(it))}
-        call.argument<Boolean>("fetchOnStart")?.let {config.fetchOnStart(it)}
-        call.argument<Int>("fetchTimeoutMillis")?.let {config.fetchTimeoutMillis(it.toLong())}
-        call.argument<String>("flagsServerUrl")?.let {config.flagsServerUrl(it)}
-        call.argument<Int>("flagConfigPollingIntervalMillis")?.let {config.flagConfigPollingIntervalMillis(it.toLong())}
-        call.argument<String>("initialFlags")?.let {config.initialFlags(it)}
-        call.argument<Boolean>("pollOnStart")?.let {config.pollOnStart(it)}
-        call.argument<Boolean>("retryFetchOnFailure")?.let { config.retryFetchOnFailure(it) }
-        call.argument<String>("serverUrl")?.let {config.serverUrl(it)}
-        call.argument<String>("serverZone")?.let {config.serverZone(parseServerZone(it))}
-        call.argument<String>("source")?.let {config.source(parseSource(it))}
-        call.argument<Boolean>("automaticExposureTracking")?.let { config.automaticExposureTracking(it) }
-        call.argument<Boolean>("automaticFetchOnAmplitudeIdentityChange")?.let { config.automaticFetchOnAmplitudeIdentityChange(it) }
+            (configMap["instanceName"] as? String)?.let { builder.instanceName(it)}
+            (configMap["fallbackVariant"] as? Map<String, Any>)?.let { builder.fallbackVariant(parseVariant(it))}
+            (configMap["fetchOnStart"] as? Boolean)?.let { builder.fetchOnStart(it)}
+            (configMap["fetchTimeoutMillis"] as? Int)?.let { builder.fetchTimeoutMillis(it.toLong())}
+            (configMap["flagsServerUrl"] as? String)?.let { builder.flagsServerUrl(it)}
+            (configMap["flagConfigPollingIntervalMillis"] as? Int)?.let { builder.flagConfigPollingIntervalMillis(it.toLong())}
+            (configMap["initialFlags"] as? String)?.let { builder.initialFlags(it)}
+            (configMap["pollOnStart"] as? Boolean)?.let { builder.pollOnStart(it)}
+            (configMap["retryFetchOnFailure"] as? Boolean)?.let { builder.retryFetchOnFailure(it)}
+            (configMap["serverUrl"] as? String)?.let { builder.serverUrl(it)}
+            (configMap["serverZone"] as? String)?.let { builder.serverZone(parseServerZone(it))}
+            (configMap["source"] as? String)?.let { builder.source(parseSource(it))}
+            (configMap["automaticExposureTracking"] as? Boolean)?.let { builder.automaticExposureTracking(it)}
+            (configMap["automaticFetchOnAmplitudeIdentityChange"] as? Boolean)?.let { builder.automaticFetchOnAmplitudeIdentityChange(it)}
 
-        // Parse initialVariants
-        call.argument<Map<String, Any>>("initialVariants")?.let {
-                map -> map.mapValues { (_, value) -> parseVariant(value as Map<String, Any>) }
-        }?.let { config.initialVariants(it) }
+            (configMap["initialVariants"] as? Map<String, Any>)?.let {
+                    map -> map.mapValues { (_, value) -> parseVariant(value as Map<String, Any>)}
+            }?.let {builder.initialVariants( it )}
 
-        return config.build()
+            builder.build()
+        }
     }
+//    private fun getConfiguration(call: MethodCall): ExperimentConfig {
+//        val config = ExperimentConfig.builder()
+//
+//        call.argument<String>("instanceName")?.let {config.instanceName(it)}
+//        call.argument<Map<String, Any>>("fallbackVariant")?.let {  config.fallbackVariant(parseVariant(it))}
+//        call.argument<Boolean>("fetchOnStart")?.let {config.fetchOnStart(it)}
+//        call.argument<Int>("fetchTimeoutMillis")?.let {config.fetchTimeoutMillis(it.toLong())}
+//        call.argument<String>("flagsServerUrl")?.let {config.flagsServerUrl(it)}
+//        call.argument<Int>("flagConfigPollingIntervalMillis")?.let {config.flagConfigPollingIntervalMillis(it.toLong())}
+//        call.argument<String>("initialFlags")?.let {config.initialFlags(it)}
+//        call.argument<Boolean>("pollOnStart")?.let {config.pollOnStart(it)}
+//        call.argument<Boolean>("retryFetchOnFailure")?.let { config.retryFetchOnFailure(it) }
+//        call.argument<String>("serverUrl")?.let {config.serverUrl(it)}
+//        call.argument<String>("serverZone")?.let {config.serverZone(parseServerZone(it))}
+//        call.argument<String>("source")?.let {config.source(parseSource(it))}
+//        call.argument<Boolean>("automaticExposureTracking")?.let { config.automaticExposureTracking(it) }
+//        call.argument<Boolean>("automaticFetchOnAmplitudeIdentityChange")?.let { config.automaticFetchOnAmplitudeIdentityChange(it) }
+//
+//        // Parse initialVariants
+//        call.argument<Map<String, Any>>("initialVariants")?.let {
+//                map -> map.mapValues { (_, value) -> parseVariant(value as Map<String, Any>) }
+//        }?.let { config.initialVariants(it) }
+//
+//        return config.build()
+//    }
 
     private fun parseVariant(args: Map<String, Any>) : Variant {
          return Variant( value = args["key"] as? String,
