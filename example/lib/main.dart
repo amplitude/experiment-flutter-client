@@ -33,14 +33,16 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    Amplitude amplitude = Amplitude(Configuration(apiKey: 'YOUR_API_KEY'));
+    Amplitude amplitude = Amplitude(
+      Configuration(apiKey: 'API_KEY'),
+    );
     await amplitude.isBuilt;
 
     await amplitude.setUserId('exp.flutter@test.com');
     // await amplitude.setDeviceId('1234567');
 
     ExperimentClient experiment = Experiment.initializeWithAmplitude(
-      'YOUR_DEPLOYMENT_KEY',
+      DEPLOY_KEY,
       ExperimentConfig(),
     );
 
@@ -50,9 +52,9 @@ class _MyAppState extends State<MyApp> {
 
     await experiment.isBuilt;
     await experiment.fetch();
-    Variant? variant = await experiment.variant('VARIANT_KEY');
+    Variant? variant = await experiment.variant('plus-v3-for-starter-v2');
     // print(variant?.metadata?['evaluationId'].toString());
-    ExperimentUser userFromExperiment = await experiment.getUser();
+    // ExperimentUser userFromExperiment = await experiment.getUser();
     // print(userFromExperiment.groups?['test']?.toString());
     // print(userFromExperiment.groupProperties.toString());
     // print(

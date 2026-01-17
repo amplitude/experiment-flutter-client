@@ -36,12 +36,13 @@ class ExperimentClient {
     return ExperimentFlutterPlatform.instance.start(config.instanceName, user);
   }
 
-  Future<void> stop() {
-    return ExperimentFlutterPlatform.instance.stop(config.instanceName);
+  void stop() async {
+    return await ExperimentFlutterPlatform.instance.stop(config.instanceName);
   }
 
-  Future<void> fetch([ExperimentUser? user]) {
-    return ExperimentFlutterPlatform.instance.fetch(config.instanceName, user);
+  Future<ExperimentClient> fetch([ExperimentUser? user]) async {
+    await ExperimentFlutterPlatform.instance.fetch(config.instanceName, user);
+    return this;
   }
 
   Future<Variant> variant(String flagKey, [Variant? fallbackVariant]) {
@@ -56,12 +57,12 @@ class ExperimentClient {
     return ExperimentFlutterPlatform.instance.all(config.instanceName);
   }
 
-  Future<void> clear() {
-    return ExperimentFlutterPlatform.instance.clear(config.instanceName);
+  void clear() async {
+    return await ExperimentFlutterPlatform.instance.clear(config.instanceName);
   }
 
-  Future<void> exposure(String flagKey) {
-    return ExperimentFlutterPlatform.instance.exposure(
+  void exposure(String flagKey) async {
+    return await ExperimentFlutterPlatform.instance.exposure(
       config.instanceName,
       flagKey,
     );
@@ -71,15 +72,15 @@ class ExperimentClient {
     return ExperimentFlutterPlatform.instance.getUser(config.instanceName);
   }
 
-  Future<void> setUser(ExperimentUser user) {
-    return ExperimentFlutterPlatform.instance.setUser(
+  void setUser(ExperimentUser user) async {
+    return await ExperimentFlutterPlatform.instance.setUser(
       config.instanceName,
       user,
     );
   }
 
-  Future<void> setTracksAssignment(bool tracksAssignment) {
-    return ExperimentFlutterPlatform.instance.setTracksAssignment(
+  void setTracksAssignment(bool tracksAssignment) async {
+    return await ExperimentFlutterPlatform.instance.setTracksAssignment(
       config.instanceName,
       tracksAssignment,
     );
