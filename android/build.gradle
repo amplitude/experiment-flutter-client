@@ -47,21 +47,42 @@ android {
         minSdk = 24
     }
 
-    dependencies {
-        implementation("com.amplitude:experiment-android-client:1.14.0")
-        testImplementation("org.jetbrains.kotlin:kotlin-test")
-        testImplementation("org.mockito:mockito-core:5.0.0")
-    }
+//    dependencies {
+//        implementation("com.amplitude:experiment-android-client:1.14.0")
+//        testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0") // Use the latest version
+//        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0") // Use the latest version
+//
+//        // Robolectric core dependency
+//
+//        // Robolectric JUnit 5 Extension
+//        testImplementation("tech.apter.junit5.jupiter:robolectric-extension:0.9.0")
+//        testImplementation("org.jetbrains.kotlin:kotlin-test")
+//        testImplementation("org.mockito:mockito-core:5.0.0")
+//    }
 
     testOptions {
-        unitTests.all {
-            useJUnitPlatform()
+        unitTests {
+            includeAndroidResources = true
+            all {
+                useJUnitPlatform()
 
-            testLogging {
-               events "passed", "skipped", "failed", "standardOut", "standardError"
-               outputs.upToDateWhen {false}
-               showStandardStreams = true
+                testLogging {
+                    events "passed", "skipped", "failed", "standardOut", "standardError"
+                    outputs.upToDateWhen { false }
+                    showStandardStreams = true
+                }
             }
         }
     }
+}
+
+dependencies {
+    // 1. Client Library
+    implementation("com.amplitude:experiment-android-client:1.14.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+    testImplementation("org.mockito:mockito-core:5.11.0")
+    testImplementation('junit:junit:4.13')
+    testImplementation('org.json:json:20231013')
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.2")
+    testImplementation 'org.robolectric:robolectric:4.8.2'
 }
