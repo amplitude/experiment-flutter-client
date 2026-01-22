@@ -16,6 +16,13 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		DE5DF585BA37C2BB95B6C485 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CA6A61CA4CEAD084DF2E3AC0 /* Pods_Runner.framework */; };
+		E30327D12F22AAF400D81D05 /* TestDataHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30327D02F22AAF400D81D05 /* TestDataHelpers.swift */; };
+		E30327D22F22AAF400D81D05 /* VariantCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30327CC2F22AAF400D81D05 /* VariantCodecTests.swift */; };
+		E30327D32F22AAF400D81D05 /* EnumParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30327CA2F22AAF400D81D05 /* EnumParserTests.swift */; };
+		E30327D42F22AAF400D81D05 /* ExperimentFlutterPluginTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30327CE2F22AAF400D81D05 /* ExperimentFlutterPluginTests.swift */; };
+		E30327D52F22AAF400D81D05 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30327CF2F22AAF400D81D05 /* RunnerTests.swift */; };
+		E30327D62F22AAF400D81D05 /* UserCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30327CB2F22AAF400D81D05 /* UserCodecTests.swift */; };
+		E30327D72F22AAF400D81D05 /* ConfigCodecTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E30327C92F22AAF400D81D05 /* ConfigCodecTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +70,13 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CA6A61CA4CEAD084DF2E3AC0 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		DD1213808CD02E08B146379C /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E30327C92F22AAF400D81D05 /* ConfigCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigCodecTests.swift; sourceTree = "<group>"; };
+		E30327CA2F22AAF400D81D05 /* EnumParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnumParserTests.swift; sourceTree = "<group>"; };
+		E30327CB2F22AAF400D81D05 /* UserCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserCodecTests.swift; sourceTree = "<group>"; };
+		E30327CC2F22AAF400D81D05 /* VariantCodecTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariantCodecTests.swift; sourceTree = "<group>"; };
+		E30327CE2F22AAF400D81D05 /* ExperimentFlutterPluginTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentFlutterPluginTests.swift; sourceTree = "<group>"; };
+		E30327CF2F22AAF400D81D05 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
+		E30327D02F22AAF400D81D05 /* TestDataHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestDataHelpers.swift; sourceTree = "<group>"; };
 		E678DB3B9626C5D6D964BA36 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		FE5DD410AAC33DAF26FA331B /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -90,6 +104,10 @@
 		331C8082294A63A400263BE5 /* RunnerTests */ = {
 			isa = PBXGroup;
 			children = (
+				E30327CD2F22AAF400D81D05 /* codec */,
+				E30327CE2F22AAF400D81D05 /* ExperimentFlutterPluginTests.swift */,
+				E30327CF2F22AAF400D81D05 /* RunnerTests.swift */,
+				E30327D02F22AAF400D81D05 /* TestDataHelpers.swift */,
 				331C807B294A618700263BE5 /* RunnerTests.swift */,
 			);
 			path = RunnerTests;
@@ -161,8 +179,18 @@
 				619A7B9E2663FB6EDB96F97B /* Pods-RunnerTests.release.xcconfig */,
 				96C4E72AF3A570158258CB55 /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		E30327CD2F22AAF400D81D05 /* codec */ = {
+			isa = PBXGroup;
+			children = (
+				E30327C92F22AAF400D81D05 /* ConfigCodecTests.swift */,
+				E30327CA2F22AAF400D81D05 /* EnumParserTests.swift */,
+				E30327CB2F22AAF400D81D05 /* UserCodecTests.swift */,
+				E30327CC2F22AAF400D81D05 /* VariantCodecTests.swift */,
+			);
+			path = codec;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -369,6 +397,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E30327D12F22AAF400D81D05 /* TestDataHelpers.swift in Sources */,
+				E30327D22F22AAF400D81D05 /* VariantCodecTests.swift in Sources */,
+				E30327D32F22AAF400D81D05 /* EnumParserTests.swift in Sources */,
+				E30327D42F22AAF400D81D05 /* ExperimentFlutterPluginTests.swift in Sources */,
+				E30327D52F22AAF400D81D05 /* RunnerTests.swift in Sources */,
+				E30327D62F22AAF400D81D05 /* UserCodecTests.swift in Sources */,
+				E30327D72F22AAF400D81D05 /* ConfigCodecTests.swift in Sources */,
 				331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
