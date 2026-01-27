@@ -2,7 +2,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:experiment_flutter/experiment_flutter_method_channel.dart';
 import 'package:experiment_flutter/experiment_config.dart';
-import 'package:experiment_flutter/models/variant.dart';
 import 'package:experiment_flutter/models/experiment_user.dart';
 
 void main() {
