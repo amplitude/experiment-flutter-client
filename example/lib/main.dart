@@ -164,6 +164,8 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
     try {
       // Clear Amplitude user identity
       await _amplitude!.setUserId(null);
+      // Clear Experiment data
+      _experiment!.clear();
     } catch (e) {
       // Log error but continue with logout
       debugPrint('Error clearing Amplitude user: $e');
