@@ -2,9 +2,9 @@ import 'package:amplitude_flutter/amplitude.dart';
 import 'package:amplitude_flutter/configuration.dart';
 import 'package:flutter/material.dart';
 
-import 'package:experiment_flutter/experiment.dart';
-import 'package:experiment_flutter/experiment_client.dart';
-import 'package:experiment_flutter/experiment_config.dart';
+import 'package:amplitude_experiment/experiment.dart';
+import 'package:amplitude_experiment/src/experiment_client.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
 
 void main() {
   runApp(const MyApp());

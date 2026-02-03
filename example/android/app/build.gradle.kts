@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.experiment_flutter_example"
+    namespace = "com.amplitude.experiment_flutter_example"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

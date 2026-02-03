@@ -1,5 +1,5 @@
-import 'package:experiment_flutter/experiment_config.dart';
-import 'package:experiment_flutter/experiment_client.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/experiment_client.dart';
 
 class Experiment {
   static ExperimentClient initialize(String apiKey, ExperimentConfig config) {

@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:experiment_flutter/experiment_client.dart';
-import 'package:experiment_flutter/experiment_config.dart';
-import 'package:experiment_flutter/experiment_flutter_platform_interface.dart';
-import 'package:experiment_flutter/models/variant.dart';
-import 'package:experiment_flutter/models/experiment_user.dart';
+import 'package:amplitude_experiment/src/experiment_client.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/experiment_flutter_platform_interface.dart';
+import 'package:amplitude_experiment/src/models/variant.dart';
+import 'package:amplitude_experiment/src/models/experiment_user.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockExperimentPlatform

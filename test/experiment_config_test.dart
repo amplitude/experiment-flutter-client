@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:experiment_flutter/experiment_config.dart';
-import 'package:experiment_flutter/models/variant.dart';
-import 'package:experiment_flutter/constants.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/models/variant.dart';
+import 'package:amplitude_experiment/src/constants.dart';
 
 void main() {
   group('ExperimentConfig', () {

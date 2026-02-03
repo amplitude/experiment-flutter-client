@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:experiment_flutter/models/experiment_user.dart';
+import 'package:amplitude_experiment/src/models/experiment_user.dart';
 
 void main() {
   group('ExperimentUser', () {
