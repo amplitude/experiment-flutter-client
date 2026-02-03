@@ -1,6 +1,6 @@
 import XCTest
 import Flutter
-@testable import experiment_flutter
+@testable import amplitude_experiment
 
 /*
  * Unit tests for ExperimentFlutterPlugin focusing on method routing and codec integration.

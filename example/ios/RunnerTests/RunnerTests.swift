@@ -2,7 +2,7 @@ import Flutter
 import UIKit
 import XCTest
 
-@testable import experiment_flutter
+@testable import amplitude_experiment
 
 // This file is kept for compatibility but the main tests are now in:
 // - ExperimentFlutterPluginTests.swift

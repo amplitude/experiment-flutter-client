@@ -1,5 +1,5 @@
 import XCTest
-@testable import experiment_flutter
+@testable import amplitude_experiment
 import AmplitudeExperiment
 
 class EnumParserTests: XCTestCase {
