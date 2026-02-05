@@ -1,6 +1,7 @@
 import 'dart:js_interop';
 import 'dart:convert';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
+import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
 
 /// Codec for converting Variant objects between Dart and JS.
 class VariantCodec {
@@ -11,48 +12,42 @@ class VariantCodec {
 
   /// Converts a JSObject from the JavaScript SDK to a Dart Variant.
   static Variant fromJSObject(JSObject variantObj) {
-    // Convert JSObject to Dart Map first
     final dartified = variantObj.dartify();
     if (dartified == null) {
       return Variant();
     }
 
-    // Convert LinkedMap<Object?, Object?> to Map<String, dynamic>
-    final variantMap = Map<String, dynamic>.from(
-      (dartified as Map).map((key, value) => MapEntry(key.toString(), value)),
-    );
-
-    final map = <String, dynamic>{};
+    // Normalize to a plain Map (dartify() can return IdentityMap, etc.)
+    final variantMap = UserCodec.toPlainMap(dartified);
+    if (variantMap == null) {
+      return Variant();
+    }
 
     final key = variantMap['key'];
-    if (key != null) {
-      map['key'] = key.toString();
-    }
-
     final value = variantMap['value'];
-    if (value != null) {
-      map['value'] = value.toString();
+    final payload = variantMap['payload'];
+    final expKey = variantMap['expKey'];
+    final metadataRaw = variantMap['metadata'];
+
+    Object? payloadObj;
+    if (payload != null) {
+      payloadObj = payload is String ? payload : jsonDecode(jsonEncode(payload));
     }
 
-    final payload = variantMap['payload'];
-    if (payload != null) {
-      if (payload is String) {
-        map['payload'] = payload;
-      } else {
-        map['payload'] = jsonEncode(payload);
+    Map<String, Object?>? metadataMap;
+    if (metadataRaw != null && metadataRaw is Map) {
+      final plain = UserCodec.toPlainMap(metadataRaw);
+      if (plain != null) {
+        metadataMap = plain.map((k, v) => MapEntry(k, v as Object?));
       }
     }
 
-    final expKey = variantMap['expKey'];
-    if (expKey != null) {
-      map['expKey'] = expKey.toString();
-    }
-
-    final metadata = variantMap['metadata'];
-    if (metadata != null) {
-      map['metadata'] = jsonEncode(metadata);
-    }
-
-    return Variant.decode(map);
+    return Variant(
+      key: key?.toString(),
+      value: value?.toString(),
+      payload: payloadObj,
+      expKey: expKey?.toString(),
+      metadata: metadataMap,
+    );
   }
 }
