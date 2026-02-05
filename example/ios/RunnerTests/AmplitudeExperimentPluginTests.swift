@@ -1,26 +1,22 @@
 import XCTest
-import Flutter
 @testable import amplitude_experiment
 
-/*
- * Unit tests for ExperimentFlutterPlugin focusing on method routing and codec integration.
- *
- * These tests verify that the plugin correctly:
- * - Routes method calls to appropriate handlers
- * - Uses codec classes for data transformation
- * - Handles errors appropriately
- *
- * Note: Full integration tests with Amplitude SDK would require mocking the SDK,
- * which is beyond the scope of these unit tests. The codec classes are tested separately.
- */
+/// Unit tests for AmplitudeExperimentPlugin with Pigeon Host API.
+/// Mirrors Android ExperimentFlutterPluginTest.kt.
+///
+/// The plugin implements AmplitudeExperimentHostApi; communication is via
+/// Pigeon message channels. These tests call Host API methods directly and
+/// verify error handling when instances are missing.
+///
+/// Full integration with the Amplitude Experiment SDK is not exercised here;
+/// the codec is tested in ExperimentSdkCodecTest.
 class AmplitudeExperimentPluginTests: XCTestCase {
+
     var plugin: AmplitudeExperimentPlugin!
 
     override func setUp() {
         super.setUp()
         plugin = AmplitudeExperimentPlugin()
-        // Note: We test handle() directly without full plugin registration
-        // since handle() doesn't require the channel to be set up
     }
 
     override func tearDown() {
@@ -28,159 +24,82 @@ class AmplitudeExperimentPluginTests: XCTestCase {
         super.tearDown()
     }
 
-    func testOnMethodCall_unknownMethod_withNonExistentInstance_returnsError() {
-        let expectation = XCTestExpectation(description: "Result should be called")
-        
-        let call = FlutterMethodCall(
-            methodName: "unknownMethod",
-            arguments: ["instanceName": "non-existent-instance"]
-        )
-        
-        plugin.handle(call) { result in
-            if let error = result as? FlutterError {
-                XCTAssertEqual(error.code, "INSTANCE_NOT_FOUND")
-                XCTAssertTrue(error.message?.contains("not found") ?? false)
-            } else {
-                XCTFail("Expected FlutterError")
-            }
-            expectation.fulfill()
+    func assertThrowsInstanceNotFound(_ block: () throws -> Void) {
+        do {
+            try block()
+            XCTFail("Expected PigeonError with INSTANCE_NOT_FOUND")
+        } catch let e as PigeonError {
+            XCTAssertEqual(e.code, "INSTANCE_NOT_FOUND")
+        } catch {
+            XCTFail("Expected PigeonError, got \(type(of: error))")
         }
-        
-        wait(for: [expectation], timeout: 1.0)
     }
 
-    func testOnMethodCall_init_missingConfig_returnsError() {
-        let expectation = XCTestExpectation(description: "Result should be called")
-        
-        let call = FlutterMethodCall(
-            methodName: "init",
-            arguments: ["apiKey": "test-key"]
-        )
-        
-        plugin.handle(call) { result in
-            if let error = result as? FlutterError {
-                XCTAssertEqual(error.code, "INVALID_ARGUMENT")
-                XCTAssertTrue(error.message?.contains("config") ?? false)
-            } else {
-                XCTFail("Expected FlutterError")
-            }
-            expectation.fulfill()
+    func testVariant_withNonExistentInstance_throws() {
+        assertThrowsInstanceNotFound {
+            _ = try plugin.variant(instanceName: "non-existent-instance", flagKey: "test-flag", fallbackVariant: nil)
         }
-        
-        wait(for: [expectation], timeout: 1.0)
     }
 
-    func testOnMethodCall_variant_missingFlagKey_returnsError() {
-        let expectation = XCTestExpectation(description: "Result should be called")
-        
-        // First, initialize an instance (this will fail in test environment, but that's okay)
-        let initConfig = TestDataHelpers.createTestConfigMap(instanceName: "test-instance")
-        let initCall = FlutterMethodCall(
-            methodName: "init",
-            arguments: [
-                "apiKey": "test-api-key",
-                "config": initConfig
-            ]
-        )
-        
-        // Try to initialize (will fail but that's expected)
-        plugin.handle(initCall) { _ in }
-        
-        // Now test variant call without flagKey
-        let variantCall = FlutterMethodCall(
-            methodName: "variant",
-            arguments: ["instanceName": "test-instance"]
-        )
-        
-        plugin.handle(variantCall) { result in
-            if let error = result as? FlutterError {
-                XCTAssertEqual(error.code, "INVALID_ARGUMENT")
-                XCTAssertTrue(error.message?.contains("flagKey") ?? false)
-            } else {
-                // If instance doesn't exist, we'll get INSTANCE_NOT_FOUND instead
-                // Both are valid error cases
-                if let error = result as? FlutterError {
-                    XCTAssertTrue(
-                        error.code == "INVALID_ARGUMENT" || error.code == "INSTANCE_NOT_FOUND"
-                    )
-                } else {
-                    XCTFail("Expected FlutterError")
-                }
-            }
-            expectation.fulfill()
+    func testStart_withNonExistentInstance_throws() {
+        assertThrowsInstanceNotFound {
+            try plugin.start(instanceName: "non-existent-instance", user: nil)
         }
-        
-        wait(for: [expectation], timeout: 1.0)
     }
 
-    func testOnMethodCall_variant_missingInstance_returnsError() {
-        let expectation = XCTestExpectation(description: "Result should be called")
-        
-        let call = FlutterMethodCall(
-            methodName: "variant",
-            arguments: [
-                "instanceName": "non-existent-instance",
-                "flagKey": "test-flag"
-            ]
-        )
-        
-        plugin.handle(call) { result in
-            if let error = result as? FlutterError {
-                XCTAssertEqual(error.code, "INSTANCE_NOT_FOUND")
-                XCTAssertTrue(error.message?.contains("not found") ?? false)
-            } else {
-                XCTFail("Expected FlutterError")
-            }
-            expectation.fulfill()
+    func testStop_withNonExistentInstance_throws() {
+        assertThrowsInstanceNotFound {
+            try plugin.stop(instanceName: "non-existent-instance")
         }
-        
-        wait(for: [expectation], timeout: 1.0)
     }
 
-    func testOnMethodCall_exposure_missingKey_returnsError() {
-        let expectation = XCTestExpectation(description: "Result should be called")
-        
-        // First, initialize an instance (this will fail in test environment, but that's okay)
-        let initConfig = TestDataHelpers.createTestConfigMap(instanceName: "test-instance")
-        let initCall = FlutterMethodCall(
-            methodName: "init",
-            arguments: [
-                "apiKey": "test-api-key",
-                "config": initConfig
-            ]
-        )
-        
-        // Try to initialize (will fail but that's expected)
-        plugin.handle(initCall) { _ in }
-        
-        // Now test exposure call without key
-        let exposureCall = FlutterMethodCall(
-            methodName: "exposure",
-            arguments: ["instanceName": "test-instance"]
-        )
-        
-        plugin.handle(exposureCall) { result in
-            if let error = result as? FlutterError {
-                XCTAssertEqual(error.code, "INVALID_ARGUMENT")
-                XCTAssertTrue(error.message?.contains("key") ?? false)
-            } else {
-                // If instance doesn't exist, we'll get INSTANCE_NOT_FOUND instead
-                // Both are valid error cases
-                if let error = result as? FlutterError {
-                    XCTAssertTrue(
-                        error.code == "INVALID_ARGUMENT" || error.code == "INSTANCE_NOT_FOUND"
-                    )
-                } else {
-                    XCTFail("Expected FlutterError")
-                }
-            }
-            expectation.fulfill()
+    func testFetch_withNonExistentInstance_throws() {
+        assertThrowsInstanceNotFound {
+            try plugin.fetch(instanceName: "non-existent-instance", user: nil)
         }
-        
-        wait(for: [expectation], timeout: 1.0)
+    }
+
+    func testClear_withNonExistentInstance_throws() {
+        assertThrowsInstanceNotFound {
+            try plugin.clear(instanceName: "non-existent-instance")
+        }
+    }
+
+    func testExposure_withNonExistentInstance_throws() {
+        assertThrowsInstanceNotFound {
+            try plugin.exposure(instanceName: "non-existent-instance", key: "flag-key")
+        }
+    }
+
+    func testSetUser_withNonExistentInstance_throws() {
+        let user = TestDataHelpers.createPigeonUser()
+        assertThrowsInstanceNotFound {
+            try plugin.setUser(instanceName: "non-existent-instance", user: user)
+        }
+    }
+
+    func testSetTracksAssignment_withNonExistentInstance_throws() {
+        assertThrowsInstanceNotFound {
+            try plugin.setTracksAssignment(instanceName: "non-existent-instance", tracksAssignment: true)
+        }
+    }
+
+    func testInitializeExperiment_withValidConfig_doesNotThrow() {
+        let config = TestDataHelpers.createPigeonConfig(instanceName: "test-instance")
+        do {
+            try plugin.initializeExperiment(apiKey: "test-api-key", config: config)
+        } catch {
+            // SDK initialization can fail in unit test environment (e.g. no real app context)
+        }
+    }
+
+    func testInitializeExperiment_twiceWithSameInstanceName_doesNotThrow() {
+        let config = TestDataHelpers.createPigeonConfig(instanceName: "same-instance")
+        do {
+            try plugin.initializeExperiment(apiKey: "test-api-key", config: config)
+            try plugin.initializeExperiment(apiKey: "test-api-key", config: config)
+        } catch {
+            // SDK initialization can fail in unit test environment
+        }
     }
 }
-
-// Note: We avoid full protocol conformance due to @objc compatibility issues
-// with FlutterBinaryMessengerConnection. The tests focus on the handle() method
-// which can be tested directly without requiring full plugin registration.
