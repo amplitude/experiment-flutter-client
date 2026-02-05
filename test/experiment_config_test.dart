@@ -1,45 +1,27 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/models/variant.dart';
+import 'package:amplitude_experiment/src/experiment_config_builder.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:amplitude_experiment/src/constants.dart';
 
 void main() {
-  group('ExperimentConfig', () {
+  group('ExperimentConfigBuilder', () {
     test('uses default values when no parameters provided', () {
-      final config = ExperimentConfig();
-
+      final config = createExperimentConfig();
       expect(config.instanceName, '\$default_instance');
       expect(config.logLevel, LogLevel.warn);
       expect(config.source, Source.localStorage);
       expect(config.serverZone, ServerZone.us);
       expect(config.serverUrl, Constants.serverUrl);
       expect(config.retryFetchOnFailure, true);
-    });
-
-    test('toMap includes all fields', () {
-      final config = ExperimentConfig(
-        instanceName: 'custom-instance',
-        logLevel: LogLevel.debug,
-      );
-
-      final map = config.toMap();
-
-      expect(map['instanceName'], 'custom-instance');
-      expect(map['logLevel'], 'debug');
-      expect(map['source'], 'localStorage');
-      expect(map['serverZone'], 'us');
-      expect(map['fallbackVariant'], isA<Map>());
-      expect(map['initialVariants'], isA<Map>());
-    });
-
-    test('toMap encodes Variant objects', () {
-      final variant = Variant(key: 'test', value: 'value');
-      final config = ExperimentConfig(fallbackVariant: variant);
-
-      final map = config.toMap();
-
-      expect(map['fallbackVariant'], isA<Map>());
-      expect(map['fallbackVariant']['key'], 'test');
+      expect(config.automaticExposureTracking, true);
+      expect(config.fetchOnStart, true);
+      expect(config.pollOnStart, false);
+      expect(config.automaticFetchOnAmplitudeIdentityChange, false);
+      expect(config.fetchTimeoutMillis, 10000);
+      expect(config.flagsServerUrl, Constants.flagsServerUrl);
+      expect(config.initialFlags, null);
+      expect(config.initialVariants, isA<Map>());
+      expect(config.fallbackVariant, isA<Variant>());
     });
   });
 }

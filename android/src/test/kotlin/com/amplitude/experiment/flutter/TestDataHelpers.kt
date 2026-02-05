@@ -1,77 +1,37 @@
 package com.amplitude.experiment.flutter
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin
+import org.mockito.Mockito
+
 /**
- * Helper functions for creating test data structures used in unit tests.
+ * Shared test data and plugin setup for unit tests.
+ * Provides Pigeon (Host API) types and avoids repeating mock boilerplate.
  */
 object TestDataHelpers {
-    /**
-     * Creates a test config map with all fields populated.
-     */
-    fun createTestConfigMap(
-        instanceName: String = "test-instance",
-        fetchOnStart: Boolean = true,
-        fetchTimeoutMillis: Int = 10000,
-        flagsServerUrl: String = "https://flags.example.com",
-        serverUrl: String = "https://api.example.com",
-        serverZone: String = "us",
-        source: String = "localStorage",
-        retryFetchOnFailure: Boolean = true,
-        pollOnStart: Boolean = false,
-        automaticExposureTracking: Boolean = true,
-        automaticFetchOnAmplitudeIdentityChange: Boolean = false,
-        initialFlags: String? = null,
-        flagConfigPollingIntervalMillis: Int? = null,
-        fallbackVariant: Map<String, Any>? = null,
-        initialVariants: Map<String, Map<String, Any>>? = null
-    ): Map<String, Any> {
-        val map = mutableMapOf<String, Any>(
-            "instanceName" to instanceName,
-            "fetchOnStart" to fetchOnStart,
-            "fetchTimeoutMillis" to fetchTimeoutMillis,
-            "flagsServerUrl" to flagsServerUrl,
-            "serverUrl" to serverUrl,
-            "serverZone" to serverZone,
-            "source" to source,
-            "retryFetchOnFailure" to retryFetchOnFailure,
-            "pollOnStart" to pollOnStart,
-            "automaticExposureTracking" to automaticExposureTracking,
-            "automaticFetchOnAmplitudeIdentityChange" to automaticFetchOnAmplitudeIdentityChange
-        )
-        
-        initialFlags?.let { map["initialFlags"] = it }
-        flagConfigPollingIntervalMillis?.let { map["flagConfigPollingIntervalMillis"] = it }
-        fallbackVariant?.let { map["fallbackVariant"] = it }
-        initialVariants?.let { map["initialVariants"] = it }
-        
-        return map
-    }
+
+    // ---------- Pigeon (Flutter) types for Host API ----------
 
     /**
-     * Creates a test variant map with all fields populated.
+     * Creates a Pigeon [Variant] for use in Host API tests.
      */
-    fun createTestVariantMap(
-        key: String = "test-key",
-        value: String = "test-value",
+    fun createPigeonVariant(
+        key: String? = "test-key",
+        value: String? = "test-value",
         payload: Any? = null,
         expKey: String? = "exp-123",
-        metadata: String? = null
-    ): Map<String, Any> {
-        val map = mutableMapOf<String, Any>(
-            "key" to key,
-            "value" to value
-        )
-        
-        payload?.let { map["payload"] = it }
-        expKey?.let { map["expKey"] = it }
-        metadata?.let { map["metadata"] = it }
-        
-        return map
-    }
+        metadata: Map<String, Any?>? = null,
+    ): Variant = Variant(
+        key = key,
+        value = value,
+        payload = payload,
+        expKey = expKey,
+        metadata = metadata,
+    )
 
     /**
-     * Creates a test user map with basic fields.
+     * Creates a Pigeon [ExperimentUser] for use in Host API tests.
      */
-    fun createTestUserMap(
+    fun createPigeonUser(
         deviceId: String? = "device-123",
         userId: String? = "user-123",
         country: String? = "US",
@@ -87,44 +47,81 @@ object TestDataHelpers {
         deviceManufacturer: String? = "Google",
         carrier: String? = null,
         library: String? = null,
-        userProperties: String? = null,
-        groups: String? = null,
-        groupProperties: String? = null
-    ): Map<String, Any> {
-        val map = mutableMapOf<String, Any>()
-        
-        deviceId?.let { map["deviceId"] = it }
-        userId?.let { map["userId"] = it }
-        country?.let { map["country"] = it }
-        city?.let { map["city"] = it }
-        region?.let { map["region"] = it }
-        dma?.let { map["dma"] = it }
-        language?.let { map["language"] = it }
-        platform?.let { map["platform"] = it }
-        version?.let { map["version"] = it }
-        os?.let { map["os"] = it }
-        deviceModel?.let { map["deviceModel"] = it }
-        deviceBrand?.let { map["deviceBrand"] = it }
-        deviceManufacturer?.let { map["deviceManufacturer"] = it }
-        carrier?.let { map["carrier"] = it }
-        library?.let { map["library"] = it }
-        userProperties?.let { map["userProperties"] = it }
-        groups?.let { map["groups"] = it }
-        groupProperties?.let { map["groupProperties"] = it }
-        
-        return map
-    }
+        ipAddress: String? = null,
+        userProperties: Map<String, Any>? = null,
+        groups: Map<String, List<String>>? = null,
+        groupProperties: Map<String, Map<String, Map<String, Any?>>>? = null,
+    ): ExperimentUser = ExperimentUser(
+        deviceId = deviceId,
+        userId = userId,
+        country = country,
+        city = city,
+        region = region,
+        dma = dma,
+        language = language,
+        platform = platform,
+        version = version,
+        os = os,
+        deviceModel = deviceModel,
+        deviceBrand = deviceBrand,
+        deviceManufacturer = deviceManufacturer,
+        carrier = carrier,
+        library = library,
+        ipAddress = ipAddress,
+        userProperties = userProperties,
+        groups = groups,
+        groupProperties = groupProperties,
+    )
 
     /**
-     * Creates a test user map with complex JSON fields.
+     * Creates a Pigeon [ExperimentConfig] for use in Host API tests.
      */
-    fun createTestUserMapWithComplexFields(): Map<String, Any> {
-        return createTestUserMap(
-            userId = "user-123",
-            userProperties = """{"prop1":"value1","prop2":"value2"}""",
-            groups = """{"group1":["member1","member2"],"group2":["member3"]}""",
-            // groupProperties expects 3-level structure: Map<String, Map<String, Map<String, Any?>>>
-            groupProperties = """{"group1":{"properties":{"role":"admin","level":"high"}}}"""
-        )
+    fun createPigeonConfig(
+        instanceName: String = "test-instance",
+        logLevel: LogLevel = LogLevel.WARN,
+        fallbackVariant: Variant = createPigeonVariant(),
+        initialFlags: String? = null,
+        initialVariants: Map<String, Variant> = emptyMap(),
+        source: Source = Source.LOCAL_STORAGE,
+        serverZone: ServerZone = ServerZone.US,
+        serverUrl: String = "https://api.example.com",
+        flagsServerUrl: String = "https://flags.example.com",
+        fetchTimeoutMillis: Long = 10000L,
+        retryFetchOnFailure: Boolean = true,
+        automaticExposureTracking: Boolean = true,
+        fetchOnStart: Boolean = true,
+        pollOnStart: Boolean = false,
+        automaticFetchOnAmplitudeIdentityChange: Boolean = false,
+    ): ExperimentConfig = ExperimentConfig(
+        logLevel = logLevel,
+        instanceName = instanceName,
+        fallbackVariant = fallbackVariant,
+        initialFlags = initialFlags,
+        initialVariants = initialVariants,
+        source = source,
+        serverZone = serverZone,
+        serverUrl = serverUrl,
+        flagsServerUrl = flagsServerUrl,
+        fetchTimeoutMillis = fetchTimeoutMillis,
+        retryFetchOnFailure = retryFetchOnFailure,
+        automaticExposureTracking = automaticExposureTracking,
+        fetchOnStart = fetchOnStart,
+        pollOnStart = pollOnStart,
+        automaticFetchOnAmplitudeIdentityChange = automaticFetchOnAmplitudeIdentityChange,
+    )
+
+    /**
+     * Attaches the plugin to a mock [FlutterPlugin.FlutterPluginBinding] and returns the plugin.
+     * Use this to get a plugin instance ready for Host API calls (init, variant, etc.).
+     */
+    fun createAttachedPlugin(): Pair<AmplitudeExperimentPlugin, FlutterPlugin.FlutterPluginBinding> {
+        val plugin = AmplitudeExperimentPlugin()
+        val mockBinding = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
+        val mockContext = Mockito.mock(android.content.Context::class.java)
+        val mockBinaryMessenger = Mockito.mock(io.flutter.plugin.common.BinaryMessenger::class.java)
+        Mockito.`when`(mockBinding.applicationContext).thenReturn(mockContext)
+        Mockito.`when`(mockBinding.binaryMessenger).thenReturn(mockBinaryMessenger)
+        plugin.onAttachedToEngine(mockBinding)
+        return plugin to mockBinding
     }
 }

@@ -1,12 +1,12 @@
 import 'dart:js_interop';
 import 'dart:convert';
-import 'package:amplitude_experiment/src/models/variant.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 
 /// Codec for converting Variant objects between Dart and JS.
 class VariantCodec {
   /// Converts a Variant to a JSObject for the JavaScript SDK.
   static JSObject toJSObject(Variant variant) {
-    return variant.toMap().jsify() as JSObject;
+    return variant.encode().jsify() as JSObject;
   }
 
   /// Converts a JSObject from the JavaScript SDK to a Dart Variant.
@@ -53,6 +53,6 @@ class VariantCodec {
       map['metadata'] = jsonEncode(metadata);
     }
 
-    return Variant.fromMap(map);
+    return Variant.decode(map);
   }
 }

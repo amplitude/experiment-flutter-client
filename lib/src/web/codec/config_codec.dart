@@ -1,6 +1,5 @@
 import 'dart:js_interop';
-import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/constants.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 
 /// Codec for converting ExperimentConfig between Dart and JS objects.
 class ConfigCodec {
@@ -28,12 +27,12 @@ class ConfigCodec {
     }
     if (config.initialVariants.isNotEmpty) {
       configMap['initialVariants'] = config.initialVariants.map(
-        (key, value) => MapEntry(key, value.toMap()),
+        (key, value) => MapEntry(key, value.encode()),
       );
     }
     if (config.fallbackVariant.key != null ||
         config.fallbackVariant.value != null) {
-      configMap['fallbackVariant'] = config.fallbackVariant.toMap();
+      configMap['fallbackVariant'] = config.fallbackVariant.encode();
     }
 
     // Convert source enum

@@ -3,8 +3,8 @@ import 'package:amplitude_flutter/configuration.dart';
 import 'package:flutter/material.dart';
 
 import 'package:amplitude_experiment/experiment.dart';
+import 'package:amplitude_experiment/src/experiment_config_builder.dart';
 import 'package:amplitude_experiment/src/experiment_client.dart';
-import 'package:amplitude_experiment/src/experiment_config.dart';
 
 void main() {
   runApp(const MyApp());
@@ -68,7 +68,7 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       // Initialize Experiment with Amplitude integration
       _experiment = Experiment.initializeWithAmplitude(
         DEPLOY_KEY,
-        ExperimentConfig(),
+        createExperimentConfig(),
       );
       await _experiment!.isBuilt;
 

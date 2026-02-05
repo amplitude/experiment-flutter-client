@@ -1,8 +1,8 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:amplitude_experiment/src/experiment_flutter_method_channel.dart';
-import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/models/experiment_user.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
+import 'package:amplitude_experiment/src/experiment_config_builder.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,7 @@ void main() {
             return null;
           });
 
-      final config = ExperimentConfig(instanceName: 'test-instance');
+      final config = createExperimentConfig();
       await platform.init('test-api-key', config);
 
       expect(receivedCall?.method, 'init');

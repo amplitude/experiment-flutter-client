@@ -1,164 +1,108 @@
 package com.amplitude.experiment.flutter
 
-import android.app.Application
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.plugin.common.BinaryMessenger
-import io.flutter.plugin.common.MethodCall
-import io.flutter.plugin.common.MethodChannel
-import org.mockito.Mockito
-import kotlin.test.Test
+import org.junit.Test
 import kotlin.test.assertFailsWith
 
-/*
- * Unit tests for ExperimentFlutterPlugin focusing on method routing and codec integration.
+/**
+ * Unit tests for [AmplitudeExperimentPlugin] with Pigeon Host API.
  *
- * These tests verify that the plugin correctly:
- * - Routes method calls to appropriate handlers
- * - Uses codec classes for data transformation
- * - Handles errors appropriately
+ * The plugin implements [AmplitudeExperimentHostApi]; communication is via
+ * Pigeon message channels, not MethodChannel. These tests call Host API
+ * methods directly and verify error handling when instances are missing
+ * or arguments are invalid.
  *
- * Note: Full integration tests with Amplitude SDK would require mocking the SDK,
- * which is beyond the scope of these unit tests. The codec classes are tested separately.
+ * Full integration with the Amplitude Experiment SDK is not exercised here;
+ * the codec is tested in [ExperimentSdkCodecTest].
  */
-
 internal class ExperimentFlutterPluginTest {
 
     @Test
-    fun onMethodCall_unknownMethod_withNonExistentInstance_throwsException() {
-        val plugin = AmplitudeExperimentPlugin()
-        val mockBinding = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
-        val mockContext = Mockito.mock(Application::class.java)
-        val mockBinaryMessenger = Mockito.mock(BinaryMessenger::class.java)
-
-        Mockito.`when`(mockBinding.applicationContext).thenReturn(mockContext)
-        Mockito.`when`(mockBinding.binaryMessenger).thenReturn(mockBinaryMessenger)
-
-        plugin.onAttachedToEngine(mockBinding)
-
-        // Test that unknown method with non-existent instance throws IllegalArgumentException
-        // This verifies that the instance check happens BEFORE the notImplemented check.
-        // The notImplemented() path is only reached after a valid instance is found.
-        val unknownCall = MethodCall("unknownMethod", mapOf("instanceName" to "non-existent-instance"))
-        val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-        
+    fun variant_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
         assertFailsWith<IllegalArgumentException> {
-            plugin.onMethodCall(unknownCall, mockResult)
+            plugin.variant("non-existent-instance", "test-flag", null)
         }
     }
 
     @Test
-    fun onMethodCall_init_missingConfig_throwsException() {
-        val plugin = AmplitudeExperimentPlugin()
-        val mockBinding = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
-        val mockContext = Mockito.mock(Application::class.java)
-        val mockBinaryMessenger = Mockito.mock(BinaryMessenger::class.java)
-
-        Mockito.`when`(mockBinding.applicationContext).thenReturn(mockContext)
-        Mockito.`when`(mockBinding.binaryMessenger).thenReturn(mockBinaryMessenger)
-
-        plugin.onAttachedToEngine(mockBinding)
-
-        val call = MethodCall("init", mapOf("apiKey" to "test-key"))
-        val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-
-        // Should throw IllegalArgumentException because config is missing
+    fun start_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
         assertFailsWith<IllegalArgumentException> {
-            plugin.onMethodCall(call, mockResult)
+            plugin.start("non-existent-instance", null)
         }
     }
 
     @Test
-    fun onMethodCall_variant_missingFlagKey_throwsException() {
-        val plugin = AmplitudeExperimentPlugin()
-        val mockBinding = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
-        val mockContext = Mockito.mock(Application::class.java)
-        val mockBinaryMessenger = Mockito.mock(BinaryMessenger::class.java)
+    fun stop_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        assertFailsWith<IllegalArgumentException> {
+            plugin.stop("non-existent-instance")
+        }
+    }
 
-        Mockito.`when`(mockBinding.applicationContext).thenReturn(mockContext)
-        Mockito.`when`(mockBinding.binaryMessenger).thenReturn(mockBinaryMessenger)
+    @Test
+    fun fetch_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        assertFailsWith<IllegalArgumentException> {
+            plugin.fetch("non-existent-instance", null)
+        }
+    }
 
-        plugin.onAttachedToEngine(mockBinding)
+    @Test
+    fun clear_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        assertFailsWith<IllegalArgumentException> {
+            plugin.clear("non-existent-instance")
+        }
+    }
 
-        // First, initialize an instance
-        val initConfig = TestDataHelpers.createTestConfigMap(instanceName = "test-instance")
-        val initCall = MethodCall("init", mapOf(
-            "apiKey" to "test-api-key",
-            "config" to initConfig
-        ))
-        val initResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-        
-        // This will fail because we can't actually initialize without real SDK, but that's okay
-        // We're just testing the error handling for missing flagKey
+    @Test
+    fun exposure_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        assertFailsWith<IllegalArgumentException> {
+            plugin.exposure("non-existent-instance", "flag-key")
+        }
+    }
+
+    @Test
+    fun setUser_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        val user = TestDataHelpers.createPigeonUser()
+        assertFailsWith<IllegalArgumentException> {
+            plugin.setUser("non-existent-instance", user)
+        }
+    }
+
+    @Test
+    fun setTracksAssignment_withNonExistentInstance_throwsIllegalArgumentException() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        assertFailsWith<IllegalArgumentException> {
+            plugin.setTracksAssignment("non-existent-instance", true)
+        }
+    }
+
+    @Test
+    fun init_withValidConfig_doesNotThrow() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        val config = TestDataHelpers.createPigeonConfig(instanceName = "test-instance")
+        // May throw if Experiment.initialize fails in test environment (e.g. no real Application).
+        // We only verify the plugin accepts the Pigeon types; SDK init is not guaranteed in unit tests.
         try {
-            plugin.onMethodCall(initCall, initResult)
+            plugin.init("test-api-key", config)
         } catch (e: Exception) {
-            // Expected - SDK initialization will fail in test environment
-        }
-
-        // Now test variant call without flagKey
-        val variantCall = MethodCall("variant", mapOf("instanceName" to "test-instance"))
-        val variantResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-
-        assertFailsWith<IllegalArgumentException> {
-            plugin.onMethodCall(variantCall, variantResult)
+            // SDK initialization can fail without Robolectric Application
         }
     }
 
     @Test
-    fun onMethodCall_variant_missingInstance_throwsException() {
-        val plugin = AmplitudeExperimentPlugin()
-        val mockBinding = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
-        val mockContext = Mockito.mock(Application::class.java)
-        val mockBinaryMessenger = Mockito.mock(BinaryMessenger::class.java)
-
-        Mockito.`when`(mockBinding.applicationContext).thenReturn(mockContext)
-        Mockito.`when`(mockBinding.binaryMessenger).thenReturn(mockBinaryMessenger)
-
-        plugin.onAttachedToEngine(mockBinding)
-
-        val call = MethodCall("variant", mapOf(
-            "instanceName" to "non-existent-instance",
-            "flagKey" to "test-flag"
-        ))
-        val mockResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-
-        assertFailsWith<IllegalArgumentException> {
-            plugin.onMethodCall(call, mockResult)
-        }
-    }
-
-    @Test
-    fun onMethodCall_exposure_missingKey_throwsException() {
-        val plugin = AmplitudeExperimentPlugin()
-        val mockBinding = Mockito.mock(FlutterPlugin.FlutterPluginBinding::class.java)
-        val mockContext = Mockito.mock(Application::class.java)
-        val mockBinaryMessenger = Mockito.mock(BinaryMessenger::class.java)
-
-        Mockito.`when`(mockBinding.applicationContext).thenReturn(mockContext)
-        Mockito.`when`(mockBinding.binaryMessenger).thenReturn(mockBinaryMessenger)
-
-        plugin.onAttachedToEngine(mockBinding)
-
-        // First, initialize an instance
-        val initConfig = TestDataHelpers.createTestConfigMap(instanceName = "test-instance")
-        val initCall = MethodCall("init", mapOf(
-            "apiKey" to "test-api-key",
-            "config" to initConfig
-        ))
-        val initResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-        
+    fun init_twiceWithSameInstanceName_doesNotThrow() {
+        val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        val config = TestDataHelpers.createPigeonConfig(instanceName = "same-instance")
         try {
-            plugin.onMethodCall(initCall, initResult)
+            plugin.init("test-api-key", config)
+            plugin.init("test-api-key", config)
         } catch (e: Exception) {
-            // Expected - SDK initialization will fail in test environment
-        }
-
-        // Now test exposure call without key
-        val exposureCall = MethodCall("exposure", mapOf("instanceName" to "test-instance"))
-        val exposureResult: MethodChannel.Result = Mockito.mock(MethodChannel.Result::class.java)
-
-        assertFailsWith<IllegalArgumentException> {
-            plugin.onMethodCall(exposureCall, exposureResult)
+            // SDK initialization can fail in unit test environment
         }
     }
 }

@@ -1,7 +1,5 @@
-import 'package:amplitude_experiment/src/models/experiment_user.dart';
-import 'package:amplitude_experiment/src/models/variant.dart';
-import 'package:amplitude_experiment/src/experiment_config.dart';
 import 'experiment_flutter_platform_interface.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 
 class ExperimentClient {
   final String apiKey;

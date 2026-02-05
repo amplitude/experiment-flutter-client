@@ -1,6 +1,6 @@
 import 'dart:js_interop';
 import 'dart:convert';
-import 'package:amplitude_experiment/src/models/experiment_user.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 
 /// Codec for converting ExperimentUser objects between Dart and JS.
 class UserCodec {
@@ -86,7 +86,7 @@ class UserCodec {
       map['groupProperties'] = jsonEncode(groupProperties);
     }
 
-    return ExperimentUser.fromMap(map);
+    return ExperimentUser.decode(map);
   }
 
   /// Helper method to set a value in the map if present in the source map.

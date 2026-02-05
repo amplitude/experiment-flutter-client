@@ -1,6 +1,4 @@
-import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/models/variant.dart';
-import 'package:amplitude_experiment/src/models/experiment_user.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'package:amplitude_experiment/src/experiment_flutter_method_channel.dart';
