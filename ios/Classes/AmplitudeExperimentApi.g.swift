@@ -440,8 +440,8 @@ class AmplitudeExperimentApiPigeonCodec: FlutterStandardMessageCodec, @unchecked
 
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol AmplitudeExperimentHostApi {
-  func init(apiKey: String, config: ExperimentConfig) throws
-  func initWithAmplitude(apiKey: String, config: ExperimentConfig) throws
+  func initializeExperiment(apiKey: String, config: ExperimentConfig) throws
+  func initializeExperimentWithAmplitude(apiKey: String, config: ExperimentConfig) throws
   func start(instanceName: String, user: ExperimentUser?) throws
   func stop(instanceName: String) throws
   func fetch(instanceName: String, user: ExperimentUser?) throws
@@ -467,7 +467,7 @@ class AmplitudeExperimentHostApiSetup {
         let apiKeyArg = args[0] as! String
         let configArg = args[1] as! ExperimentConfig
         do {
-          try api.init(apiKey: apiKeyArg, config: configArg)
+          try api.initializeExperiment(apiKey: apiKeyArg, config: configArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))
@@ -483,7 +483,7 @@ class AmplitudeExperimentHostApiSetup {
         let apiKeyArg = args[0] as! String
         let configArg = args[1] as! ExperimentConfig
         do {
-          try api.initWithAmplitude(apiKey: apiKeyArg, config: configArg)
+          try api.initializeExperimentWithAmplitude(apiKey: apiKeyArg, config: configArg)
           reply(wrapResult(nil))
         } catch {
           reply(wrapError(error))

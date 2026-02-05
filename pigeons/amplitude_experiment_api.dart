@@ -7,8 +7,7 @@ import 'package:pigeon/pigeon.dart';
     dartOptions: DartOptions(
       copyrightHeader: <String>['dart format off', 'coverage:ignore-file'],
     ),
-    swiftOut:
-        'ios/amplitude_experiment/Sources/amplitude_experiment/AmplitudeExperimentApi.g.swift',
+    swiftOut: 'ios/Classes/AmplitudeExperimentApi.g.swift',
     swiftOptions: SwiftOptions(),
     kotlinOut:
         'android/src/main/kotlin/com/amplitude/experiment/flutter/AmplitudeExperimentApi.g.kt',
@@ -120,8 +119,10 @@ class ExperimentConfig {
 
 @HostApi()
 abstract class AmplitudeExperimentHostApi {
+  @SwiftFunction('initializeExperiment(apiKey:config:)')
   void init(String apiKey, ExperimentConfig config);
 
+  @SwiftFunction('initializeExperimentWithAmplitude(apiKey:config:)')
   void initWithAmplitude(String apiKey, ExperimentConfig config);
 
   void start(String instanceName, ExperimentUser? user);
