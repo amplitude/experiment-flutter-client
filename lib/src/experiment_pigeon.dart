@@ -1,18 +1,28 @@
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
+import 'package:amplitude_experiment/src/custom_provider_pigeon.dart';
+import 'package:amplitude_experiment/src/providers.dart';
 
-import 'experiment_flutter_platform_interface.dart';
+import 'experiment_platform_interface.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
 
-class MethodChannelExperimentFlutter extends ExperimentFlutterPlatform {
+class ExperimentPigeon extends ExperimentPlatform {
   final AmplitudeExperimentHostApi _api = AmplitudeExperimentHostApi();
+  final Map<String, ExposureTrackingProvider> _trackingProviderMap = {};
+  final Map<String, UserProvider> _userProviderMap = {};
+  final CustomProviderPigeon _providerApi = CustomProviderPigeon();
+
+  ExperimentPigeon() : super() {
+    CustomProviderApi.setUp(_providerApi);
+  }
 
   @override
   Future<void> init(String apiKey, ExperimentConfig config) async {
-    await _api.init(apiKey, config);
+    await _api.init(apiKey, config.pigeonConfig);
   }
 
   @override
   Future<void> initWithAmplitude(String apiKey, ExperimentConfig config) async {
-    await _api.initWithAmplitude(apiKey, config);
+    await _api.initWithAmplitude(apiKey, config.pigeonConfig);
   }
 
   @override
@@ -70,5 +80,18 @@ class MethodChannelExperimentFlutter extends ExperimentFlutterPlatform {
   @override
   Future<void> exposure(String instanceName, String key) async {
     await _api.exposure(instanceName, key);
+  }
+
+  @override
+  void registerTrackingProvider(
+    String instanceName,
+    ExposureTrackingProvider provider,
+  ) {
+    _providerApi.registerTrackingProvider(instanceName, provider);
+  }
+
+  @override
+  void registerUserProvider(String instanceName, UserProvider provider) {
+    _providerApi.registerUserProvider(instanceName, provider);
   }
 }

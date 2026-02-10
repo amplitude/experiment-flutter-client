@@ -2,17 +2,19 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'dart:async';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:amplitude_experiment/src/experiment_flutter_platform_interface.dart';
+import 'package:amplitude_experiment/src/experiment_platform_interface.dart';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:amplitude_experiment/src/web/experiment_js.dart';
 import 'package:amplitude_experiment/src/web/codec/config_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/variant_codec.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/providers.dart';
 
-/// Web implementation of [ExperimentFlutterPlatform]
-class ExperimentWebPlugin extends ExperimentFlutterPlatform {
+/// Web implementation of [ExperimentPlatform]
+class ExperimentWebPlugin extends ExperimentPlatform {
   static void registerWith(Registrar registrar) {
-    ExperimentFlutterPlatform.instance = ExperimentWebPlugin();
+    ExperimentPlatform.instance = ExperimentWebPlugin();
   }
 
   // Store client instances by instance name
@@ -20,22 +22,20 @@ class ExperimentWebPlugin extends ExperimentFlutterPlatform {
 
   @override
   Future<void> init(String apiKey, ExperimentConfig config) async {
-    // Build config object for JS SDK
-    final configObj = ConfigCodec.toJSObject(config);
-
     // Call Experiment.initialize(apiKey, config)
-    final ExperimentClient client = Experiment.initialize(apiKey, configObj);
+    final ExperimentClient client = Experiment.initialize(
+      apiKey,
+      ConfigCodec.toJSObject(config),
+    );
 
     _instances[config.instanceName] = client;
   }
 
   @override
   Future<void> initWithAmplitude(String apiKey, ExperimentConfig config) async {
-    final configObj = ConfigCodec.toJSObject(config);
-
     final ExperimentClient client = Experiment.initializeWithAmplitudeAnalytics(
       apiKey,
-      configObj,
+      ConfigCodec.toJSObject(config),
     );
 
     _instances[config.instanceName] = client;
@@ -182,6 +182,18 @@ class ExperimentWebPlugin extends ExperimentFlutterPlatform {
     }
     setTracksAssignmentFn.callAsFunction(client, [tracksAssignment.toJS].toJS);
   }
+
+  @override
+  Future<void> registerTrackingProvider(
+    String instanceName,
+    ExposureTrackingProvider provider,
+  ) async {}
+
+  @override
+  Future<void> registerUserProvider(
+    String instanceName,
+    UserProvider provider,
+  ) async {}
 
   // Helper methods
 

@@ -1,25 +1,27 @@
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
-import 'package:amplitude_experiment/src/experiment_flutter_method_channel.dart';
+import 'package:amplitude_experiment/src/experiment_pigeon.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/providers.dart';
 
-abstract class ExperimentFlutterPlatform extends PlatformInterface {
-  /// Constructs a ExperimentFlutterPlatform.
-  ExperimentFlutterPlatform() : super(token: _token);
+abstract class ExperimentPlatform extends PlatformInterface {
+  /// Constructs a ExperimentPlatform.
+  ExperimentPlatform() : super(token: _token);
 
   static final Object _token = Object();
 
-  static ExperimentFlutterPlatform _instance = MethodChannelExperimentFlutter();
+  static ExperimentPlatform _instance = ExperimentPigeon();
 
-  /// The default instance of [ExperimentFlutterPlatform] to use.
+  /// The default instance of [ExperimentPlatform] to use.
   ///
-  /// Defaults to [MethodChannelExperimentFlutter].
-  static ExperimentFlutterPlatform get instance => _instance;
+  /// Defaults to [ExperimentPigeon].
+  static ExperimentPlatform get instance => _instance;
 
   /// Platform-specific implementations should set this with their own
-  /// platform-specific class that extends [ExperimentFlutterPlatform] when
+  /// platform-specific class that extends [ExperimentPlatform] when
   /// they register themselves.
-  static set instance(ExperimentFlutterPlatform instance) {
+  static set instance(ExperimentPlatform instance) {
     PlatformInterface.verifyToken(instance, _token);
     _instance = instance;
   }
@@ -76,5 +78,20 @@ abstract class ExperimentFlutterPlatform extends PlatformInterface {
 
   Future<void> setTracksAssignment(String instanceName, bool tracksAssignment) {
     throw UnimplementedError('setTracksAssignment() has not been implemented.');
+  }
+
+  void registerTrackingProvider(
+    String instanceName,
+    ExposureTrackingProvider provider,
+  ) {
+    throw UnimplementedError(
+      'registerTrackingProvider() has not been implemented.',
+    );
+  }
+
+  void registerUserProvider(String instanceName, UserProvider provider) {
+    throw UnimplementedError(
+      'registerUserProvider() has not been implemented.',
+    );
   }
 }

@@ -55,6 +55,10 @@ private func wrapError(_ error: Any) -> [Any?] {
   ]
 }
 
+private func createConnectionError(withChannelName channelName: String) -> PigeonError {
+  return PigeonError(code: "channel-error", message: "Unable to establish connection on channel: '\(channelName)'.", details: "")
+}
+
 private func isNullish(_ value: Any?) -> Bool {
   return value is NSNull || value == nil
 }
@@ -285,9 +289,9 @@ struct Variant: Hashable {
 }
 
 /// Generated class from Pigeon that represents data sent in messages.
-struct ExperimentConfig: Hashable {
-  var logLevel: LogLevel
+struct ExperimentConfigData: Hashable {
   var instanceName: String
+  var logLevel: LogLevel
   var fallbackVariant: Variant
   var initialFlags: String? = nil
   var initialVariants: [String: Variant]
@@ -301,12 +305,14 @@ struct ExperimentConfig: Hashable {
   var fetchOnStart: Bool
   var pollOnStart: Bool
   var automaticFetchOnAmplitudeIdentityChange: Bool
+  var hasTrackingProvider: Bool
+  var hasUserProvider: Bool
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
-  static func fromList(_ pigeonVar_list: [Any?]) -> ExperimentConfig? {
-    let logLevel = pigeonVar_list[0] as! LogLevel
-    let instanceName = pigeonVar_list[1] as! String
+  static func fromList(_ pigeonVar_list: [Any?]) -> ExperimentConfigData? {
+    let instanceName = pigeonVar_list[0] as! String
+    let logLevel = pigeonVar_list[1] as! LogLevel
     let fallbackVariant = pigeonVar_list[2] as! Variant
     let initialFlags: String? = nilOrValue(pigeonVar_list[3])
     let initialVariants = pigeonVar_list[4] as! [String: Variant]
@@ -320,10 +326,12 @@ struct ExperimentConfig: Hashable {
     let fetchOnStart = pigeonVar_list[12] as! Bool
     let pollOnStart = pigeonVar_list[13] as! Bool
     let automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[14] as! Bool
+    let hasTrackingProvider = pigeonVar_list[15] as! Bool
+    let hasUserProvider = pigeonVar_list[16] as! Bool
 
-    return ExperimentConfig(
-      logLevel: logLevel,
+    return ExperimentConfigData(
       instanceName: instanceName,
+      logLevel: logLevel,
       fallbackVariant: fallbackVariant,
       initialFlags: initialFlags,
       initialVariants: initialVariants,
@@ -336,13 +344,15 @@ struct ExperimentConfig: Hashable {
       automaticExposureTracking: automaticExposureTracking,
       fetchOnStart: fetchOnStart,
       pollOnStart: pollOnStart,
-      automaticFetchOnAmplitudeIdentityChange: automaticFetchOnAmplitudeIdentityChange
+      automaticFetchOnAmplitudeIdentityChange: automaticFetchOnAmplitudeIdentityChange,
+      hasTrackingProvider: hasTrackingProvider,
+      hasUserProvider: hasUserProvider
     )
   }
   func toList() -> [Any?] {
     return [
-      logLevel,
       instanceName,
+      logLevel,
       fallbackVariant,
       initialFlags,
       initialVariants,
@@ -356,9 +366,77 @@ struct ExperimentConfig: Hashable {
       fetchOnStart,
       pollOnStart,
       automaticFetchOnAmplitudeIdentityChange,
+      hasTrackingProvider,
+      hasUserProvider,
     ]
   }
-  static func == (lhs: ExperimentConfig, rhs: ExperimentConfig) -> Bool {
+  static func == (lhs: ExperimentConfigData, rhs: ExperimentConfigData) -> Bool {
+    return deepEqualsAmplitudeExperimentApi(lhs.toList(), rhs.toList())  }
+  func hash(into hasher: inout Hasher) {
+    deepHashAmplitudeExperimentApi(value: toList(), hasher: &hasher)
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct Exposure: Hashable {
+  var flagKey: String
+  var variant: String? = nil
+  var experimentKey: String? = nil
+  var metadata: [String: Any?]? = nil
+  var time: Int64? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> Exposure? {
+    let flagKey = pigeonVar_list[0] as! String
+    let variant: String? = nilOrValue(pigeonVar_list[1])
+    let experimentKey: String? = nilOrValue(pigeonVar_list[2])
+    let metadata: [String: Any?]? = nilOrValue(pigeonVar_list[3])
+    let time: Int64? = nilOrValue(pigeonVar_list[4])
+
+    return Exposure(
+      flagKey: flagKey,
+      variant: variant,
+      experimentKey: experimentKey,
+      metadata: metadata,
+      time: time
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      flagKey,
+      variant,
+      experimentKey,
+      metadata,
+      time,
+    ]
+  }
+  static func == (lhs: Exposure, rhs: Exposure) -> Bool {
+    return deepEqualsAmplitudeExperimentApi(lhs.toList(), rhs.toList())  }
+  func hash(into hasher: inout Hasher) {
+    deepHashAmplitudeExperimentApi(value: toList(), hasher: &hasher)
+  }
+}
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct FetchOptions: Hashable {
+  var flagKeys: [String]? = nil
+
+
+  // swift-format-ignore: AlwaysUseLowerCamelCase
+  static func fromList(_ pigeonVar_list: [Any?]) -> FetchOptions? {
+    let flagKeys: [String]? = nilOrValue(pigeonVar_list[0])
+
+    return FetchOptions(
+      flagKeys: flagKeys
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      flagKeys
+    ]
+  }
+  static func == (lhs: FetchOptions, rhs: FetchOptions) -> Bool {
     return deepEqualsAmplitudeExperimentApi(lhs.toList(), rhs.toList())  }
   func hash(into hasher: inout Hasher) {
     deepHashAmplitudeExperimentApi(value: toList(), hasher: &hasher)
@@ -391,7 +469,11 @@ private class AmplitudeExperimentApiPigeonCodecReader: FlutterStandardReader {
     case 133:
       return Variant.fromList(self.readValue() as! [Any?])
     case 134:
-      return ExperimentConfig.fromList(self.readValue() as! [Any?])
+      return ExperimentConfigData.fromList(self.readValue() as! [Any?])
+    case 135:
+      return Exposure.fromList(self.readValue() as! [Any?])
+    case 136:
+      return FetchOptions.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
     }
@@ -415,8 +497,14 @@ private class AmplitudeExperimentApiPigeonCodecWriter: FlutterStandardWriter {
     } else if let value = value as? Variant {
       super.writeByte(133)
       super.writeValue(value.toList())
-    } else if let value = value as? ExperimentConfig {
+    } else if let value = value as? ExperimentConfigData {
       super.writeByte(134)
+      super.writeValue(value.toList())
+    } else if let value = value as? Exposure {
+      super.writeByte(135)
+      super.writeValue(value.toList())
+    } else if let value = value as? FetchOptions {
+      super.writeByte(136)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -438,13 +526,14 @@ class AmplitudeExperimentApiPigeonCodec: FlutterStandardMessageCodec, @unchecked
   static let shared = AmplitudeExperimentApiPigeonCodec(readerWriter: AmplitudeExperimentApiPigeonCodecReaderWriter())
 }
 
+
 /// Generated protocol from Pigeon that represents a handler of messages from Flutter.
 protocol AmplitudeExperimentHostApi {
-  func initializeExperiment(apiKey: String, config: ExperimentConfig) throws
-  func initializeExperimentWithAmplitude(apiKey: String, config: ExperimentConfig) throws
-  func start(instanceName: String, user: ExperimentUser?) throws
+  func initializeExperiment(apiKey: String, config: ExperimentConfigData) throws
+  func initializeExperimentWithAmplitude(apiKey: String, config: ExperimentConfigData) throws
+  func start(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void)
   func stop(instanceName: String) throws
-  func fetch(instanceName: String, user: ExperimentUser?) throws
+  func fetch(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void)
   func variant(instanceName: String, flagKey: String, fallbackVariant: Variant?) throws -> Variant
   func all(instanceName: String) throws -> [String: Variant]
   func clear(instanceName: String) throws
@@ -465,7 +554,7 @@ class AmplitudeExperimentHostApiSetup {
       initChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let apiKeyArg = args[0] as! String
-        let configArg = args[1] as! ExperimentConfig
+        let configArg = args[1] as! ExperimentConfigData
         do {
           try api.initializeExperiment(apiKey: apiKeyArg, config: configArg)
           reply(wrapResult(nil))
@@ -481,7 +570,7 @@ class AmplitudeExperimentHostApiSetup {
       initWithAmplitudeChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let apiKeyArg = args[0] as! String
-        let configArg = args[1] as! ExperimentConfig
+        let configArg = args[1] as! ExperimentConfigData
         do {
           try api.initializeExperimentWithAmplitude(apiKey: apiKeyArg, config: configArg)
           reply(wrapResult(nil))
@@ -498,11 +587,13 @@ class AmplitudeExperimentHostApiSetup {
         let args = message as! [Any?]
         let instanceNameArg = args[0] as! String
         let userArg: ExperimentUser? = nilOrValue(args[1])
-        do {
-          try api.start(instanceName: instanceNameArg, user: userArg)
-          reply(wrapResult(nil))
-        } catch {
-          reply(wrapError(error))
+        api.start(instanceName: instanceNameArg, user: userArg) { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -529,11 +620,13 @@ class AmplitudeExperimentHostApiSetup {
         let args = message as! [Any?]
         let instanceNameArg = args[0] as! String
         let userArg: ExperimentUser? = nilOrValue(args[1])
-        do {
-          try api.fetch(instanceName: instanceNameArg, user: userArg)
-          reply(wrapResult(nil))
-        } catch {
-          reply(wrapError(error))
+        api.fetch(instanceName: instanceNameArg, user: userArg) { result in
+          switch result {
+          case .success:
+            reply(wrapResult(nil))
+          case .failure(let error):
+            reply(wrapError(error))
+          }
         }
       }
     } else {
@@ -648,6 +741,61 @@ class AmplitudeExperimentHostApiSetup {
       }
     } else {
       setTracksAssignmentChannel.setMessageHandler(nil)
+    }
+  }
+}
+/// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
+protocol CustomProviderApiProtocol {
+  func track(instanceName instanceNameArg: String, exposure exposureArg: Exposure, completion: @escaping (Result<Void, PigeonError>) -> Void)
+  func getUser(instanceName instanceNameArg: String, completion: @escaping (Result<ExperimentUser, PigeonError>) -> Void)
+}
+class CustomProviderApi: CustomProviderApiProtocol {
+  private let binaryMessenger: FlutterBinaryMessenger
+  private let messageChannelSuffix: String
+  init(binaryMessenger: FlutterBinaryMessenger, messageChannelSuffix: String = "") {
+    self.binaryMessenger = binaryMessenger
+    self.messageChannelSuffix = messageChannelSuffix.count > 0 ? ".\(messageChannelSuffix)" : ""
+  }
+  var codec: AmplitudeExperimentApiPigeonCodec {
+    return AmplitudeExperimentApiPigeonCodec.shared
+  }
+  func track(instanceName instanceNameArg: String, exposure exposureArg: Exposure, completion: @escaping (Result<Void, PigeonError>) -> Void) {
+    let channelName: String = "dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.track\(messageChannelSuffix)"
+    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([instanceNameArg, exposureArg] as [Any?]) { response in
+      guard let listResponse = response as? [Any?] else {
+        completion(.failure(createConnectionError(withChannelName: channelName)))
+        return
+      }
+      if listResponse.count > 1 {
+        let code: String = listResponse[0] as! String
+        let message: String? = nilOrValue(listResponse[1])
+        let details: String? = nilOrValue(listResponse[2])
+        completion(.failure(PigeonError(code: code, message: message, details: details)))
+      } else {
+        completion(.success(()))
+      }
+    }
+  }
+  func getUser(instanceName instanceNameArg: String, completion: @escaping (Result<ExperimentUser, PigeonError>) -> Void) {
+    let channelName: String = "dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser\(messageChannelSuffix)"
+    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
+    channel.sendMessage([instanceNameArg] as [Any?]) { response in
+      guard let listResponse = response as? [Any?] else {
+        completion(.failure(createConnectionError(withChannelName: channelName)))
+        return
+      }
+      if listResponse.count > 1 {
+        let code: String = listResponse[0] as! String
+        let message: String? = nilOrValue(listResponse[1])
+        let details: String? = nilOrValue(listResponse[2])
+        completion(.failure(PigeonError(code: code, message: message, details: details)))
+      } else if listResponse[0] == nil {
+        completion(.failure(PigeonError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: "")))
+      } else {
+        let result = listResponse[0] as! ExperimentUser
+        completion(.success(result))
+      }
     }
   }
 }

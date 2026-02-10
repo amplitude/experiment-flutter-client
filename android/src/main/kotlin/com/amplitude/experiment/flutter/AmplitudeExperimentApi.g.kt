@@ -15,6 +15,9 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 private object AmplitudeExperimentApiPigeonUtils {
 
+  fun createConnectionError(channelName: String): FlutterError {
+    return FlutterError("channel-error",  "Unable to establish connection on channel: '$channelName'.", "")  }
+
   fun wrapResult(result: Any?): List<Any?> {
     return listOf(result)
   }
@@ -237,9 +240,9 @@ data class Variant (
 }
 
 /** Generated class from Pigeon that represents data sent in messages. */
-data class ExperimentConfig (
-  val logLevel: LogLevel,
+data class ExperimentConfigData (
   val instanceName: String,
+  val logLevel: LogLevel,
   val fallbackVariant: Variant,
   val initialFlags: String? = null,
   val initialVariants: Map<String, Variant>,
@@ -252,13 +255,15 @@ data class ExperimentConfig (
   val automaticExposureTracking: Boolean,
   val fetchOnStart: Boolean,
   val pollOnStart: Boolean,
-  val automaticFetchOnAmplitudeIdentityChange: Boolean
+  val automaticFetchOnAmplitudeIdentityChange: Boolean,
+  val hasTrackingProvider: Boolean,
+  val hasUserProvider: Boolean
 )
  {
   companion object {
-    fun fromList(pigeonVar_list: List<Any?>): ExperimentConfig {
-      val logLevel = pigeonVar_list[0] as LogLevel
-      val instanceName = pigeonVar_list[1] as String
+    fun fromList(pigeonVar_list: List<Any?>): ExperimentConfigData {
+      val instanceName = pigeonVar_list[0] as String
+      val logLevel = pigeonVar_list[1] as LogLevel
       val fallbackVariant = pigeonVar_list[2] as Variant
       val initialFlags = pigeonVar_list[3] as String?
       val initialVariants = pigeonVar_list[4] as Map<String, Variant>
@@ -272,13 +277,15 @@ data class ExperimentConfig (
       val fetchOnStart = pigeonVar_list[12] as Boolean
       val pollOnStart = pigeonVar_list[13] as Boolean
       val automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[14] as Boolean
-      return ExperimentConfig(logLevel, instanceName, fallbackVariant, initialFlags, initialVariants, source, serverZone, serverUrl, flagsServerUrl, fetchTimeoutMillis, retryFetchOnFailure, automaticExposureTracking, fetchOnStart, pollOnStart, automaticFetchOnAmplitudeIdentityChange)
+      val hasTrackingProvider = pigeonVar_list[15] as Boolean
+      val hasUserProvider = pigeonVar_list[16] as Boolean
+      return ExperimentConfigData(instanceName, logLevel, fallbackVariant, initialFlags, initialVariants, source, serverZone, serverUrl, flagsServerUrl, fetchTimeoutMillis, retryFetchOnFailure, automaticExposureTracking, fetchOnStart, pollOnStart, automaticFetchOnAmplitudeIdentityChange, hasTrackingProvider, hasUserProvider)
     }
   }
   fun toList(): List<Any?> {
     return listOf(
-      logLevel,
       instanceName,
+      logLevel,
       fallbackVariant,
       initialFlags,
       initialVariants,
@@ -292,10 +299,80 @@ data class ExperimentConfig (
       fetchOnStart,
       pollOnStart,
       automaticFetchOnAmplitudeIdentityChange,
+      hasTrackingProvider,
+      hasUserProvider,
     )
   }
   override fun equals(other: Any?): Boolean {
-    if (other !is ExperimentConfig) {
+    if (other !is ExperimentConfigData) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    return AmplitudeExperimentApiPigeonUtils.deepEquals(toList(), other.toList())  }
+
+  override fun hashCode(): Int = toList().hashCode()
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class Exposure (
+  val flagKey: String,
+  val variant: String? = null,
+  val experimentKey: String? = null,
+  val metadata: Map<String, Any?>? = null,
+  val time: Long? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): Exposure {
+      val flagKey = pigeonVar_list[0] as String
+      val variant = pigeonVar_list[1] as String?
+      val experimentKey = pigeonVar_list[2] as String?
+      val metadata = pigeonVar_list[3] as Map<String, Any?>?
+      val time = pigeonVar_list[4] as Long?
+      return Exposure(flagKey, variant, experimentKey, metadata, time)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      flagKey,
+      variant,
+      experimentKey,
+      metadata,
+      time,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other !is Exposure) {
+      return false
+    }
+    if (this === other) {
+      return true
+    }
+    return AmplitudeExperimentApiPigeonUtils.deepEquals(toList(), other.toList())  }
+
+  override fun hashCode(): Int = toList().hashCode()
+}
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class FetchOptions (
+  val flagKeys: List<String>? = null
+)
+ {
+  companion object {
+    fun fromList(pigeonVar_list: List<Any?>): FetchOptions {
+      val flagKeys = pigeonVar_list[0] as List<String>?
+      return FetchOptions(flagKeys)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf(
+      flagKeys,
+    )
+  }
+  override fun equals(other: Any?): Boolean {
+    if (other !is FetchOptions) {
       return false
     }
     if (this === other) {
@@ -335,7 +412,17 @@ private open class AmplitudeExperimentApiPigeonCodec : StandardMessageCodec() {
       }
       134.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          ExperimentConfig.fromList(it)
+          ExperimentConfigData.fromList(it)
+        }
+      }
+      135.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          Exposure.fromList(it)
+        }
+      }
+      136.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          FetchOptions.fromList(it)
         }
       }
       else -> super.readValueOfType(type, buffer)
@@ -363,8 +450,16 @@ private open class AmplitudeExperimentApiPigeonCodec : StandardMessageCodec() {
         stream.write(133)
         writeValue(stream, value.toList())
       }
-      is ExperimentConfig -> {
+      is ExperimentConfigData -> {
         stream.write(134)
+        writeValue(stream, value.toList())
+      }
+      is Exposure -> {
+        stream.write(135)
+        writeValue(stream, value.toList())
+      }
+      is FetchOptions -> {
+        stream.write(136)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -372,13 +467,14 @@ private open class AmplitudeExperimentApiPigeonCodec : StandardMessageCodec() {
   }
 }
 
+
 /** Generated interface from Pigeon that represents a handler of messages from Flutter. */
 interface AmplitudeExperimentHostApi {
-  fun init(apiKey: String, config: ExperimentConfig)
-  fun initWithAmplitude(apiKey: String, config: ExperimentConfig)
-  fun start(instanceName: String, user: ExperimentUser?)
+  fun init(apiKey: String, config: ExperimentConfigData)
+  fun initWithAmplitude(apiKey: String, config: ExperimentConfigData)
+  fun start(instanceName: String, user: ExperimentUser?, callback: (Result<Unit>) -> Unit)
   fun stop(instanceName: String)
-  fun fetch(instanceName: String, user: ExperimentUser?)
+  fun fetch(instanceName: String, user: ExperimentUser?, callback: (Result<Unit>) -> Unit)
   fun variant(instanceName: String, flagKey: String, fallbackVariant: Variant?): Variant
   fun all(instanceName: String): Map<String, Variant>
   fun clear(instanceName: String)
@@ -402,7 +498,7 @@ interface AmplitudeExperimentHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val apiKeyArg = args[0] as String
-            val configArg = args[1] as ExperimentConfig
+            val configArg = args[1] as ExperimentConfigData
             val wrapped: List<Any?> = try {
               api.init(apiKeyArg, configArg)
               listOf(null)
@@ -421,7 +517,7 @@ interface AmplitudeExperimentHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val apiKeyArg = args[0] as String
-            val configArg = args[1] as ExperimentConfig
+            val configArg = args[1] as ExperimentConfigData
             val wrapped: List<Any?> = try {
               api.initWithAmplitude(apiKeyArg, configArg)
               listOf(null)
@@ -441,13 +537,14 @@ interface AmplitudeExperimentHostApi {
             val args = message as List<Any?>
             val instanceNameArg = args[0] as String
             val userArg = args[1] as ExperimentUser?
-            val wrapped: List<Any?> = try {
-              api.start(instanceNameArg, userArg)
-              listOf(null)
-            } catch (exception: Throwable) {
-              AmplitudeExperimentApiPigeonUtils.wrapError(exception)
+            api.start(instanceNameArg, userArg) { result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AmplitudeExperimentApiPigeonUtils.wrapError(error))
+              } else {
+                reply.reply(AmplitudeExperimentApiPigeonUtils.wrapResult(null))
+              }
             }
-            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)
@@ -478,13 +575,14 @@ interface AmplitudeExperimentHostApi {
             val args = message as List<Any?>
             val instanceNameArg = args[0] as String
             val userArg = args[1] as ExperimentUser?
-            val wrapped: List<Any?> = try {
-              api.fetch(instanceNameArg, userArg)
-              listOf(null)
-            } catch (exception: Throwable) {
-              AmplitudeExperimentApiPigeonUtils.wrapError(exception)
+            api.fetch(instanceNameArg, userArg) { result: Result<Unit> ->
+              val error = result.exceptionOrNull()
+              if (error != null) {
+                reply.reply(AmplitudeExperimentApiPigeonUtils.wrapError(error))
+              } else {
+                reply.reply(AmplitudeExperimentApiPigeonUtils.wrapResult(null))
+              }
             }
-            reply.reply(wrapped)
           }
         } else {
           channel.setMessageHandler(null)
@@ -618,6 +716,52 @@ interface AmplitudeExperimentHostApi {
           channel.setMessageHandler(null)
         }
       }
+    }
+  }
+}
+/** Generated class from Pigeon that represents Flutter messages that can be called from Kotlin. */
+class CustomProviderApi(private val binaryMessenger: BinaryMessenger, private val messageChannelSuffix: String = "") {
+  companion object {
+    /** The codec used by CustomProviderApi. */
+    val codec: MessageCodec<Any?> by lazy {
+      AmplitudeExperimentApiPigeonCodec()
+    }
+  }
+  fun track(instanceNameArg: String, exposureArg: Exposure, callback: (Result<Unit>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.track$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(instanceNameArg, exposureArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else {
+          callback(Result.success(Unit))
+        }
+      } else {
+        callback(Result.failure(AmplitudeExperimentApiPigeonUtils.createConnectionError(channelName)))
+      } 
+    }
+  }
+  fun getUser(instanceNameArg: String, callback: (Result<ExperimentUser>) -> Unit)
+{
+    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
+    val channelName = "dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser$separatedMessageChannelSuffix"
+    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
+    channel.send(listOf(instanceNameArg)) {
+      if (it is List<*>) {
+        if (it.size > 1) {
+          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
+        } else if (it[0] == null) {
+          callback(Result.failure(FlutterError("null-error", "Flutter api returned null value for non-null return value.", "")))
+        } else {
+          val output = it[0] as ExperimentUser
+          callback(Result.success(output))
+        }
+      } else {
+        callback(Result.failure(AmplitudeExperimentApiPigeonUtils.createConnectionError(channelName)))
+      } 
     }
   }
 }

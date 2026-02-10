@@ -81,9 +81,9 @@ class Variant {
   });
 }
 
-class ExperimentConfig {
-  LogLevel logLevel;
+class ExperimentConfigData {
   String instanceName;
+  LogLevel logLevel;
   Variant fallbackVariant;
   String? initialFlags;
   Map<String, Variant> initialVariants;
@@ -97,38 +97,44 @@ class ExperimentConfig {
   bool fetchOnStart;
   bool pollOnStart;
   bool automaticFetchOnAmplitudeIdentityChange;
+  bool hasTrackingProvider;
+  bool hasUserProvider;
 
-  ExperimentConfig({
-    this.logLevel = LogLevel.warn,
-    this.instanceName = r'$default_instance',
-    this.fallbackVariant = const Variant(),
+  ExperimentConfigData({
+    required this.instanceName,
+    required this.logLevel,
+    required this.fallbackVariant,
     this.initialFlags,
-    this.initialVariants = const <String, Variant>{},
-    this.source = Source.localStorage,
-    this.serverZone = ServerZone.us,
-    this.serverUrl = 'https://api.lab.amplitude.com',
-    this.flagsServerUrl = 'https://flag.lab.amplitude.com',
-    this.fetchTimeoutMillis = 10000,
-    this.retryFetchOnFailure = true,
-    this.automaticExposureTracking = true,
-    this.fetchOnStart = true,
-    this.pollOnStart = false,
-    this.automaticFetchOnAmplitudeIdentityChange = false,
+    required this.initialVariants,
+    required this.source,
+    required this.serverZone,
+    required this.serverUrl,
+    required this.flagsServerUrl,
+    required this.fetchTimeoutMillis,
+    required this.retryFetchOnFailure,
+    required this.automaticExposureTracking,
+    required this.fetchOnStart,
+    required this.pollOnStart,
+    required this.automaticFetchOnAmplitudeIdentityChange,
+    required this.hasTrackingProvider,
+    required this.hasUserProvider,
   });
 }
 
 @HostApi()
 abstract class AmplitudeExperimentHostApi {
   @SwiftFunction('initializeExperiment(apiKey:config:)')
-  void init(String apiKey, ExperimentConfig config);
+  void init(String apiKey, ExperimentConfigData config);
 
   @SwiftFunction('initializeExperimentWithAmplitude(apiKey:config:)')
-  void initWithAmplitude(String apiKey, ExperimentConfig config);
+  void initWithAmplitude(String apiKey, ExperimentConfigData config);
 
+  @async
   void start(String instanceName, ExperimentUser? user);
 
   void stop(String instanceName);
 
+  @async
   void fetch(String instanceName, ExperimentUser? user);
 
   Variant variant(
@@ -148,4 +154,24 @@ abstract class AmplitudeExperimentHostApi {
   void setUser(String instanceName, ExperimentUser user);
 
   void setTracksAssignment(String instanceName, bool tracksAssignment);
+}
+
+class Exposure {
+  late String flagKey;
+  String? variant;
+  String? experimentKey;
+  Map<String, Object?>? metadata;
+  int? time;
+}
+
+class FetchOptions {
+  List<String>? flagKeys;
+}
+
+@FlutterApi()
+abstract class CustomProviderApi {
+  void track(String instanceName, Exposure exposure);
+
+  @async
+  ExperimentUser getUser(String instanceName);
 }

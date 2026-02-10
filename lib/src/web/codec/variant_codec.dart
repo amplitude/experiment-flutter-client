@@ -1,7 +1,7 @@
 import 'dart:js_interop';
 import 'dart:convert';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
-import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
+import 'package:amplitude_experiment/src/web/codec/codec_utils.dart';
 
 /// Codec for converting Variant objects between Dart and JS.
 class VariantCodec {
@@ -18,7 +18,7 @@ class VariantCodec {
     }
 
     // Normalize to a plain Map (dartify() can return IdentityMap, etc.)
-    final variantMap = UserCodec.toPlainMap(dartified);
+    final variantMap = CodecUtils.toPlainMap(dartified);
     if (variantMap == null) {
       return Variant();
     }
@@ -31,12 +31,14 @@ class VariantCodec {
 
     Object? payloadObj;
     if (payload != null) {
-      payloadObj = payload is String ? payload : jsonDecode(jsonEncode(payload));
+      payloadObj = payload is String
+          ? payload
+          : jsonDecode(jsonEncode(payload));
     }
 
     Map<String, Object?>? metadataMap;
     if (metadataRaw != null && metadataRaw is Map) {
-      final plain = UserCodec.toPlainMap(metadataRaw);
+      final plain = CodecUtils.toPlainMap(metadataRaw);
       if (plain != null) {
         metadataMap = plain.map((k, v) => MapEntry(k, v as Object?));
       }

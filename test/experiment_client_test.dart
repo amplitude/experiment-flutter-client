@@ -1,13 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:amplitude_experiment/src/experiment_client.dart';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
-import 'package:amplitude_experiment/src/experiment_flutter_platform_interface.dart';
+import 'package:amplitude_experiment/src/experiment_platform_interface.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-import 'package:amplitude_experiment/src/experiment_config_builder.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/providers.dart';
 
 class MockExperimentPlatform
     with MockPlatformInterfaceMixin
-    implements ExperimentFlutterPlatform {
+    implements ExperimentPlatform {
   String? lastApiKey;
   ExperimentConfig? lastConfig;
   String? lastInstanceName;
@@ -16,6 +17,8 @@ class MockExperimentPlatform
   ExperimentUser? lastUser;
   bool? lastTracksAssignment;
   bool shouldThrowOnInit = false;
+  final Map<String, ExposureTrackingProvider> _trackingProviderMap = {};
+  final Map<String, UserProvider> _userProviderMap = {};
 
   @override
   Future<void> init(String apiKey, ExperimentConfig config) async {
@@ -104,6 +107,19 @@ class MockExperimentPlatform
     lastInstanceName = instanceName;
     lastTracksAssignment = tracksAssignment;
   }
+
+  @override
+  void registerTrackingProvider(
+    String instanceName,
+    ExposureTrackingProvider provider,
+  ) {
+    _trackingProviderMap[instanceName] = provider;
+  }
+
+  @override
+  void registerUserProvider(String instanceName, UserProvider provider) {
+    _userProviderMap[instanceName] = provider;
+  }
 }
 
 void main() {
@@ -114,12 +130,12 @@ void main() {
 
     setUp(() {
       mockPlatform = MockExperimentPlatform();
-      ExperimentFlutterPlatform.instance = mockPlatform;
+      ExperimentPlatform.instance = mockPlatform;
     });
 
     group('initialization', () {
       test('calls platform.init when withAnalytics is false', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'test-api-key',
           config: config,
@@ -129,14 +145,17 @@ void main() {
         await client.isBuilt;
 
         expect(mockPlatform.lastApiKey, 'test-api-key');
-        expect(mockPlatform.lastConfig?.instanceName, 'test-instance');
+        expect(
+          mockPlatform.lastConfig?.pigeonConfig.instanceName,
+          'test-instance',
+        );
         expect(await client.isBuilt, true);
       });
 
       test(
         'calls platform.initWithAmplitude when withAnalytics is true',
         () async {
-          final config = createExperimentConfig(instanceName: 'test-instance');
+          final config = ExperimentConfig(instanceName: 'test-instance');
           final client = ExperimentClient(
             apiKey: 'test-api-key',
             config: config,
@@ -146,14 +165,17 @@ void main() {
           await client.isBuilt;
 
           expect(mockPlatform.lastApiKey, 'test-api-key');
-          expect(mockPlatform.lastConfig?.instanceName, 'test-instance');
+          expect(
+            mockPlatform.lastConfig?.pigeonConfig.instanceName,
+            'test-instance',
+          );
           expect(await client.isBuilt, true);
         },
       );
 
       test('isBuilt returns false when initialization throws', () async {
         mockPlatform.shouldThrowOnInit = true;
-        final config = createExperimentConfig();
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'test-api-key',
           config: config,
@@ -166,7 +188,7 @@ void main() {
       });
 
       test('uses config instanceName for all platform calls', () async {
-        final config = createExperimentConfig(instanceName: 'custom-instance');
+        final config = ExperimentConfig(instanceName: 'custom-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -187,7 +209,7 @@ void main() {
 
     group('start', () {
       test('delegates to platform with instanceName and user', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -203,7 +225,7 @@ void main() {
       });
 
       test('delegates to platform with instanceName and null user', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -220,7 +242,7 @@ void main() {
 
     group('stop', () {
       test('delegates to platform with instanceName', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -238,7 +260,7 @@ void main() {
 
     group('fetch', () {
       test('delegates to platform and returns self', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -255,7 +277,7 @@ void main() {
       });
 
       test('delegates to platform with null user', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -272,7 +294,7 @@ void main() {
 
     group('variant', () {
       test('delegates to platform with correct parameters', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -291,7 +313,7 @@ void main() {
       });
 
       test('delegates to platform with null fallback', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -309,7 +331,7 @@ void main() {
 
     group('all', () {
       test('delegates to platform and returns all variants', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -328,7 +350,7 @@ void main() {
 
     group('clear', () {
       test('delegates to platform with instanceName', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -346,7 +368,7 @@ void main() {
 
     group('exposure', () {
       test('delegates to platform with instanceName and flagKey', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -365,7 +387,7 @@ void main() {
 
     group('getUser', () {
       test('delegates to platform and returns user', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -382,7 +404,7 @@ void main() {
 
     group('setUser', () {
       test('delegates to platform with instanceName and user', () async {
-        final config = createExperimentConfig(instanceName: 'test-instance');
+        final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
           config: config,
@@ -404,7 +426,7 @@ void main() {
       test(
         'delegates to platform with instanceName and tracksAssignment',
         () async {
-          final config = createExperimentConfig(instanceName: 'test-instance');
+          final config = ExperimentConfig(instanceName: 'test-instance');
           final client = ExperimentClient(
             apiKey: 'key',
             config: config,

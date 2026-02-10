@@ -10,12 +10,14 @@ class AmplitudeExperimentPlugin :
     FlutterPlugin,
     AmplitudeExperimentHostApi {
     private lateinit var ctxt: Context
-
     private var instances:  Map<String, ExperimentClient> = mutableMapOf()
+    private lateinit var providerApi: CustomProviderApi
 
+    private val executor = java.util.concurrent.Executors.newCachedThreadPool()
     override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         ctxt = flutterPluginBinding.applicationContext
         AmplitudeExperimentHostApi.setUp(flutterPluginBinding.binaryMessenger, this)
+        providerApi = CustomProviderApi(flutterPluginBinding.binaryMessenger)
     }
 
     override fun onDetachedFromEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -24,33 +26,41 @@ class AmplitudeExperimentPlugin :
 
     override fun init(
         apiKey: String,
-        config: ExperimentConfig
+        config: ExperimentConfigData
     ) {
         if (instances.contains(config.instanceName)) {
             return
         }
 
-        val client = Experiment.initialize(ctxt as Application, apiKey, convertConfig(config))
+        val client = Experiment.initialize(ctxt as Application, apiKey, convertConfig(config, providerApi))
         instances += mapOf(config.instanceName to client)
     }
 
     override fun initWithAmplitude(
         apiKey: String,
-        config: ExperimentConfig
+        config: ExperimentConfigData
     ) {
         if (instances.contains(config.instanceName)) {
             return
         }
 
-        val client = Experiment.initializeWithAmplitudeAnalytics(ctxt as Application, apiKey, convertConfig(config))
+        val client = Experiment.initializeWithAmplitudeAnalytics(ctxt as Application, apiKey, convertConfig(config, providerApi))
         instances += mapOf(config.instanceName to client)
     }
 
     override fun start(
         instanceName: String,
-        user: ExperimentUser?
+        user: ExperimentUser?,
+        callback: (Result<Unit>) -> Unit
     ) {
-        getClient(instanceName).start(convertUser(user))
+        executor.execute {
+            try {
+                getClient(instanceName).start(convertUser(user))
+                callback(Result.success(Unit))
+            } catch (e: Exception) {
+                callback(Result.failure(e))
+            }
+        }
     }
 
     override fun stop(instanceName: String) {
@@ -59,9 +69,17 @@ class AmplitudeExperimentPlugin :
 
     override fun fetch(
         instanceName: String,
-        user: ExperimentUser?
+        user: ExperimentUser?,
+        callback: (Result<Unit>) -> Unit
     ) {
-        getClient(instanceName).fetch(convertUser(user)).get()
+        executor.execute {
+            try {
+                getClient(instanceName).fetch(convertUser(user)).get()
+                callback(Result.success(Unit))
+            } catch (e: Exception) {
+               callback(Result.failure(e))
+            }
+        }
     }
 
     override fun variant(

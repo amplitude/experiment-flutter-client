@@ -1,27 +1,45 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:amplitude_experiment/src/experiment_config_builder.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
-import 'package:amplitude_experiment/src/constants.dart';
 
 void main() {
-  group('ExperimentConfigBuilder', () {
+  group('ExperimentConfig', () {
     test('uses default values when no parameters provided', () {
-      final config = createExperimentConfig();
-      expect(config.instanceName, '\$default_instance');
-      expect(config.logLevel, LogLevel.warn);
-      expect(config.source, Source.localStorage);
-      expect(config.serverZone, ServerZone.us);
-      expect(config.serverUrl, Constants.serverUrl);
-      expect(config.retryFetchOnFailure, true);
-      expect(config.automaticExposureTracking, true);
-      expect(config.fetchOnStart, true);
-      expect(config.pollOnStart, false);
-      expect(config.automaticFetchOnAmplitudeIdentityChange, false);
-      expect(config.fetchTimeoutMillis, 10000);
-      expect(config.flagsServerUrl, Constants.flagsServerUrl);
-      expect(config.initialFlags, null);
-      expect(config.initialVariants, isA<Map>());
-      expect(config.fallbackVariant, isA<Variant>());
+      final config = ExperimentConfig(instanceName: 'test-instance');
+      expect(config.pigeonConfig.instanceName, 'test-instance');
+    });
+
+    test('uses provided values when provided', () {
+      final config = ExperimentConfig(
+        instanceName: 'test-instance',
+        logLevel: LogLevel.debug,
+        source: Source.initialVariants,
+        serverZone: ServerZone.eu,
+        serverUrl: 'https://test.com',
+        flagsServerUrl: 'https://test.com',
+        initialFlags: 'test-flags',
+        initialVariants: {
+          'test-variant': Variant(key: 'test-variant', value: 'test-value'),
+        },
+        fallbackVariant: Variant(
+          key: 'test-fallback-variant',
+          value: 'test-fallback-value',
+        ),
+      );
+      expect(config.pigeonConfig.instanceName, 'test-instance');
+      expect(config.pigeonConfig.logLevel, LogLevel.debug);
+      expect(config.pigeonConfig.source, Source.initialVariants);
+      expect(config.pigeonConfig.serverZone, ServerZone.eu);
+      expect(config.pigeonConfig.serverUrl, 'https://test.com');
+      expect(config.pigeonConfig.flagsServerUrl, 'https://test.com');
+      expect(config.pigeonConfig.initialFlags, 'test-flags');
+      expect(config.pigeonConfig.initialVariants, {
+        'test-variant': Variant(key: 'test-variant', value: 'test-value'),
+      });
+      expect(
+        config.pigeonConfig.fallbackVariant,
+        Variant(key: 'test-fallback-variant', value: 'test-fallback-value'),
+      );
     });
   });
 }

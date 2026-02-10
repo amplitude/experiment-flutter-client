@@ -3,11 +3,34 @@ import 'package:amplitude_flutter/configuration.dart';
 import 'package:flutter/material.dart';
 
 import 'package:amplitude_experiment/experiment.dart';
-import 'package:amplitude_experiment/src/experiment_config_builder.dart';
+import 'package:amplitude_experiment/src/experiment_config.dart';
 import 'package:amplitude_experiment/src/experiment_client.dart';
+import 'package:amplitude_experiment/src/providers.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+// class CustomUserProvider implements UserProvider {
+//   int _currentid = 1;
+
+//   @override
+//   ExperimentUser getUser() {
+//     String userid = 'customuser$_currentid';
+//     print(userid);
+//     _currentid = _currentid + 1;
+//     return ExperimentUser(userId: userid);
+//   }
+// }
+
+class CustomTrackingProvider implements ExposureTrackingProvider {
+  @override
+  void track(Exposure exposure) {
+    String output =
+        'tracking exposure: ${exposure.flagKey} ${exposure.variant} ${exposure.experimentKey} ${exposure.metadata?.toString()} ${exposure.time}';
+    print(output);
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -66,9 +89,10 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       await _amplitude!.isBuilt;
 
       // Initialize Experiment with Amplitude integration
-      _experiment = Experiment.initializeWithAmplitude(
+      _experiment = Experiment.initialize(
+        //WithAmplitude(
         DEPLOY_KEY,
-        createExperimentConfig(),
+        ExperimentConfig(trackingProvider: CustomTrackingProvider()),
       );
       await _experiment!.isBuilt;
 
@@ -117,10 +141,13 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       await _amplitude!.setUserId(username);
 
       // Fetch latest variants from Experiment
-      await _experiment!.fetch();
+      await _experiment!.fetch(
+        ExperimentUser(userId: username, deviceId: 'sample-device-id'),
+      );
 
       // Get welcome message variant
       final variant = await _experiment!.variant('flutter-welcome-message');
+      await _experiment!.exposure('flutter-welcome-message');
 
       // Extract welcome message from variant, with fallback
       String welcomeMessage;
@@ -165,7 +192,7 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       // Clear Amplitude user identity
       await _amplitude!.setUserId(null);
       // Clear Experiment data
-      _experiment!.clear();
+      await _experiment!.clear();
     } catch (e) {
       // Log error but continue with logout
       debugPrint('Error clearing Amplitude user: $e');

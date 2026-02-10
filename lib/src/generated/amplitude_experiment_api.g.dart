@@ -16,6 +16,16 @@ PlatformException _createConnectionError(String channelName) {
     message: 'Unable to establish connection on channel: "$channelName".',
   );
 }
+
+List<Object?> wrapResponse({Object? result, PlatformException? error, bool empty = false}) {
+  if (empty) {
+    return <Object?>[];
+  }
+  if (error == null) {
+    return <Object?>[result];
+  }
+  return <Object?>[error.code, error.message, error.details];
+}
 bool _deepEquals(Object? a, Object? b) {
   if (a is List && b is List) {
     return a.length == b.length &&
@@ -241,10 +251,10 @@ class Variant {
 ;
 }
 
-class ExperimentConfig {
-  ExperimentConfig({
-    required this.logLevel,
+class ExperimentConfigData {
+  ExperimentConfigData({
     required this.instanceName,
+    required this.logLevel,
     required this.fallbackVariant,
     this.initialFlags,
     required this.initialVariants,
@@ -258,11 +268,13 @@ class ExperimentConfig {
     required this.fetchOnStart,
     required this.pollOnStart,
     required this.automaticFetchOnAmplitudeIdentityChange,
+    required this.hasTrackingProvider,
+    required this.hasUserProvider,
   });
 
-  LogLevel logLevel;
-
   String instanceName;
+
+  LogLevel logLevel;
 
   Variant fallbackVariant;
 
@@ -290,10 +302,14 @@ class ExperimentConfig {
 
   bool automaticFetchOnAmplitudeIdentityChange;
 
+  bool hasTrackingProvider;
+
+  bool hasUserProvider;
+
   List<Object?> _toList() {
     return <Object?>[
-      logLevel,
       instanceName,
+      logLevel,
       fallbackVariant,
       initialFlags,
       initialVariants,
@@ -307,17 +323,19 @@ class ExperimentConfig {
       fetchOnStart,
       pollOnStart,
       automaticFetchOnAmplitudeIdentityChange,
+      hasTrackingProvider,
+      hasUserProvider,
     ];
   }
 
   Object encode() {
     return _toList();  }
 
-  static ExperimentConfig decode(Object result) {
+  static ExperimentConfigData decode(Object result) {
     result as List<Object?>;
-    return ExperimentConfig(
-      logLevel: result[0]! as LogLevel,
-      instanceName: result[1]! as String,
+    return ExperimentConfigData(
+      instanceName: result[0]! as String,
+      logLevel: result[1]! as LogLevel,
       fallbackVariant: result[2]! as Variant,
       initialFlags: result[3] as String?,
       initialVariants: (result[4] as Map<Object?, Object?>?)!.cast<String, Variant>(),
@@ -331,13 +349,117 @@ class ExperimentConfig {
       fetchOnStart: result[12]! as bool,
       pollOnStart: result[13]! as bool,
       automaticFetchOnAmplitudeIdentityChange: result[14]! as bool,
+      hasTrackingProvider: result[15]! as bool,
+      hasUserProvider: result[16]! as bool,
     );
   }
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes
   bool operator ==(Object other) {
-    if (other is! ExperimentConfig || other.runtimeType != runtimeType) {
+    if (other is! ExperimentConfigData || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+class Exposure {
+  Exposure({
+    required this.flagKey,
+    this.variant,
+    this.experimentKey,
+    this.metadata,
+    this.time,
+  });
+
+  String flagKey;
+
+  String? variant;
+
+  String? experimentKey;
+
+  Map<String, Object?>? metadata;
+
+  int? time;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      flagKey,
+      variant,
+      experimentKey,
+      metadata,
+      time,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static Exposure decode(Object result) {
+    result as List<Object?>;
+    return Exposure(
+      flagKey: result[0]! as String,
+      variant: result[1] as String?,
+      experimentKey: result[2] as String?,
+      metadata: (result[3] as Map<Object?, Object?>?)?.cast<String, Object?>(),
+      time: result[4] as int?,
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! Exposure || other.runtimeType != runtimeType) {
+      return false;
+    }
+    if (identical(this, other)) {
+      return true;
+    }
+    return _deepEquals(encode(), other.encode());
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  int get hashCode => Object.hashAll(_toList())
+;
+}
+
+class FetchOptions {
+  FetchOptions({
+    this.flagKeys,
+  });
+
+  List<String>? flagKeys;
+
+  List<Object?> _toList() {
+    return <Object?>[
+      flagKeys,
+    ];
+  }
+
+  Object encode() {
+    return _toList();  }
+
+  static FetchOptions decode(Object result) {
+    result as List<Object?>;
+    return FetchOptions(
+      flagKeys: (result[0] as List<Object?>?)?.cast<String>(),
+    );
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes
+  bool operator ==(Object other) {
+    if (other is! FetchOptions || other.runtimeType != runtimeType) {
       return false;
     }
     if (identical(this, other)) {
@@ -375,8 +497,14 @@ class _PigeonCodec extends StandardMessageCodec {
     }    else if (value is Variant) {
       buffer.putUint8(133);
       writeValue(buffer, value.encode());
-    }    else if (value is ExperimentConfig) {
+    }    else if (value is ExperimentConfigData) {
       buffer.putUint8(134);
+      writeValue(buffer, value.encode());
+    }    else if (value is Exposure) {
+      buffer.putUint8(135);
+      writeValue(buffer, value.encode());
+    }    else if (value is FetchOptions) {
+      buffer.putUint8(136);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -400,7 +528,11 @@ class _PigeonCodec extends StandardMessageCodec {
       case 133: 
         return Variant.decode(readValue(buffer)!);
       case 134: 
-        return ExperimentConfig.decode(readValue(buffer)!);
+        return ExperimentConfigData.decode(readValue(buffer)!);
+      case 135: 
+        return Exposure.decode(readValue(buffer)!);
+      case 136: 
+        return FetchOptions.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
     }
@@ -420,7 +552,7 @@ class AmplitudeExperimentHostApi {
 
   final String pigeonVar_messageChannelSuffix;
 
-  Future<void> init(String apiKey, ExperimentConfig config) async {
+  Future<void> init(String apiKey, ExperimentConfigData config) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.amplitude_experiment.AmplitudeExperimentHostApi.init$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -442,7 +574,7 @@ class AmplitudeExperimentHostApi {
     }
   }
 
-  Future<void> initWithAmplitude(String apiKey, ExperimentConfig config) async {
+  Future<void> initWithAmplitude(String apiKey, ExperimentConfigData config) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.amplitude_experiment.AmplitudeExperimentHostApi.initWithAmplitude$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -696,6 +828,71 @@ class AmplitudeExperimentHostApi {
       );
     } else {
       return;
+    }
+  }
+}
+
+abstract class CustomProviderApi {
+  static const MessageCodec<Object?> pigeonChannelCodec = _PigeonCodec();
+
+  void track(String instanceName, Exposure exposure);
+
+  Future<ExperimentUser> getUser(String instanceName);
+
+  static void setUp(CustomProviderApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
+    messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.track$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.track was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_instanceName = (args[0] as String?);
+          assert(arg_instanceName != null,
+              'Argument for dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.track was null, expected non-null String.');
+          final Exposure? arg_exposure = (args[1] as Exposure?);
+          assert(arg_exposure != null,
+              'Argument for dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.track was null, expected non-null Exposure.');
+          try {
+            api.track(arg_instanceName!, arg_exposure!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final pigeonVar_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser$messageChannelSuffix', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        pigeonVar_channel.setMessageHandler(null);
+      } else {
+        pigeonVar_channel.setMessageHandler((Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final String? arg_instanceName = (args[0] as String?);
+          assert(arg_instanceName != null,
+              'Argument for dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser was null, expected non-null String.');
+          try {
+            final ExperimentUser output = await api.getUser(arg_instanceName!);
+            return wrapResponse(result: output);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
     }
   }
 }
