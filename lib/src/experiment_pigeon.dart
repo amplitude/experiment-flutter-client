@@ -1,14 +1,13 @@
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:amplitude_experiment/src/custom_provider_pigeon.dart';
-import 'package:amplitude_experiment/src/providers.dart';
+import 'package:amplitude_experiment/src/providers.dart'
+    show ExposureTrackingProvider;
 
 import 'experiment_platform_interface.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
 
 class ExperimentPigeon extends ExperimentPlatform {
   final AmplitudeExperimentHostApi _api = AmplitudeExperimentHostApi();
-  final Map<String, ExposureTrackingProvider> _trackingProviderMap = {};
-  final Map<String, UserProvider> _userProviderMap = {};
   final CustomProviderPigeon _providerApi = CustomProviderPigeon();
 
   ExperimentPigeon() : super() {
@@ -31,17 +30,21 @@ class ExperimentPigeon extends ExperimentPlatform {
   }
 
   @override
-  Future<Map<String, Variant>> all(String instanceName) async {
-    return _api.all(instanceName);
+  Future<Map<String, Variant>> all(
+    String instanceName,
+    ExperimentUser user,
+  ) async {
+    return _api.all(instanceName, user);
   }
 
   @override
   Future<Variant> variant(
     String instanceName,
+    ExperimentUser user,
     String flagKey,
     Variant? fallbackVariant,
   ) async {
-    return _api.variant(instanceName, flagKey, fallbackVariant);
+    return _api.variant(instanceName, user, flagKey, fallbackVariant);
   }
 
   @override
@@ -88,10 +91,5 @@ class ExperimentPigeon extends ExperimentPlatform {
     ExposureTrackingProvider provider,
   ) {
     _providerApi.registerTrackingProvider(instanceName, provider);
-  }
-
-  @override
-  void registerUserProvider(String instanceName, UserProvider provider) {
-    _providerApi.registerUserProvider(instanceName, provider);
   }
 }

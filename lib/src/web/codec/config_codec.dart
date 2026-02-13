@@ -5,6 +5,7 @@ import 'package:amplitude_experiment/src/experiment_config.dart';
 import 'package:amplitude_experiment/src/providers.dart';
 import 'package:amplitude_experiment/src/web/codec/exposure_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
+import 'package:amplitude_experiment/src/web/codec/variant_codec.dart';
 
 /// Codec for converting ExperimentConfig between Dart and JS objects.
 class ConfigCodec {
@@ -38,12 +39,12 @@ class ConfigCodec {
     }
     if (config.initialVariants.isNotEmpty) {
       configMap['initialVariants'] = config.initialVariants.map(
-        (key, value) => MapEntry(key, value.encode()),
+        (key, value) => MapEntry(key, VariantCodec.toMap(value)),
       );
     }
     if (config.fallbackVariant.key != null ||
         config.fallbackVariant.value != null) {
-      configMap['fallbackVariant'] = config.fallbackVariant.encode();
+      configMap['fallbackVariant'] = VariantCodec.toMap(config.fallbackVariant);
     }
 
     // Convert source enum

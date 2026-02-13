@@ -1,20 +1,29 @@
 package com.amplitude.experiment.flutter
 
-import com.amplitude.experiment.ExperimentConfig
-import com.amplitude.experiment.ExperimentUser
 import com.amplitude.experiment.Source as SdkSource
 import com.amplitude.experiment.ServerZone as SdkServerZone
 import com.amplitude.experiment.Variant as SdkVariant
+import io.flutter.plugin.common.BinaryMessenger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Before
 import org.junit.Test
+import org.mockito.Mockito
 
 /**
  * Unit tests for the Experiment SDK codec (ExperimentSdkCodec.kt).
  * Verifies conversion between Pigeon/Flutter types and Amplitude Experiment SDK types.
  */
 internal class ExperimentSdkCodecTest {
+
+    private lateinit var mockApi: CustomProviderApi
+
+    @Before
+    fun setUp() {
+        val mockMessenger = Mockito.mock(BinaryMessenger::class.java)
+        mockApi = CustomProviderApi(mockMessenger)
+    }
 
     // ---------- convertVariant (Pigeon -> SDK) ----------
 
@@ -27,7 +36,7 @@ internal class ExperimentSdkCodecTest {
             expKey = "exp",
             metadata = mapOf("a" to 1),
         )
-        val sdk = requireNotNull(convertVariant(pigeon))
+        val sdk = requireNotNull(variantFromPigeon(pigeon))
         assertEquals("k", sdk.key)
         assertEquals("v", sdk.value)
         assertEquals("payload", sdk.payload)
@@ -37,7 +46,7 @@ internal class ExperimentSdkCodecTest {
 
     @Test
     fun convertVariant_null_returnsNull() {
-        assertNull(convertVariant(null as com.amplitude.experiment.flutter.Variant?))
+        assertNull(variantFromPigeon(null as com.amplitude.experiment.flutter.Variant?))
     }
 
     // ---------- convertVariant (SDK -> Pigeon) ----------
@@ -45,7 +54,7 @@ internal class ExperimentSdkCodecTest {
     @Test
     fun convertVariant_sdkToPigeon_mapsAllFields() {
         val sdk = SdkVariant("v", "payload", "exp", "k", mapOf("a" to 1))
-        val pigeon = convertVariant(sdk)
+        val pigeon = variantToPigeon(sdk)
         assertEquals("k", pigeon.key)
         assertEquals("v", pigeon.value)
         assertEquals("payload", pigeon.payload)
@@ -62,8 +71,8 @@ internal class ExperimentSdkCodecTest {
             expKey = "e",
             metadata = mapOf("m" to "n"),
         )
-        val sdk = convertVariant(pigeon)!!
-        val back = convertVariant(sdk)
+        val sdk = variantFromPigeon(pigeon)!!
+        val back = variantToPigeon(sdk)
         assertEquals(pigeon.key, back.key)
         assertEquals(pigeon.value, back.value)
         assertEquals(pigeon.payload, back.payload)
@@ -141,7 +150,7 @@ internal class ExperimentSdkCodecTest {
                 "f1" to TestDataHelpers.createPigeonVariant(value = "on"),
             ),
         )
-        val sdk = convertConfig(pigeon)
+        val sdk = convertConfig(pigeon, mockApi)
         assertEquals("my-instance", sdk.instanceName)
         assertEquals("flag1,flag2", sdk.initialFlags)
         assertEquals("https://api.test.com", sdk.serverUrl)
@@ -161,22 +170,22 @@ internal class ExperimentSdkCodecTest {
     @Test
     fun convertConfig_source_localStorage_mapsToSdk() {
         val pigeon = TestDataHelpers.createPigeonConfig(source = Source.LOCAL_STORAGE)
-        val sdk = convertConfig(pigeon)
+        val sdk = convertConfig(pigeon, mockApi)
         assertEquals(SdkSource.LOCAL_STORAGE, sdk.source)
     }
 
     @Test
     fun convertConfig_serverZone_usAndEu_mapsToSdk() {
-        val sdkUs = convertConfig(TestDataHelpers.createPigeonConfig(serverZone = ServerZone.US))
+        val sdkUs = convertConfig(TestDataHelpers.createPigeonConfig(serverZone = ServerZone.US), mockApi)
         assertEquals(SdkServerZone.US, sdkUs.serverZone)
-        val sdkEu = convertConfig(TestDataHelpers.createPigeonConfig(serverZone = ServerZone.EU))
+        val sdkEu = convertConfig(TestDataHelpers.createPigeonConfig(serverZone = ServerZone.EU), mockApi)
         assertEquals(SdkServerZone.EU, sdkEu.serverZone)
     }
 
     @Test
     fun convertConfig_defaultPigeonConfig_producesValidSdkConfig() {
         val pigeon = TestDataHelpers.createPigeonConfig()
-        val sdk = convertConfig(pigeon)
+        val sdk = convertConfig(pigeon, mockApi)
         assertEquals("test-instance", sdk.instanceName)
         assertEquals(10000L, sdk.fetchTimeoutMillis)
         assertEquals(true, sdk.retryFetchOnFailure)

@@ -1,5 +1,18 @@
+import Flutter
 import Foundation
 @testable import amplitude_experiment
+
+/// Mock FlutterBinaryMessenger for unit tests.
+class MockBinaryMessenger: NSObject, FlutterBinaryMessenger {
+    func send(onChannel channel: String, message: Data?) {}
+    func send(onChannel channel: String, message: Data?, binaryReply callback: FlutterBinaryReply?) {
+        callback?(nil)
+    }
+    func setMessageHandlerOnChannel(_ channel: String, binaryMessageHandler handler: FlutterBinaryMessageHandler?) -> FlutterBinaryMessengerConnection {
+        return FlutterBinaryMessengerConnection(0)
+    }
+    func cleanUpConnection(_ connection: FlutterBinaryMessengerConnection) {}
+}
 
 /// Shared test data for unit tests. Provides Pigeon (Host API) types, mirroring Android TestDataHelpers.kt.
 enum TestDataHelpers {
@@ -81,11 +94,12 @@ enum TestDataHelpers {
         automaticExposureTracking: Bool = true,
         fetchOnStart: Bool = true,
         pollOnStart: Bool = false,
-        automaticFetchOnAmplitudeIdentityChange: Bool = false
-    ) -> ExperimentConfig {
-        ExperimentConfig(
-            logLevel: logLevel,
+        automaticFetchOnAmplitudeIdentityChange: Bool = false,
+        hasTrackingProvider: Bool = false
+    ) -> ExperimentConfigData {
+        ExperimentConfigData(
             instanceName: instanceName,
+            logLevel: logLevel,
             fallbackVariant: fallbackVariant,
             initialFlags: initialFlags,
             initialVariants: initialVariants,
@@ -98,7 +112,22 @@ enum TestDataHelpers {
             automaticExposureTracking: automaticExposureTracking,
             fetchOnStart: fetchOnStart,
             pollOnStart: pollOnStart,
-            automaticFetchOnAmplitudeIdentityChange: automaticFetchOnAmplitudeIdentityChange
+            automaticFetchOnAmplitudeIdentityChange: automaticFetchOnAmplitudeIdentityChange,
+            hasTrackingProvider: hasTrackingProvider
         )
+    }
+
+    /// Creates a plugin instance with a mock binary messenger, ready for Host API calls.
+    /// Mirrors Android TestDataHelpers.createAttachedPlugin().
+    static func createAttachedPlugin() -> AmplitudeExperimentPlugin {
+        let plugin = AmplitudeExperimentPlugin()
+        let messenger = MockBinaryMessenger()
+        plugin.providerApi = CustomProviderApi(binaryMessenger: messenger)
+        return plugin
+    }
+
+    /// Creates a mock CustomProviderApi for codec tests.
+    static func createMockProviderApi() -> CustomProviderApi {
+        return CustomProviderApi(binaryMessenger: MockBinaryMessenger())
     }
 }

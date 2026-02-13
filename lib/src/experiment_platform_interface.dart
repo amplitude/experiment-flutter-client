@@ -3,7 +3,7 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'package:amplitude_experiment/src/experiment_pigeon.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/providers.dart';
+import 'package:amplitude_experiment/src/providers.dart' show ExposureTrackingProvider;
 
 abstract class ExperimentPlatform extends PlatformInterface {
   /// Constructs a ExperimentPlatform.
@@ -50,13 +50,14 @@ abstract class ExperimentPlatform extends PlatformInterface {
 
   Future<Variant> variant(
     String instanceName,
+    ExperimentUser user,
     String flagKey,
     Variant? fallbackVariant,
   ) {
     throw UnimplementedError('variant() has not been implemented.');
   }
 
-  Future<Map<String, Variant>> all(String instanceName) {
+  Future<Map<String, Variant>> all(String instanceName, ExperimentUser user) {
     throw UnimplementedError('all() has not been implemented.');
   }
 
@@ -89,9 +90,4 @@ abstract class ExperimentPlatform extends PlatformInterface {
     );
   }
 
-  void registerUserProvider(String instanceName, UserProvider provider) {
-    throw UnimplementedError(
-      'registerUserProvider() has not been implemented.',
-    );
-  }
 }

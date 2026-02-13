@@ -9,7 +9,7 @@ import 'package:amplitude_experiment/src/web/codec/config_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/variant_codec.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/providers.dart';
+import 'package:amplitude_experiment/src/providers.dart' show ExposureTrackingProvider;
 
 /// Web implementation of [ExperimentPlatform]
 class ExperimentWebPlugin extends ExperimentPlatform {
@@ -77,6 +77,7 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   @override
   Future<Variant> variant(
     String instanceName,
+    ExperimentUser user,
     String flagKey,
     Variant? fallbackVariant,
   ) async {
@@ -94,7 +95,10 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   }
 
   @override
-  Future<Map<String, Variant>> all(String instanceName) async {
+  Future<Map<String, Variant>> all(
+    String instanceName,
+    ExperimentUser user,
+  ) async {
     final client = _getClient(instanceName);
     final allFn = client['all'] as JSFunction?;
     if (allFn == null) {
@@ -188,14 +192,6 @@ class ExperimentWebPlugin extends ExperimentPlatform {
     String instanceName,
     ExposureTrackingProvider provider,
   ) async {}
-
-  @override
-  Future<void> registerUserProvider(
-    String instanceName,
-    UserProvider provider,
-  ) async {}
-
-  // Helper methods
 
   ExperimentClient _getClient(String instanceName) {
     final ExperimentClient? client = _instances[instanceName];

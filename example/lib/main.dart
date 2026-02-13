@@ -17,21 +17,21 @@ void main() {
 
 //   @override
 //   ExperimentUser getUser() {
-//     String userid = 'customuser$_currentid';
+//     String userid = 'fluttertester$_currentid';
 //     print(userid);
 //     _currentid = _currentid + 1;
 //     return ExperimentUser(userId: userid);
 //   }
 // }
 
-class CustomTrackingProvider implements ExposureTrackingProvider {
-  @override
-  void track(Exposure exposure) {
-    String output =
-        'tracking exposure: ${exposure.flagKey} ${exposure.variant} ${exposure.experimentKey} ${exposure.metadata?.toString()} ${exposure.time}';
-    print(output);
-  }
-}
+// class CustomTrackingProvider implements ExposureTrackingProvider {
+//   @override
+//   void track(Exposure exposure) {
+//     String output =
+//         'tracking exposure: ${exposure.flagKey} ${exposure.variant} ${exposure.experimentKey} ${exposure.metadata?.toString()} ${exposure.time}';
+//     print(output);
+//   }
+// }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -89,10 +89,12 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       await _amplitude!.isBuilt;
 
       // Initialize Experiment with Amplitude integration
-      _experiment = Experiment.initialize(
-        //WithAmplitude(
+      _experiment = Experiment.initializeWithAmplitude(
         DEPLOY_KEY,
-        ExperimentConfig(trackingProvider: CustomTrackingProvider()),
+        ExperimentConfig(
+          // trackingProvider: CustomTrackingProvider(),
+          // userProvider: CustomUserProvider(),
+        ),
       );
       await _experiment!.isBuilt;
 

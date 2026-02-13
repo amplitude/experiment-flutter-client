@@ -84,14 +84,19 @@ class AmplitudeExperimentPlugin :
 
     override fun variant(
         instanceName: String,
+        user: ExperimentUser,
         flagKey: String,
         fallbackVariant: Variant?
     ): Variant {
-        return convertVariant(getClient(instanceName).variant(flagKey, convertVariant(fallbackVariant)))
+        val client = getClient(instanceName)
+        client.setUser(convertUser(user)!!)
+        return variantToPigeon(client.variant(flagKey, variantFromPigeon(fallbackVariant)))
     }
 
-    override fun all(instanceName: String): Map<String, Variant> {
-        TODO("Not yet implemented")
+    override fun all(instanceName: String, user: ExperimentUser): Map<String, Variant> {
+        val client = getClient(instanceName)
+        client.setUser(convertUser(user)!!)
+        return variantsToPigeon(client.all())
     }
 
     override fun clear(instanceName: String) {
@@ -103,7 +108,7 @@ class AmplitudeExperimentPlugin :
     }
 
     override fun getUser(instanceName: String): ExperimentUser {
-        TODO("Not yet implemented")
+        return convertUser(getClient(instanceName).getUser()!!)
     }
 
     override fun setUser(

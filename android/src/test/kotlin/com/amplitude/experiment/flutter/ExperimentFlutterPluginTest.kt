@@ -1,7 +1,10 @@
 package com.amplitude.experiment.flutter
 
 import org.junit.Test
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 /**
  * Unit tests for [AmplitudeExperimentPlugin] with Pigeon Host API.
@@ -19,17 +22,24 @@ internal class ExperimentFlutterPluginTest {
     @Test
     fun variant_withNonExistentInstance_throwsIllegalArgumentException() {
         val (plugin, _) = TestDataHelpers.createAttachedPlugin()
+        val user = TestDataHelpers.createPigeonUser()
         assertFailsWith<IllegalArgumentException> {
-            plugin.variant("non-existent-instance", "test-flag", null)
+            plugin.variant("non-existent-instance", user, "test-flag", null)
         }
     }
 
     @Test
-    fun start_withNonExistentInstance_throwsIllegalArgumentException() {
+    fun start_withNonExistentInstance_callsBackWithFailure() {
         val (plugin, _) = TestDataHelpers.createAttachedPlugin()
-        assertFailsWith<IllegalArgumentException> {
-            plugin.start("non-existent-instance", null)
+        val latch = CountDownLatch(1)
+        var callbackResult: Result<Unit>? = null
+        plugin.start("non-existent-instance", null) { result ->
+            callbackResult = result
+            latch.countDown()
         }
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+        assertTrue(callbackResult!!.isFailure)
+        assertTrue(callbackResult!!.exceptionOrNull() is IllegalArgumentException)
     }
 
     @Test
@@ -41,11 +51,17 @@ internal class ExperimentFlutterPluginTest {
     }
 
     @Test
-    fun fetch_withNonExistentInstance_throwsIllegalArgumentException() {
+    fun fetch_withNonExistentInstance_callsBackWithFailure() {
         val (plugin, _) = TestDataHelpers.createAttachedPlugin()
-        assertFailsWith<IllegalArgumentException> {
-            plugin.fetch("non-existent-instance", null)
+        val latch = CountDownLatch(1)
+        var callbackResult: Result<Unit>? = null
+        plugin.fetch("non-existent-instance", null) { result ->
+            callbackResult = result
+            latch.countDown()
         }
+        assertTrue(latch.await(5, TimeUnit.SECONDS))
+        assertTrue(callbackResult!!.isFailure)
+        assertTrue(callbackResult!!.exceptionOrNull() is IllegalArgumentException)
     }
 
     @Test

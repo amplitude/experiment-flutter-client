@@ -16,7 +16,7 @@ class AmplitudeExperimentPluginTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        plugin = AmplitudeExperimentPlugin()
+        plugin = TestDataHelpers.createAttachedPlugin()
     }
 
     override func tearDown() {
@@ -36,15 +36,25 @@ class AmplitudeExperimentPluginTests: XCTestCase {
     }
 
     func testVariant_withNonExistentInstance_throws() {
+        let user = TestDataHelpers.createPigeonUser()
         assertThrowsInstanceNotFound {
-            _ = try plugin.variant(instanceName: "non-existent-instance", flagKey: "test-flag", fallbackVariant: nil)
+            _ = try plugin.variant(instanceName: "non-existent-instance", user: user, flagKey: "test-flag", fallbackVariant: nil)
         }
     }
 
-    func testStart_withNonExistentInstance_throws() {
-        assertThrowsInstanceNotFound {
-            try plugin.start(instanceName: "non-existent-instance", user: nil)
+    func testStart_withNonExistentInstance_callsBackWithFailure() {
+        let expectation = expectation(description: "start completion called")
+        var completionError: Error?
+        plugin.start(instanceName: "non-existent-instance", user: nil) { result in
+            if case .failure(let error) = result {
+                completionError = error
+            }
+            expectation.fulfill()
         }
+        waitForExpectations(timeout: 5)
+        XCTAssertNotNil(completionError)
+        XCTAssertTrue(completionError is PigeonError)
+        XCTAssertEqual((completionError as? PigeonError)?.code, "INSTANCE_NOT_FOUND")
     }
 
     func testStop_withNonExistentInstance_throws() {
@@ -53,10 +63,19 @@ class AmplitudeExperimentPluginTests: XCTestCase {
         }
     }
 
-    func testFetch_withNonExistentInstance_throws() {
-        assertThrowsInstanceNotFound {
-            try plugin.fetch(instanceName: "non-existent-instance", user: nil)
+    func testFetch_withNonExistentInstance_callsBackWithFailure() {
+        let expectation = expectation(description: "fetch completion called")
+        var completionError: Error?
+        plugin.fetch(instanceName: "non-existent-instance", user: nil) { result in
+            if case .failure(let error) = result {
+                completionError = error
+            }
+            expectation.fulfill()
         }
+        waitForExpectations(timeout: 5)
+        XCTAssertNotNil(completionError)
+        XCTAssertTrue(completionError is PigeonError)
+        XCTAssertEqual((completionError as? PigeonError)?.code, "INSTANCE_NOT_FOUND")
     }
 
     func testClear_withNonExistentInstance_throws() {

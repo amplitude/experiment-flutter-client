@@ -1,12 +1,15 @@
 import 'experiment_platform_interface.dart';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/providers.dart';
 
 class ExperimentClient {
   final String apiKey;
   final ExperimentConfig config;
-  late Future<bool> isBuilt;
+  late Future<void> isBuilt;
   late String _instanceName;
+  UserProvider? _userProvider;
+  ExperimentUser? _user;
 
   ExperimentClient({
     required this.apiKey,
@@ -14,44 +17,32 @@ class ExperimentClient {
     required bool withAnalytics,
   }) {
     _instanceName = config.instanceName;
+    _userProvider = config.userProvider;
     isBuilt = _init(withAnalytics);
   }
 
-  Future<bool> _init(bool withAnalytics) async {
-    try {
-      _registerProviders();
-      if (withAnalytics) {
-        await ExperimentPlatform.instance.initWithAmplitude(apiKey, config);
-      } else {
-        await ExperimentPlatform.instance.init(apiKey, config);
-      }
-      return true;
-    } catch (e) {
-      return false;
+  Future<void> _init(bool withAnalytics) async {
+    _registerProviders();
+    if (withAnalytics) {
+      await ExperimentPlatform.instance.initWithAmplitude(apiKey, config);
+    } else {
+      await ExperimentPlatform.instance.init(apiKey, config);
     }
   }
 
   void _registerProviders() {
     if (config.trackingProvider != null) {
-      print('registering tracking provider');
-      config.trackingProvider!.track(
-        Exposure(flagKey: 'BANANA', variant: 'variant1'),
-      );
       ExperimentPlatform.instance.registerTrackingProvider(
         _instanceName,
         config.trackingProvider!,
       );
     }
-    if (config.userProvider != null) {
-      ExperimentPlatform.instance.registerUserProvider(
-        _instanceName,
-        config.userProvider!,
-      );
-    }
   }
 
   Future<void> start(ExperimentUser? user) {
-    return ExperimentPlatform.instance.start(_instanceName, user);
+    final mergedUser = _resolveUser(user);
+    _user = mergedUser;
+    return ExperimentPlatform.instance.start(_instanceName, mergedUser);
   }
 
   Future<void> stop() async {
@@ -59,20 +50,27 @@ class ExperimentClient {
   }
 
   Future<ExperimentClient> fetch([ExperimentUser? user]) async {
-    await ExperimentPlatform.instance.fetch(_instanceName, user);
+    final mergedUser = _resolveUser(user);
+    _user = mergedUser;
+    await ExperimentPlatform.instance.fetch(_instanceName, mergedUser);
     return this;
   }
 
   Future<Variant> variant(String flagKey, [Variant? fallbackVariant]) {
+    final mergedUser = _resolveUser();
+    _user = mergedUser;
     return ExperimentPlatform.instance.variant(
       _instanceName,
+      mergedUser,
       flagKey,
       fallbackVariant,
     );
   }
 
   Future<Map<String, Variant>> all() {
-    return ExperimentPlatform.instance.all(_instanceName);
+    final mergedUser = _resolveUser();
+    _user = mergedUser;
+    return ExperimentPlatform.instance.all(_instanceName, mergedUser);
   }
 
   Future<void> clear() async {
@@ -83,12 +81,12 @@ class ExperimentClient {
     return await ExperimentPlatform.instance.exposure(_instanceName, flagKey);
   }
 
-  Future<ExperimentUser> getUser() {
-    return ExperimentPlatform.instance.getUser(_instanceName);
+  ExperimentUser getUser() {
+    return _user ?? ExperimentUser();
   }
 
-  Future<void> setUser(ExperimentUser user) async {
-    return await ExperimentPlatform.instance.setUser(_instanceName, user);
+  void setUser(ExperimentUser user) {
+    _user = user;
   }
 
   Future<void> setTracksAssignment(bool tracksAssignment) async {
@@ -96,5 +94,50 @@ class ExperimentClient {
       _instanceName,
       tracksAssignment,
     );
+  }
+
+  // ── User Resolution ──────────────────────────────
+
+  ExperimentUser _resolveUser([ExperimentUser? explicit]) {
+    final provider = _userProvider?.getUser();
+    final sdkUser = explicit ?? _user;
+    _user = _merge(sdkUser, provider);
+    return _user!;
+  }
+
+  /// Two-way merge: SDK user fields take precedence over provider.
+  static ExperimentUser _merge(
+    ExperimentUser? sdkUser,
+    ExperimentUser? provider,
+  ) {
+    return ExperimentUser(
+      userId: sdkUser?.userId ?? provider?.userId,
+      deviceId: sdkUser?.deviceId ?? provider?.deviceId,
+      version: sdkUser?.version ?? provider?.version,
+      platform: sdkUser?.platform ?? provider?.platform,
+      os: sdkUser?.os ?? provider?.os,
+      deviceModel: sdkUser?.deviceModel ?? provider?.deviceModel,
+      deviceManufacturer:
+          sdkUser?.deviceManufacturer ?? provider?.deviceManufacturer,
+      language: sdkUser?.language ?? provider?.language,
+      userProperties: _mergeMaps(
+        sdkUser?.userProperties,
+        provider?.userProperties,
+      ),
+      groups:
+          _mergeMaps(sdkUser?.groups, provider?.groups)
+              as Map<String, List<String>>?,
+      groupProperties:
+          _mergeMaps(sdkUser?.groupProperties, provider?.groupProperties)
+              as Map<String, Map<String, Map<String, Object?>>>?,
+    );
+  }
+
+  static Map<String, dynamic>? _mergeMaps(
+    Map<String, dynamic>? sdkMap,
+    Map<String, dynamic>? providerMap,
+  ) {
+    if (sdkMap == null && providerMap == null) return null;
+    return {...?providerMap, ...?sdkMap};
   }
 }

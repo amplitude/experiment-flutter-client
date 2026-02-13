@@ -7,7 +7,6 @@ import com.amplitude.experiment.flutter.Variant as FlutterVariant
 import com.amplitude.experiment.Variant
 import com.amplitude.experiment.flutter.ExperimentUser as FlutterExperimentUser
 import com.amplitude.experiment.ExperimentUser
-import com.amplitude.experiment.ExperimentUserProvider
 import com.amplitude.experiment.flutter.Exposure as FlutterExposure
 import com.amplitude.experiment.Exposure
 import com.amplitude.experiment.ExposureTrackingProvider
@@ -32,17 +31,37 @@ fun convertUser(flutterUser: FlutterExperimentUser?): ExperimentUser? {
          builder.library(it.library)
 
         builder.userProperties(it.userProperties)
-        builder.groups(convertGroupProperties(it.groups))
+        builder.groups(groupsFromPigeon(it.groups))
         builder.groupProperties(it.groupProperties)
         builder.build()
     }
+}
+fun convertUser(user: ExperimentUser): FlutterExperimentUser {
+    return FlutterExperimentUser(deviceId = user.deviceId,
+    userId = user.userId,
+    country = user.country,
+    city = user.city,
+    region = user.region,
+    dma = user.dma,
+    language = user.language,
+    platform = user.platform,
+    version = user.version,
+    os = user.os,
+    deviceModel = user.deviceModel,
+    deviceBrand = user.deviceBrand,
+    deviceManufacturer = user.deviceManufacturer,
+    carrier = user.carrier,
+    library = user.library,
+    userProperties = user.userProperties,
+    groups = groupsToPigeon(user.groups),
+    groupProperties = user.groupProperties)
 }
 
 fun convertConfig(flutterConfig: FlutterConfig, api: CustomProviderApi): ExperimentConfig {
     val builder = ExperimentConfig.builder()
     builder.instanceName(flutterConfig.instanceName)
     builder.initialFlags(flutterConfig.initialFlags)
-    builder.initialVariants(convertVariants(flutterConfig.initialVariants))
+    builder.initialVariants(variantsFromPigeon(flutterConfig.initialVariants))
     builder.source(parseSource(flutterConfig.source))
     builder.serverZone(parseServerZone(flutterConfig.serverZone))
     builder.serverUrl(flutterConfig.serverUrl)
@@ -56,9 +75,6 @@ fun convertConfig(flutterConfig: FlutterConfig, api: CustomProviderApi): Experim
     if (flutterConfig.hasTrackingProvider) {
         builder.exposureTrackingProvider(generateExposureTrackingProvider(flutterConfig.instanceName, api))
     }
-//    if (flutterConfig.hasUserProvider) {
-//        builder.userProvider(generateUserProvider(flutterConfig.instanceName, api))
-//    }
     return builder.build()
 }
 
@@ -66,20 +82,28 @@ fun convertExposure(exposure: Exposure): FlutterExposure {
     return FlutterExposure(exposure.flagKey, exposure.variant, exposure.experimentKey, exposure.metadata)
 }
 
-fun convertVariant(flutterVariant: FlutterVariant?): Variant? {
+fun variantFromPigeon(flutterVariant: FlutterVariant?): Variant? {
     return flutterVariant?.let { Variant(it.value, it.payload, it.expKey, it.key, it.metadata)}
 }
 
-fun convertVariant(variant: Variant): FlutterVariant {
-    return FlutterVariant(variant.key, variant.value, jsonToMap(variant.payload), variant.expKey, jsonToMap(variant.metadata))
+fun variantToPigeon(variant: Variant): FlutterVariant {
+    return FlutterVariant(variant.key, variant.value, jsonToStandard(variant.payload), variant.expKey, jsonToMap(variant.metadata))
 }
 
-private fun convertVariants(flutterVariants :Map<String, FlutterVariant>): Map<String, Variant> {
-    return flutterVariants.mapValues { (_, fv) -> convertVariant(fv)!! }
+fun variantsToPigeon(variants: Map<String, Variant>): Map<String, FlutterVariant> {
+    return variants.mapValues { (_, v) -> variantToPigeon(v) }
 }
 
-private fun convertGroupProperties(flutterGroupProperties: Map<String, List<String>>?) :Map<String, Set<String>>? {
-return flutterGroupProperties?.let { it.mapValues { (_, value) -> value.toSet() } }
+private fun variantsFromPigeon(flutterVariants :Map<String, FlutterVariant>): Map<String, Variant> {
+    return flutterVariants.mapValues { (_, fv) -> variantFromPigeon(fv)!! }
+}
+
+private fun groupsFromPigeon(flutterGroup: Map<String, List<String>>?) :Map<String, Set<String>>? {
+    return flutterGroup?.let { it.mapValues { (_, value) -> value.toSet() } }
+}
+
+private fun groupsToPigeon(group: Map<String, Set<String>>?): Map<String, List<String>>? {
+    return group?.let { it.mapValues { (_, value) -> value.toList() }}
 }
 
 private fun parseSource(flutterSource: Source): com.amplitude.experiment.Source {
@@ -127,16 +151,3 @@ private fun generateExposureTrackingProvider(instanceName: String, api: CustomPr
         }
     }
 }
-
-//private fun generateUserProvider(instanceName: String, api: CustomProviderApi): ExperimentUserProvider {
-//    return object : ExperimentUserProvider {
-//        override fun getUser(): ExperimentUser {
-//            api.getUser(
-//                instanceName
-//            ) { response -> response.onSuccess { flutterUser ->
-//                result = convertUser(flutterUser)
-//            }}
-//            return result
-//        }
-//    }
-//}

@@ -18,7 +18,6 @@ class MockExperimentPlatform
   bool? lastTracksAssignment;
   bool shouldThrowOnInit = false;
   final Map<String, ExposureTrackingProvider> _trackingProviderMap = {};
-  final Map<String, UserProvider> _userProviderMap = {};
 
   @override
   Future<void> init(String apiKey, ExperimentConfig config) async {
@@ -58,18 +57,24 @@ class MockExperimentPlatform
   @override
   Future<Variant> variant(
     String instanceName,
+    ExperimentUser user,
     String flagKey,
     Variant? fallbackVariant,
   ) async {
     lastInstanceName = instanceName;
+    lastUser = user;
     lastFlagKey = flagKey;
     lastFallbackVariant = fallbackVariant;
     return Variant(key: flagKey, value: 'test-value');
   }
 
   @override
-  Future<Map<String, Variant>> all(String instanceName) async {
+  Future<Map<String, Variant>> all(
+    String instanceName,
+    ExperimentUser user,
+  ) async {
     lastInstanceName = instanceName;
+    lastUser = user;
     return {
       'flag1': Variant(key: 'flag1', value: 'value1'),
       'flag2': Variant(key: 'flag2', value: 'value2'),
@@ -88,15 +93,15 @@ class MockExperimentPlatform
   }
 
   @override
-  Future<ExperimentUser> getUser(String instanceName) async {
-    lastInstanceName = instanceName;
-    return ExperimentUser(userId: 'test-user');
-  }
-
-  @override
   Future<void> setUser(String instanceName, ExperimentUser user) async {
     lastInstanceName = instanceName;
     lastUser = user;
+  }
+
+  @override
+  Future<ExperimentUser> getUser(String instanceName) async {
+    lastInstanceName = instanceName;
+    return ExperimentUser(userId: 'test-user');
   }
 
   @override
@@ -114,11 +119,6 @@ class MockExperimentPlatform
     ExposureTrackingProvider provider,
   ) {
     _trackingProviderMap[instanceName] = provider;
-  }
-
-  @override
-  void registerUserProvider(String instanceName, UserProvider provider) {
-    _userProviderMap[instanceName] = provider;
   }
 }
 
@@ -149,7 +149,6 @@ void main() {
           mockPlatform.lastConfig?.pigeonConfig.instanceName,
           'test-instance',
         );
-        expect(await client.isBuilt, true);
       });
 
       test(
@@ -169,11 +168,10 @@ void main() {
             mockPlatform.lastConfig?.pigeonConfig.instanceName,
             'test-instance',
           );
-          expect(await client.isBuilt, true);
         },
       );
 
-      test('isBuilt returns false when initialization throws', () async {
+      test('isBuilt throws when initialization fails', () async {
         mockPlatform.shouldThrowOnInit = true;
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
@@ -182,9 +180,7 @@ void main() {
           withAnalytics: false,
         );
 
-        final result = await client.isBuilt;
-
-        expect(result, false);
+        expect(client.isBuilt, throwsException);
       });
 
       test('uses config instanceName for all platform calls', () async {
@@ -224,7 +220,8 @@ void main() {
         expect(mockPlatform.lastUser?.userId, 'user-123');
       });
 
-      test('delegates to platform with instanceName and null user', () async {
+      test('delegates to platform with instanceName and resolved user when null passed',
+          () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
@@ -236,7 +233,8 @@ void main() {
         await client.start(null);
 
         expect(mockPlatform.lastInstanceName, 'test-instance');
-        expect(mockPlatform.lastUser, isNull);
+        // _resolveUser() always produces an ExperimentUser (merged result)
+        expect(mockPlatform.lastUser, isNotNull);
       });
     });
 
@@ -276,7 +274,8 @@ void main() {
         expect(mockPlatform.lastUser?.userId, 'user-123');
       });
 
-      test('delegates to platform with null user', () async {
+      test('delegates to platform with resolved user when no user passed',
+          () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
@@ -288,7 +287,8 @@ void main() {
         await client.fetch();
 
         expect(mockPlatform.lastInstanceName, 'test-instance');
-        expect(mockPlatform.lastUser, isNull);
+        // _resolveUser() always produces an ExperimentUser (merged result)
+        expect(mockPlatform.lastUser, isNotNull);
       });
     });
 
@@ -386,7 +386,7 @@ void main() {
     });
 
     group('getUser', () {
-      test('delegates to platform and returns user', () async {
+      test('returns empty user when no user has been set', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
@@ -395,15 +395,29 @@ void main() {
         );
         await client.isBuilt;
 
-        final user = await client.getUser();
+        final user = client.getUser();
 
-        expect(mockPlatform.lastInstanceName, 'test-instance');
-        expect(user.userId, 'test-user');
+        expect(user.userId, isNull);
+      });
+
+      test('returns stored user after setUser', () async {
+        final config = ExperimentConfig(instanceName: 'test-instance');
+        final client = ExperimentClient(
+          apiKey: 'key',
+          config: config,
+          withAnalytics: false,
+        );
+        await client.isBuilt;
+
+        client.setUser(ExperimentUser(userId: 'user-123'));
+        final user = client.getUser();
+
+        expect(user.userId, 'user-123');
       });
     });
 
     group('setUser', () {
-      test('delegates to platform with instanceName and user', () async {
+      test('stores user locally', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
@@ -415,10 +429,7 @@ void main() {
         final user = ExperimentUser(userId: 'user-123');
         client.setUser(user);
 
-        // Wait a bit for async operation
-        await Future.delayed(Duration(milliseconds: 10));
-        expect(mockPlatform.lastInstanceName, 'test-instance');
-        expect(mockPlatform.lastUser?.userId, 'user-123');
+        expect(client.getUser().userId, 'user-123');
       });
     });
 

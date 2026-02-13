@@ -4,10 +4,13 @@ import UIKit
 
 public class AmplitudeExperimentPlugin: NSObject, FlutterPlugin, AmplitudeExperimentHostApi {
     private var instances: [String: ExperimentClient] = [:]
+    var providerApi: CustomProviderApi!
 
     public static func register(with registrar: FlutterPluginRegistrar) {
         let instance = AmplitudeExperimentPlugin()
-        AmplitudeExperimentHostApiSetup.setUp(binaryMessenger: registrar.messenger(), api: instance)
+        let messenger = registrar.messenger()
+        AmplitudeExperimentHostApiSetup.setUp(binaryMessenger: messenger, api: instance)
+        instance.providerApi = CustomProviderApi(binaryMessenger: messenger)
     }
 
     private func requireClient(_ instanceName: String) throws -> ExperimentClient {
@@ -21,22 +24,32 @@ public class AmplitudeExperimentPlugin: NSObject, FlutterPlugin, AmplitudeExperi
         return client
     }
 
-    func initializeExperiment(apiKey: String, config: ExperimentConfig) throws {
-        let sdkConfig = ExperimentSdkCodec.convertConfig(config)
+    func initializeExperiment(apiKey: String, config: ExperimentConfigData) throws {
+        let sdkConfig = ExperimentSdkCodec.convertConfig(config, api: providerApi)
         let client = Experiment.initialize(apiKey: apiKey, config: sdkConfig)
-        instances[sdkConfig.instanceName] = client
+        instances[config.instanceName] = client
     }
 
-    func initializeExperimentWithAmplitude(apiKey: String, config: ExperimentConfig) throws {
-        let sdkConfig = ExperimentSdkCodec.convertConfig(config)
+    func initializeExperimentWithAmplitude(apiKey: String, config: ExperimentConfigData) throws {
+        let sdkConfig = ExperimentSdkCodec.convertConfig(config, api: providerApi)
         let client = Experiment.initializeWithAmplitudeAnalytics(apiKey: apiKey, config: sdkConfig)
-        instances[sdkConfig.instanceName] = client
+        instances[config.instanceName] = client
     }
 
-    func start(instanceName: String, user: ExperimentUser?) throws {
-        let client = try requireClient(instanceName)
-        let sdkUser = ExperimentSdkCodec.convertUser(user)
-        client.start(sdkUser, completion: nil)
+    func start(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void) {
+        do {
+            let client = try requireClient(instanceName)
+            let sdkUser = ExperimentSdkCodec.convertUser(user)
+            client.start(sdkUser) { error in
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+        } catch {
+            completion(.failure(error))
+        }
     }
 
     func stop(instanceName: String) throws {
@@ -44,34 +57,37 @@ public class AmplitudeExperimentPlugin: NSObject, FlutterPlugin, AmplitudeExperi
         client.stop()
     }
 
-    func fetch(instanceName: String, user: ExperimentUser?) throws {
-        let client = try requireClient(instanceName)
-        let sdkUser = ExperimentSdkCodec.convertUser(user)
-        let semaphore = DispatchSemaphore(value: 0)
-        var fetchError: Error?
-        client.fetch(user: sdkUser) { _, error in
-            fetchError = error
-            semaphore.signal()
-        }
-        semaphore.wait()
-        if let e = fetchError {
-            throw PigeonError(
-                code: "FETCH_ERROR",
-                message: e.localizedDescription,
-                details: nil
-            )
+    func fetch(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void) {
+        do {
+            let client = try requireClient(instanceName)
+            let sdkUser = ExperimentSdkCodec.convertUser(user)
+            client.fetch(user: sdkUser) { _, error in
+                if let error = error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+        } catch {
+            completion(.failure(error))
         }
     }
 
-    func variant(instanceName: String, flagKey: String, fallbackVariant: Variant?) throws -> Variant {
+    func variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?) throws -> Variant {
         let client = try requireClient(instanceName)
+        if let sdkUser = ExperimentSdkCodec.convertUser(user) {
+            client.setUser(sdkUser)
+        }
         let fallback = ExperimentSdkCodec.convertVariant(fallbackVariant)
         let sdkVariant = client.variant(flagKey, fallback: fallback)
         return ExperimentSdkCodec.convertVariant(sdkVariant)
     }
 
-    func all(instanceName: String) throws -> [String: Variant] {
+    func all(instanceName: String, user: ExperimentUser) throws -> [String: Variant] {
         let client = try requireClient(instanceName)
+        if let sdkUser = ExperimentSdkCodec.convertUser(user) {
+            client.setUser(sdkUser)
+        }
         let allVariants = client.all()
         return allVariants.mapValues { ExperimentSdkCodec.convertVariant($0) }
     }

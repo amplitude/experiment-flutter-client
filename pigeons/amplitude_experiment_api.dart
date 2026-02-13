@@ -38,7 +38,7 @@ class ExperimentUser {
   final String? carrier;
   final String? library;
   final String? ipAddress;
-  final Map<String, Object>? userProperties;
+  final Map<String, Object?>? userProperties;
   final Map<String, List<String>>? groups;
   final Map<String, Map<String, Map<String, Object?>>>? groupProperties;
 
@@ -98,7 +98,6 @@ class ExperimentConfigData {
   bool pollOnStart;
   bool automaticFetchOnAmplitudeIdentityChange;
   bool hasTrackingProvider;
-  bool hasUserProvider;
 
   ExperimentConfigData({
     required this.instanceName,
@@ -117,7 +116,6 @@ class ExperimentConfigData {
     required this.pollOnStart,
     required this.automaticFetchOnAmplitudeIdentityChange,
     required this.hasTrackingProvider,
-    required this.hasUserProvider,
   });
 }
 
@@ -139,11 +137,11 @@ abstract class AmplitudeExperimentHostApi {
 
   Variant variant(
     String instanceName,
+    ExperimentUser user,
     String flagKey,
     Variant? fallbackVariant,
   );
-
-  Map<String, Variant> all(String instanceName);
+  Map<String, Variant> all(String instanceName, ExperimentUser user);
 
   void clear(String instanceName);
 
@@ -171,7 +169,4 @@ class FetchOptions {
 @FlutterApi()
 abstract class CustomProviderApi {
   void track(String instanceName, Exposure exposure);
-
-  @async
-  ExperimentUser getUser(String instanceName);
 }

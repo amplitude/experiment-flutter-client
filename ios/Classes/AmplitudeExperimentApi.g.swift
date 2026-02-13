@@ -168,7 +168,7 @@ struct ExperimentUser: Hashable {
   var carrier: String? = nil
   var library: String? = nil
   var ipAddress: String? = nil
-  var userProperties: [String: Any]? = nil
+  var userProperties: [String: Any?]? = nil
   var groups: [String: [String]]? = nil
   var groupProperties: [String: [String: [String: Any?]]]? = nil
 
@@ -191,7 +191,7 @@ struct ExperimentUser: Hashable {
     let carrier: String? = nilOrValue(pigeonVar_list[13])
     let library: String? = nilOrValue(pigeonVar_list[14])
     let ipAddress: String? = nilOrValue(pigeonVar_list[15])
-    let userProperties: [String: Any]? = nilOrValue(pigeonVar_list[16])
+    let userProperties: [String: Any?]? = nilOrValue(pigeonVar_list[16])
     let groups: [String: [String]]? = nilOrValue(pigeonVar_list[17])
     let groupProperties: [String: [String: [String: Any?]]]? = nilOrValue(pigeonVar_list[18])
 
@@ -306,7 +306,6 @@ struct ExperimentConfigData: Hashable {
   var pollOnStart: Bool
   var automaticFetchOnAmplitudeIdentityChange: Bool
   var hasTrackingProvider: Bool
-  var hasUserProvider: Bool
 
 
   // swift-format-ignore: AlwaysUseLowerCamelCase
@@ -327,7 +326,6 @@ struct ExperimentConfigData: Hashable {
     let pollOnStart = pigeonVar_list[13] as! Bool
     let automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[14] as! Bool
     let hasTrackingProvider = pigeonVar_list[15] as! Bool
-    let hasUserProvider = pigeonVar_list[16] as! Bool
 
     return ExperimentConfigData(
       instanceName: instanceName,
@@ -345,8 +343,7 @@ struct ExperimentConfigData: Hashable {
       fetchOnStart: fetchOnStart,
       pollOnStart: pollOnStart,
       automaticFetchOnAmplitudeIdentityChange: automaticFetchOnAmplitudeIdentityChange,
-      hasTrackingProvider: hasTrackingProvider,
-      hasUserProvider: hasUserProvider
+      hasTrackingProvider: hasTrackingProvider
     )
   }
   func toList() -> [Any?] {
@@ -367,7 +364,6 @@ struct ExperimentConfigData: Hashable {
       pollOnStart,
       automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider,
-      hasUserProvider,
     ]
   }
   static func == (lhs: ExperimentConfigData, rhs: ExperimentConfigData) -> Bool {
@@ -534,8 +530,8 @@ protocol AmplitudeExperimentHostApi {
   func start(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void)
   func stop(instanceName: String) throws
   func fetch(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void)
-  func variant(instanceName: String, flagKey: String, fallbackVariant: Variant?) throws -> Variant
-  func all(instanceName: String) throws -> [String: Variant]
+  func variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?) throws -> Variant
+  func all(instanceName: String, user: ExperimentUser) throws -> [String: Variant]
   func clear(instanceName: String) throws
   func exposure(instanceName: String, key: String) throws
   func getUser(instanceName: String) throws -> ExperimentUser
@@ -637,10 +633,11 @@ class AmplitudeExperimentHostApiSetup {
       variantChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let instanceNameArg = args[0] as! String
-        let flagKeyArg = args[1] as! String
-        let fallbackVariantArg: Variant? = nilOrValue(args[2])
+        let userArg = args[1] as! ExperimentUser
+        let flagKeyArg = args[2] as! String
+        let fallbackVariantArg: Variant? = nilOrValue(args[3])
         do {
-          let result = try api.variant(instanceName: instanceNameArg, flagKey: flagKeyArg, fallbackVariant: fallbackVariantArg)
+          let result = try api.variant(instanceName: instanceNameArg, user: userArg, flagKey: flagKeyArg, fallbackVariant: fallbackVariantArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))
@@ -654,8 +651,9 @@ class AmplitudeExperimentHostApiSetup {
       allChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let instanceNameArg = args[0] as! String
+        let userArg = args[1] as! ExperimentUser
         do {
-          let result = try api.all(instanceName: instanceNameArg)
+          let result = try api.all(instanceName: instanceNameArg, user: userArg)
           reply(wrapResult(result))
         } catch {
           reply(wrapError(error))
@@ -747,7 +745,6 @@ class AmplitudeExperimentHostApiSetup {
 /// Generated protocol from Pigeon that represents Flutter messages that can be called from Swift.
 protocol CustomProviderApiProtocol {
   func track(instanceName instanceNameArg: String, exposure exposureArg: Exposure, completion: @escaping (Result<Void, PigeonError>) -> Void)
-  func getUser(instanceName instanceNameArg: String, completion: @escaping (Result<ExperimentUser, PigeonError>) -> Void)
 }
 class CustomProviderApi: CustomProviderApiProtocol {
   private let binaryMessenger: FlutterBinaryMessenger
@@ -774,27 +771,6 @@ class CustomProviderApi: CustomProviderApiProtocol {
         completion(.failure(PigeonError(code: code, message: message, details: details)))
       } else {
         completion(.success(()))
-      }
-    }
-  }
-  func getUser(instanceName instanceNameArg: String, completion: @escaping (Result<ExperimentUser, PigeonError>) -> Void) {
-    let channelName: String = "dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser\(messageChannelSuffix)"
-    let channel = FlutterBasicMessageChannel(name: channelName, binaryMessenger: binaryMessenger, codec: codec)
-    channel.sendMessage([instanceNameArg] as [Any?]) { response in
-      guard let listResponse = response as? [Any?] else {
-        completion(.failure(createConnectionError(withChannelName: channelName)))
-        return
-      }
-      if listResponse.count > 1 {
-        let code: String = listResponse[0] as! String
-        let message: String? = nilOrValue(listResponse[1])
-        let details: String? = nilOrValue(listResponse[2])
-        completion(.failure(PigeonError(code: code, message: message, details: details)))
-      } else if listResponse[0] == nil {
-        completion(.failure(PigeonError(code: "null-error", message: "Flutter api returned null value for non-null return value.", details: "")))
-      } else {
-        let result = listResponse[0] as! ExperimentUser
-        completion(.success(result))
       }
     }
   }

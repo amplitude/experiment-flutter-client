@@ -135,7 +135,7 @@ data class ExperimentUser (
   val carrier: String? = null,
   val library: String? = null,
   val ipAddress: String? = null,
-  val userProperties: Map<String, Any>? = null,
+  val userProperties: Map<String, Any?>? = null,
   val groups: Map<String, List<String>>? = null,
   val groupProperties: Map<String, Map<String, Map<String, Any?>>>? = null
 )
@@ -158,7 +158,7 @@ data class ExperimentUser (
       val carrier = pigeonVar_list[13] as String?
       val library = pigeonVar_list[14] as String?
       val ipAddress = pigeonVar_list[15] as String?
-      val userProperties = pigeonVar_list[16] as Map<String, Any>?
+      val userProperties = pigeonVar_list[16] as Map<String, Any?>?
       val groups = pigeonVar_list[17] as Map<String, List<String>>?
       val groupProperties = pigeonVar_list[18] as Map<String, Map<String, Map<String, Any?>>>?
       return ExperimentUser(deviceId, userId, country, city, region, dma, language, platform, version, os, deviceModel, deviceBrand, deviceManufacturer, carrier, library, ipAddress, userProperties, groups, groupProperties)
@@ -256,8 +256,7 @@ data class ExperimentConfigData (
   val fetchOnStart: Boolean,
   val pollOnStart: Boolean,
   val automaticFetchOnAmplitudeIdentityChange: Boolean,
-  val hasTrackingProvider: Boolean,
-  val hasUserProvider: Boolean
+  val hasTrackingProvider: Boolean
 )
  {
   companion object {
@@ -278,8 +277,7 @@ data class ExperimentConfigData (
       val pollOnStart = pigeonVar_list[13] as Boolean
       val automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[14] as Boolean
       val hasTrackingProvider = pigeonVar_list[15] as Boolean
-      val hasUserProvider = pigeonVar_list[16] as Boolean
-      return ExperimentConfigData(instanceName, logLevel, fallbackVariant, initialFlags, initialVariants, source, serverZone, serverUrl, flagsServerUrl, fetchTimeoutMillis, retryFetchOnFailure, automaticExposureTracking, fetchOnStart, pollOnStart, automaticFetchOnAmplitudeIdentityChange, hasTrackingProvider, hasUserProvider)
+      return ExperimentConfigData(instanceName, logLevel, fallbackVariant, initialFlags, initialVariants, source, serverZone, serverUrl, flagsServerUrl, fetchTimeoutMillis, retryFetchOnFailure, automaticExposureTracking, fetchOnStart, pollOnStart, automaticFetchOnAmplitudeIdentityChange, hasTrackingProvider)
     }
   }
   fun toList(): List<Any?> {
@@ -300,7 +298,6 @@ data class ExperimentConfigData (
       pollOnStart,
       automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider,
-      hasUserProvider,
     )
   }
   override fun equals(other: Any?): Boolean {
@@ -475,8 +472,8 @@ interface AmplitudeExperimentHostApi {
   fun start(instanceName: String, user: ExperimentUser?, callback: (Result<Unit>) -> Unit)
   fun stop(instanceName: String)
   fun fetch(instanceName: String, user: ExperimentUser?, callback: (Result<Unit>) -> Unit)
-  fun variant(instanceName: String, flagKey: String, fallbackVariant: Variant?): Variant
-  fun all(instanceName: String): Map<String, Variant>
+  fun variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?): Variant
+  fun all(instanceName: String, user: ExperimentUser): Map<String, Variant>
   fun clear(instanceName: String)
   fun exposure(instanceName: String, key: String)
   fun getUser(instanceName: String): ExperimentUser
@@ -594,10 +591,11 @@ interface AmplitudeExperimentHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val instanceNameArg = args[0] as String
-            val flagKeyArg = args[1] as String
-            val fallbackVariantArg = args[2] as Variant?
+            val userArg = args[1] as ExperimentUser
+            val flagKeyArg = args[2] as String
+            val fallbackVariantArg = args[3] as Variant?
             val wrapped: List<Any?> = try {
-              listOf(api.variant(instanceNameArg, flagKeyArg, fallbackVariantArg))
+              listOf(api.variant(instanceNameArg, userArg, flagKeyArg, fallbackVariantArg))
             } catch (exception: Throwable) {
               AmplitudeExperimentApiPigeonUtils.wrapError(exception)
             }
@@ -613,8 +611,9 @@ interface AmplitudeExperimentHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val instanceNameArg = args[0] as String
+            val userArg = args[1] as ExperimentUser
             val wrapped: List<Any?> = try {
-              listOf(api.all(instanceNameArg))
+              listOf(api.all(instanceNameArg, userArg))
             } catch (exception: Throwable) {
               AmplitudeExperimentApiPigeonUtils.wrapError(exception)
             }
@@ -738,26 +737,6 @@ class CustomProviderApi(private val binaryMessenger: BinaryMessenger, private va
           callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
         } else {
           callback(Result.success(Unit))
-        }
-      } else {
-        callback(Result.failure(AmplitudeExperimentApiPigeonUtils.createConnectionError(channelName)))
-      } 
-    }
-  }
-  fun getUser(instanceNameArg: String, callback: (Result<ExperimentUser>) -> Unit)
-{
-    val separatedMessageChannelSuffix = if (messageChannelSuffix.isNotEmpty()) ".$messageChannelSuffix" else ""
-    val channelName = "dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser$separatedMessageChannelSuffix"
-    val channel = BasicMessageChannel<Any?>(binaryMessenger, channelName, codec)
-    channel.send(listOf(instanceNameArg)) {
-      if (it is List<*>) {
-        if (it.size > 1) {
-          callback(Result.failure(FlutterError(it[0] as String, it[1] as String, it[2] as String?)))
-        } else if (it[0] == null) {
-          callback(Result.failure(FlutterError("null-error", "Flutter api returned null value for non-null return value.", "")))
-        } else {
-          val output = it[0] as ExperimentUser
-          callback(Result.success(output))
         }
       } else {
         callback(Result.failure(AmplitudeExperimentApiPigeonUtils.createConnectionError(channelName)))

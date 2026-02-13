@@ -77,7 +77,6 @@ class ExperimentConfig {
       automaticFetchOnAmplitudeIdentityChange:
           automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider: trackingProvider != null,
-      hasUserProvider: userProvider != null,
     );
   }
 }

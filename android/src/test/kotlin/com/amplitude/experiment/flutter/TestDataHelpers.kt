@@ -92,7 +92,8 @@ object TestDataHelpers {
         fetchOnStart: Boolean = true,
         pollOnStart: Boolean = false,
         automaticFetchOnAmplitudeIdentityChange: Boolean = false,
-    ): ExperimentConfig = ExperimentConfig(
+        hasTrackingProvider: Boolean = false,
+    ): ExperimentConfigData = ExperimentConfigData(
         logLevel = logLevel,
         instanceName = instanceName,
         fallbackVariant = fallbackVariant,
@@ -108,6 +109,7 @@ object TestDataHelpers {
         fetchOnStart = fetchOnStart,
         pollOnStart = pollOnStart,
         automaticFetchOnAmplitudeIdentityChange = automaticFetchOnAmplitudeIdentityChange,
+        hasTrackingProvider = hasTrackingProvider,
     )
 
     /**

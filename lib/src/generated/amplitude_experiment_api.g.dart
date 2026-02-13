@@ -114,7 +114,7 @@ class ExperimentUser {
 
   String? ipAddress;
 
-  Map<String, Object>? userProperties;
+  Map<String, Object?>? userProperties;
 
   Map<String, List<String>>? groups;
 
@@ -166,7 +166,7 @@ class ExperimentUser {
       carrier: result[13] as String?,
       library: result[14] as String?,
       ipAddress: result[15] as String?,
-      userProperties: (result[16] as Map<Object?, Object?>?)?.cast<String, Object>(),
+      userProperties: (result[16] as Map<Object?, Object?>?)?.cast<String, Object?>(),
       groups: (result[17] as Map<Object?, Object?>?)?.cast<String, List<String>>(),
       groupProperties: (result[18] as Map<Object?, Object?>?)?.cast<String, Map<String, Map<String, Object?>>>(),
     );
@@ -269,7 +269,6 @@ class ExperimentConfigData {
     required this.pollOnStart,
     required this.automaticFetchOnAmplitudeIdentityChange,
     required this.hasTrackingProvider,
-    required this.hasUserProvider,
   });
 
   String instanceName;
@@ -304,8 +303,6 @@ class ExperimentConfigData {
 
   bool hasTrackingProvider;
 
-  bool hasUserProvider;
-
   List<Object?> _toList() {
     return <Object?>[
       instanceName,
@@ -324,7 +321,6 @@ class ExperimentConfigData {
       pollOnStart,
       automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider,
-      hasUserProvider,
     ];
   }
 
@@ -350,7 +346,6 @@ class ExperimentConfigData {
       pollOnStart: result[13]! as bool,
       automaticFetchOnAmplitudeIdentityChange: result[14]! as bool,
       hasTrackingProvider: result[15]! as bool,
-      hasUserProvider: result[16]! as bool,
     );
   }
 
@@ -662,14 +657,14 @@ class AmplitudeExperimentHostApi {
     }
   }
 
-  Future<Variant> variant(String instanceName, String flagKey, Variant? fallbackVariant) async {
+  Future<Variant> variant(String instanceName, ExperimentUser user, String flagKey, Variant? fallbackVariant) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.amplitude_experiment.AmplitudeExperimentHostApi.variant$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[instanceName, flagKey, fallbackVariant]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[instanceName, user, flagKey, fallbackVariant]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
@@ -689,14 +684,14 @@ class AmplitudeExperimentHostApi {
     }
   }
 
-  Future<Map<String, Variant>> all(String instanceName) async {
+  Future<Map<String, Variant>> all(String instanceName, ExperimentUser user) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.amplitude_experiment.AmplitudeExperimentHostApi.all$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[instanceName]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[instanceName, user]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);
@@ -837,8 +832,6 @@ abstract class CustomProviderApi {
 
   void track(String instanceName, Exposure exposure);
 
-  Future<ExperimentUser> getUser(String instanceName);
-
   static void setUp(CustomProviderApi? api, {BinaryMessenger? binaryMessenger, String messageChannelSuffix = '',}) {
     messageChannelSuffix = messageChannelSuffix.isNotEmpty ? '.$messageChannelSuffix' : '';
     {
@@ -861,31 +854,6 @@ abstract class CustomProviderApi {
           try {
             api.track(arg_instanceName!, arg_exposure!);
             return wrapResponse(empty: true);
-          } on PlatformException catch (e) {
-            return wrapResponse(error: e);
-          }          catch (e) {
-            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
-          }
-        });
-      }
-    }
-    {
-      final pigeonVar_channel = BasicMessageChannel<Object?>(
-          'dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser$messageChannelSuffix', pigeonChannelCodec,
-          binaryMessenger: binaryMessenger);
-      if (api == null) {
-        pigeonVar_channel.setMessageHandler(null);
-      } else {
-        pigeonVar_channel.setMessageHandler((Object? message) async {
-          assert(message != null,
-          'Argument for dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser was null.');
-          final List<Object?> args = (message as List<Object?>?)!;
-          final String? arg_instanceName = (args[0] as String?);
-          assert(arg_instanceName != null,
-              'Argument for dev.flutter.pigeon.amplitude_experiment.CustomProviderApi.getUser was null, expected non-null String.');
-          try {
-            final ExperimentUser output = await api.getUser(arg_instanceName!);
-            return wrapResponse(result: output);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
           }          catch (e) {

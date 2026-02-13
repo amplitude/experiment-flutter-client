@@ -5,9 +5,20 @@ import 'package:amplitude_experiment/src/web/codec/codec_utils.dart';
 
 /// Codec for converting Variant objects between Dart and JS.
 class VariantCodec {
+  /// Converts a Variant to a plain Dart Map matching the JS SDK's Variant shape.
+  static Map<String, dynamic> toMap(Variant variant) {
+    final map = <String, dynamic>{};
+    if (variant.key != null) map['key'] = variant.key;
+    if (variant.value != null) map['value'] = variant.value;
+    if (variant.payload != null) map['payload'] = variant.payload;
+    if (variant.expKey != null) map['expKey'] = variant.expKey;
+    if (variant.metadata != null) map['metadata'] = variant.metadata;
+    return map;
+  }
+
   /// Converts a Variant to a JSObject for the JavaScript SDK.
   static JSObject toJSObject(Variant variant) {
-    return variant.encode().jsify() as JSObject;
+    return toMap(variant).jsify() as JSObject;
   }
 
   /// Converts a JSObject from the JavaScript SDK to a Dart Variant.

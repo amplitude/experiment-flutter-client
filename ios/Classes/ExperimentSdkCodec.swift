@@ -63,8 +63,8 @@ enum ExperimentSdkCodec {
         )
     }
 
-    /// Convert Pigeon ExperimentConfig to SDK ExperimentConfig.
-    static func convertConfig(_ pigeon: ExperimentConfig) -> AmplitudeExperiment.ExperimentConfig {
+    /// Convert Pigeon ExperimentConfigData to SDK ExperimentConfig.
+    static func convertConfig(_ pigeon: ExperimentConfigData, api: CustomProviderApi) -> AmplitudeExperiment.ExperimentConfig {
         let builder = AmplitudeExperiment.ExperimentConfigBuilder()
         builder.instanceName(pigeon.instanceName)
         if let fallback = convertVariant(pigeon.fallbackVariant) {
@@ -82,6 +82,11 @@ enum ExperimentSdkCodec {
         builder.fetchOnStart(pigeon.fetchOnStart)
         builder.pollOnStart(pigeon.pollOnStart)
         builder.automaticFetchOnAmplitudeIdentityChange(pigeon.automaticFetchOnAmplitudeIdentityChange)
+        if pigeon.hasTrackingProvider {
+            builder.exposureTrackingProvider(
+                PigeonExposureTrackingProvider(instanceName: pigeon.instanceName, api: api)
+            )
+        }
         return builder.build()
     }
 
@@ -108,6 +113,16 @@ enum ExperimentSdkCodec {
         )
     }
 
+    /// Convert SDK Exposure to Pigeon Exposure (for tracking provider callback).
+    static func convertExposure(_ sdk: AmplitudeExperiment.Exposure) -> Exposure {
+        Exposure(
+            flagKey: sdk.flagKey,
+            variant: sdk.variant,
+            experimentKey: sdk.experimentKey,
+            metadata: sdk.metadata
+        )
+    }
+
     private static func convertVariants(_ pigeon: [String: Variant]) -> [String: AmplitudeExperiment.Variant] {
         pigeon.mapValues { convertVariant($0)! }
     }
@@ -124,5 +139,21 @@ enum ExperimentSdkCodec {
         case .us: return AmplitudeExperiment.ServerZone.US
         case .eu: return AmplitudeExperiment.ServerZone.EU
         }
+    }
+}
+
+/// Bridges native ExposureTrackingProvider to Dart via Pigeon's CustomProviderApi.
+class PigeonExposureTrackingProvider: NSObject, AmplitudeExperiment.ExposureTrackingProvider {
+    private let instanceName: String
+    private let api: CustomProviderApi
+
+    init(instanceName: String, api: CustomProviderApi) {
+        self.instanceName = instanceName
+        self.api = api
+    }
+
+    func track(exposure: AmplitudeExperiment.Exposure) {
+        let pigeonExposure = ExperimentSdkCodec.convertExposure(exposure)
+        api.track(instanceName: instanceName, exposure: pigeonExposure) { _ in }
     }
 }
