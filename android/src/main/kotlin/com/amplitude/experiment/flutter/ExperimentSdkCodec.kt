@@ -1,5 +1,6 @@
 package com.amplitude.experiment.flutter
 
+import android.util.Log
 
 import com.amplitude.experiment.flutter.ExperimentConfigData as FlutterConfig
 import com.amplitude.experiment.ExperimentConfig
@@ -100,8 +101,16 @@ fun variantsToPigeon(variants: Map<String, Variant>): Map<String, FlutterVariant
     return variants.mapValues { (_, v) -> variantToPigeon(v) }
 }
 
-private fun variantsFromPigeon(flutterVariants :Map<String, FlutterVariant>): Map<String, Variant> {
-    return flutterVariants.mapValues { (_, fv) -> variantFromPigeon(fv)!! }
+private fun variantsFromPigeon(flutterVariants: Map<String, FlutterVariant>): Map<String, Variant> {
+    return flutterVariants.mapNotNull { (key, fv) ->
+        val converted = variantFromPigeon(fv)
+        if (converted == null) {
+            Log.w("ExperimentSdkCodec", "Failed to convert initial variant for key '$key', skipping")
+            null
+        } else {
+            key to converted
+        }
+    }.toMap()
 }
 
 private fun groupsFromPigeon(flutterGroup: Map<String, List<String>>?) :Map<String, Set<String>>? {

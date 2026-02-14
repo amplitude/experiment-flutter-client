@@ -530,8 +530,8 @@ protocol AmplitudeExperimentHostApi {
   func start(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void)
   func stop(instanceName: String) throws
   func fetch(instanceName: String, user: ExperimentUser?, options: FetchOptions?, completion: @escaping (Result<Void, Error>) -> Void)
-  func variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?) throws -> Variant
-  func all(instanceName: String, user: ExperimentUser) throws -> [String: Variant]
+  func variant(instanceName: String, user: ExperimentUser?, flagKey: String, fallbackVariant: Variant?) throws -> Variant
+  func all(instanceName: String, user: ExperimentUser?) throws -> [String: Variant]
   func clear(instanceName: String) throws
   func exposure(instanceName: String, key: String) throws
   func getUser(instanceName: String) throws -> ExperimentUser
@@ -634,7 +634,7 @@ class AmplitudeExperimentHostApiSetup {
       variantChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let instanceNameArg = args[0] as! String
-        let userArg = args[1] as! ExperimentUser
+        let userArg: ExperimentUser? = nilOrValue(args[1])
         let flagKeyArg = args[2] as! String
         let fallbackVariantArg: Variant? = nilOrValue(args[3])
         do {
@@ -652,7 +652,7 @@ class AmplitudeExperimentHostApiSetup {
       allChannel.setMessageHandler { message, reply in
         let args = message as! [Any?]
         let instanceNameArg = args[0] as! String
-        let userArg = args[1] as! ExperimentUser
+        let userArg: ExperimentUser? = nilOrValue(args[1])
         do {
           let result = try api.all(instanceName: instanceNameArg, user: userArg)
           reply(wrapResult(result))

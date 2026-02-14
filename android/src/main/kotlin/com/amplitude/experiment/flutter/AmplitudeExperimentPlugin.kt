@@ -87,18 +87,18 @@ class AmplitudeExperimentPlugin :
 
     override fun variant(
         instanceName: String,
-        user: ExperimentUser,
+        user: ExperimentUser?,
         flagKey: String,
         fallbackVariant: Variant?
     ): Variant {
         val client = getClient(instanceName)
-        client.setUser(convertUser(user)!!)
+        convertUser(user)?.let { client.setUser(it) }
         return variantToPigeon(client.variant(flagKey, variantFromPigeon(fallbackVariant)))
     }
 
-    override fun all(instanceName: String, user: ExperimentUser): Map<String, Variant> {
+    override fun all(instanceName: String, user: ExperimentUser?): Map<String, Variant> {
         val client = getClient(instanceName)
-        client.setUser(convertUser(user)!!)
+        convertUser(user)?.let { client.setUser(it) }
         return variantsToPigeon(client.all())
     }
 
@@ -111,14 +111,16 @@ class AmplitudeExperimentPlugin :
     }
 
     override fun getUser(instanceName: String): ExperimentUser {
-        return convertUser(getClient(instanceName).getUser()!!)
+        val sdkUser = requireNotNull(getClient(instanceName).getUser()) { "native getUser() returned null for instance $instanceName" }
+        return convertUser(sdkUser)
     }
 
     override fun setUser(
         instanceName: String,
         user: ExperimentUser
     ) {
-        getClient(instanceName).setUser(convertUser(user)!!)
+        val sdkUser = requireNotNull(convertUser(user)) { "user conversion must not return null for non-null input" }
+        getClient(instanceName).setUser(sdkUser)
     }
 
     override fun setTracksAssignment(

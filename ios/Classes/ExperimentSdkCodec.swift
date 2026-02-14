@@ -7,6 +7,9 @@ import Foundation
  */
 enum ExperimentSdkCodec {
     /// Convert Pigeon ExperimentUser to SDK ExperimentUser.
+    ///
+    /// Note: `deviceBrand` and `ipAddress` from the pigeon user are not
+    /// forwarded because the iOS Experiment SDK does not support these fields.
     static func convertUser(_ pigeon: ExperimentUser?) -> AmplitudeExperiment.ExperimentUser? {
         guard let pigeon = pigeon else { return nil }
         let builder = AmplitudeExperiment.ExperimentUserBuilder()
@@ -31,6 +34,9 @@ enum ExperimentSdkCodec {
     }
 
     /// Convert SDK ExperimentUser to Pigeon ExperimentUser (for getUser return value).
+    ///
+    /// Note: `deviceBrand` and `ipAddress` are not supported by the iOS
+    /// Experiment SDK and are always nil in the returned value.
     static func convertUserToPigeon(_ sdk: AmplitudeExperiment.ExperimentUser?) -> ExperimentUser {
         guard let sdk = sdk else {
             return ExperimentUser()
@@ -52,10 +58,11 @@ enum ExperimentSdkCodec {
             version: sdk.version,
             os: sdk.os,
             deviceModel: sdk.deviceModel,
+            deviceBrand: nil,  // iOS SDK does not support deviceBrand
             deviceManufacturer: sdk.deviceManufacturer,
             carrier: sdk.carrier,
             library: sdk.library,
-            ipAddress: nil,
+            ipAddress: nil,  // iOS SDK does not support ipAddress
             userProperties: sdk.userProperties,
             groups: groups,
             groupProperties: sdk.groupProperties

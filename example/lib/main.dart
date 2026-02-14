@@ -64,14 +64,13 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       await _amplitude!.isBuilt;
 
       // Initialize Experiment with Amplitude integration
-      _experiment = Experiment.initializeWithAmplitude(
+      _experiment = await Experiment.initializeWithAmplitude(
         DEPLOY_KEY,
         ExperimentConfig(
           // trackingProvider: CustomTrackingProvider(),
           // userProvider: CustomUserProvider(),
         ),
       );
-      await _experiment!.isBuilt;
 
       if (!mounted) return;
 

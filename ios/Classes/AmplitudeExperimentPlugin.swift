@@ -74,7 +74,7 @@ public class AmplitudeExperimentPlugin: NSObject, FlutterPlugin, AmplitudeExperi
         }
     }
 
-    func variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?) throws -> Variant {
+    func variant(instanceName: String, user: ExperimentUser?, flagKey: String, fallbackVariant: Variant?) throws -> Variant {
         let client = try requireClient(instanceName)
         if let sdkUser = ExperimentSdkCodec.convertUser(user) {
             client.setUser(sdkUser)
@@ -84,7 +84,7 @@ public class AmplitudeExperimentPlugin: NSObject, FlutterPlugin, AmplitudeExperi
         return ExperimentSdkCodec.convertVariant(sdkVariant)
     }
 
-    func all(instanceName: String, user: ExperimentUser) throws -> [String: Variant] {
+    func all(instanceName: String, user: ExperimentUser?) throws -> [String: Variant] {
         let client = try requireClient(instanceName)
         if let sdkUser = ExperimentSdkCodec.convertUser(user) {
             client.setUser(sdkUser)

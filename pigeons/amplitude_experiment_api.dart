@@ -137,11 +137,11 @@ abstract class AmplitudeExperimentHostApi {
 
   Variant variant(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
     String flagKey,
     Variant? fallbackVariant,
   );
-  Map<String, Variant> all(String instanceName, ExperimentUser user);
+  Map<String, Variant> all(String instanceName, ExperimentUser? user);
 
   void clear(String instanceName);
 

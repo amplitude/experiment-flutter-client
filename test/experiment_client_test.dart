@@ -60,7 +60,7 @@ class MockExperimentPlatform
   @override
   Future<Variant> variant(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
     String flagKey,
     Variant? fallbackVariant,
   ) async {
@@ -74,7 +74,7 @@ class MockExperimentPlatform
   @override
   Future<Map<String, Variant>> all(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
   ) async {
     lastInstanceName = instanceName;
     lastUser = user;
@@ -137,63 +137,50 @@ void main() {
     });
 
     group('initialization', () {
-      test('calls platform.init when withAnalytics is false', () async {
+      test('calls platform.init via Experiment.initialize', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'test-api-key',
-          config: config,
-          withAnalytics: false,
-        );
-
-        await client.isBuilt;
+        final client = await Experiment.initialize('test-api-key', config);
 
         expect(mockPlatform.lastApiKey, 'test-api-key');
         expect(
           mockPlatform.lastConfig?.pigeonConfig.instanceName,
           'test-instance',
         );
+        // Verify client is usable immediately after await
+        expect(client, isA<ExperimentClient>());
       });
 
       test(
-        'calls platform.initWithAmplitude when withAnalytics is true',
+        'calls platform.initWithAmplitude via Experiment.initializeWithAmplitude',
         () async {
           final config = ExperimentConfig(instanceName: 'test-instance');
-          final client = ExperimentClient(
-            apiKey: 'test-api-key',
-            config: config,
-            withAnalytics: true,
+          final client = await Experiment.initializeWithAmplitude(
+            'test-api-key',
+            config,
           );
-
-          await client.isBuilt;
 
           expect(mockPlatform.lastApiKey, 'test-api-key');
           expect(
             mockPlatform.lastConfig?.pigeonConfig.instanceName,
             'test-instance',
           );
+          expect(client, isA<ExperimentClient>());
         },
       );
 
-      test('isBuilt throws when initialization fails', () async {
+      test('throws when initialization fails', () async {
         mockPlatform.shouldThrowOnInit = true;
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'test-api-key',
-          config: config,
-          withAnalytics: false,
-        );
 
-        expect(client.isBuilt, throwsException);
+        expect(
+          Experiment.initialize('test-api-key', config),
+          throwsException,
+        );
       });
 
       test('uses config instanceName for all platform calls', () async {
         final config = ExperimentConfig(instanceName: 'custom-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         await client.start(null);
         expect(mockPlatform.lastInstanceName, 'custom-instance');
@@ -209,12 +196,7 @@ void main() {
     group('start', () {
       test('delegates to platform with instanceName and user', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         final user = ExperimentUser(userId: 'user-123');
         await client.start(user);
@@ -227,17 +209,11 @@ void main() {
         'delegates to platform with instanceName and resolved user when null passed',
         () async {
           final config = ExperimentConfig(instanceName: 'test-instance');
-          final client = ExperimentClient(
-            apiKey: 'key',
-            config: config,
-            withAnalytics: false,
-          );
-          await client.isBuilt;
+          final client = await Experiment.initialize('key', config);
 
           await client.start(null);
 
           expect(mockPlatform.lastInstanceName, 'test-instance');
-          // _resolveUser() always produces an ExperimentUser (merged result)
           expect(mockPlatform.lastUser, isNotNull);
         },
       );
@@ -246,16 +222,10 @@ void main() {
     group('stop', () {
       test('delegates to platform with instanceName', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         client.stop();
 
-        // Wait a bit for async operation
         await Future.delayed(Duration(milliseconds: 10));
         expect(mockPlatform.lastInstanceName, 'test-instance');
       });
@@ -264,12 +234,7 @@ void main() {
     group('fetch', () {
       test('delegates to platform and returns self', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         final user = ExperimentUser(userId: 'user-123');
         final result = await client.fetch(user);
@@ -281,12 +246,7 @@ void main() {
 
       test('passes FetchOptions to platform', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         final user = ExperimentUser(userId: 'user-123');
         final options = FetchOptions(flagKeys: ['flag-1', 'flag-2']);
@@ -299,17 +259,11 @@ void main() {
         'delegates to platform with resolved user when no user passed',
         () async {
           final config = ExperimentConfig(instanceName: 'test-instance');
-          final client = ExperimentClient(
-            apiKey: 'key',
-            config: config,
-            withAnalytics: false,
-          );
-          await client.isBuilt;
+          final client = await Experiment.initialize('key', config);
 
           await client.fetch();
 
           expect(mockPlatform.lastInstanceName, 'test-instance');
-          // _resolveUser() always produces an ExperimentUser (merged result)
           expect(mockPlatform.lastUser, isNotNull);
         },
       );
@@ -318,12 +272,7 @@ void main() {
     group('variant', () {
       test('delegates to platform with correct parameters', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         final fallback = Variant(key: 'fallback', value: 'value');
         final variant = await client.variant('flag-key', fallback);
@@ -337,12 +286,7 @@ void main() {
 
       test('delegates to platform with null fallback', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         await client.variant('flag-key', null);
 
@@ -355,12 +299,7 @@ void main() {
     group('all', () {
       test('delegates to platform and returns all variants', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         final all = await client.all();
 
@@ -374,16 +313,10 @@ void main() {
     group('clear', () {
       test('delegates to platform with instanceName', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         client.clear();
 
-        // Wait a bit for async operation
         await Future.delayed(Duration(milliseconds: 10));
         expect(mockPlatform.lastInstanceName, 'test-instance');
       });
@@ -392,16 +325,10 @@ void main() {
     group('exposure', () {
       test('delegates to platform with instanceName and flagKey', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         client.exposure('flag-key');
 
-        // Wait a bit for async operation
         await Future.delayed(Duration(milliseconds: 10));
         expect(mockPlatform.lastInstanceName, 'test-instance');
         expect(mockPlatform.lastFlagKey, 'flag-key');
@@ -411,12 +338,7 @@ void main() {
     group('getUser', () {
       test('returns empty user when no user has been set', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         final user = client.getUser();
 
@@ -425,12 +347,7 @@ void main() {
 
       test('returns stored user after setUser', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         client.setUser(ExperimentUser(userId: 'user-123'));
         final user = client.getUser();
@@ -442,12 +359,7 @@ void main() {
     group('setUser', () {
       test('stores user locally', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         final user = ExperimentUser(userId: 'user-123');
         client.setUser(user);
@@ -480,12 +392,7 @@ void main() {
           instanceName: 'test-instance',
           userProvider: provider,
         );
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         await client.fetch(ExperimentUser());
 
@@ -522,12 +429,7 @@ void main() {
           instanceName: 'test-instance',
           userProvider: provider,
         );
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         await client.fetch(ExperimentUser(
           userId: 'sdk-user',
@@ -559,12 +461,7 @@ void main() {
           instanceName: 'test-instance',
           userProvider: provider,
         );
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+        final client = await Experiment.initialize('key', config);
 
         await client.fetch(ExperimentUser(
           userProperties: {'color': 'red'},
@@ -581,16 +478,10 @@ void main() {
         'delegates to platform with instanceName and tracksAssignment',
         () async {
           final config = ExperimentConfig(instanceName: 'test-instance');
-          final client = ExperimentClient(
-            apiKey: 'key',
-            config: config,
-            withAnalytics: false,
-          );
-          await client.isBuilt;
+          final client = await Experiment.initialize('key', config);
 
           client.setTracksAssignment(true);
 
-          // Wait a bit for async operation
           await Future.delayed(Duration(milliseconds: 10));
           expect(mockPlatform.lastInstanceName, 'test-instance');
           expect(mockPlatform.lastTracksAssignment, true);

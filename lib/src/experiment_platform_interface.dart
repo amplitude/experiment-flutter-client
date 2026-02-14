@@ -55,14 +55,14 @@ abstract class ExperimentPlatform extends PlatformInterface {
 
   Future<Variant> variant(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
     String flagKey,
     Variant? fallbackVariant,
   ) {
     throw UnimplementedError('variant() has not been implemented.');
   }
 
-  Future<Map<String, Variant>> all(String instanceName, ExperimentUser user) {
+  Future<Map<String, Variant>> all(String instanceName, ExperimentUser? user) {
     throw UnimplementedError('all() has not been implemented.');
   }
 

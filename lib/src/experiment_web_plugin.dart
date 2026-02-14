@@ -83,7 +83,7 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   @override
   Future<Variant> variant(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
     String flagKey,
     Variant? fallbackVariant,
   ) async {
@@ -103,7 +103,7 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   @override
   Future<Map<String, Variant>> all(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
   ) async {
     final client = _getClient(instanceName);
     final allFn = client['all'] as JSFunction?;
@@ -192,11 +192,13 @@ class ExperimentWebPlugin extends ExperimentPlatform {
     setTracksAssignmentFn.callAsFunction(client, [tracksAssignment.toJS].toJS);
   }
 
+  /// No-op on web. Tracking providers are wired through the config at init
+  /// time via [ConfigCodec.toJSObject], so runtime registration is unnecessary.
   @override
-  Future<void> registerTrackingProvider(
+  void registerTrackingProvider(
     String instanceName,
     ExposureTrackingProvider provider,
-  ) async {}
+  ) {}
 
   ExperimentClient _getClient(String instanceName) {
     final ExperimentClient? client = _instances[instanceName];

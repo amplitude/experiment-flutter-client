@@ -36,7 +36,7 @@ class ExperimentPigeon extends ExperimentPlatform {
   @override
   Future<Map<String, Variant>> all(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
   ) async {
     return _api.all(instanceName, user);
   }
@@ -44,7 +44,7 @@ class ExperimentPigeon extends ExperimentPlatform {
   @override
   Future<Variant> variant(
     String instanceName,
-    ExperimentUser user,
+    ExperimentUser? user,
     String flagKey,
     Variant? fallbackVariant,
   ) async {

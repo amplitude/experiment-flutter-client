@@ -472,8 +472,8 @@ interface AmplitudeExperimentHostApi {
   fun start(instanceName: String, user: ExperimentUser?, callback: (Result<Unit>) -> Unit)
   fun stop(instanceName: String)
   fun fetch(instanceName: String, user: ExperimentUser?, options: FetchOptions?, callback: (Result<Unit>) -> Unit)
-  fun variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?): Variant
-  fun all(instanceName: String, user: ExperimentUser): Map<String, Variant>
+  fun variant(instanceName: String, user: ExperimentUser?, flagKey: String, fallbackVariant: Variant?): Variant
+  fun all(instanceName: String, user: ExperimentUser?): Map<String, Variant>
   fun clear(instanceName: String)
   fun exposure(instanceName: String, key: String)
   fun getUser(instanceName: String): ExperimentUser
@@ -592,7 +592,7 @@ interface AmplitudeExperimentHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val instanceNameArg = args[0] as String
-            val userArg = args[1] as ExperimentUser
+            val userArg = args[1] as ExperimentUser?
             val flagKeyArg = args[2] as String
             val fallbackVariantArg = args[3] as Variant?
             val wrapped: List<Any?> = try {
@@ -612,7 +612,7 @@ interface AmplitudeExperimentHostApi {
           channel.setMessageHandler { message, reply ->
             val args = message as List<Any?>
             val instanceNameArg = args[0] as String
-            val userArg = args[1] as ExperimentUser
+            val userArg = args[1] as ExperimentUser?
             val wrapped: List<Any?> = try {
               listOf(api.all(instanceNameArg, userArg))
             } catch (exception: Throwable) {

@@ -657,7 +657,7 @@ class AmplitudeExperimentHostApi {
     }
   }
 
-  Future<Variant> variant(String instanceName, ExperimentUser user, String flagKey, Variant? fallbackVariant) async {
+  Future<Variant> variant(String instanceName, ExperimentUser? user, String flagKey, Variant? fallbackVariant) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.amplitude_experiment.AmplitudeExperimentHostApi.variant$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
@@ -684,7 +684,7 @@ class AmplitudeExperimentHostApi {
     }
   }
 
-  Future<Map<String, Variant>> all(String instanceName, ExperimentUser user) async {
+  Future<Map<String, Variant>> all(String instanceName, ExperimentUser? user) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.amplitude_experiment.AmplitudeExperimentHostApi.all$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
