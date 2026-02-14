@@ -3,7 +3,8 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'package:amplitude_experiment/src/experiment_pigeon.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/providers.dart' show ExposureTrackingProvider;
+import 'package:amplitude_experiment/src/providers.dart'
+    show ExposureTrackingProvider;
 
 abstract class ExperimentPlatform extends PlatformInterface {
   /// Constructs a ExperimentPlatform.
@@ -44,7 +45,11 @@ abstract class ExperimentPlatform extends PlatformInterface {
     throw UnimplementedError('stop() has not been implemented.');
   }
 
-  Future<void> fetch(String instanceName, ExperimentUser? user) {
+  Future<void> fetch(
+    String instanceName,
+    ExperimentUser? user,
+    FetchOptions? options,
+  ) {
     throw UnimplementedError('fetch() has not been implemented.');
   }
 
@@ -89,5 +94,4 @@ abstract class ExperimentPlatform extends PlatformInterface {
       'registerTrackingProvider() has not been implemented.',
     );
   }
-
 }

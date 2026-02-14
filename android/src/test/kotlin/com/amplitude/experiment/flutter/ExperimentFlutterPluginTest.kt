@@ -55,7 +55,7 @@ internal class ExperimentFlutterPluginTest {
         val (plugin, _) = TestDataHelpers.createAttachedPlugin()
         val latch = CountDownLatch(1)
         var callbackResult: Result<Unit>? = null
-        plugin.fetch("non-existent-instance", null) { result ->
+        plugin.fetch("non-existent-instance", null, null) { result ->
             callbackResult = result
             latch.countDown()
         }

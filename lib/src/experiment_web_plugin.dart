@@ -8,8 +8,10 @@ import 'package:amplitude_experiment/src/web/experiment_js.dart';
 import 'package:amplitude_experiment/src/web/codec/config_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/variant_codec.dart';
+import 'package:amplitude_experiment/src/web/codec/options_codec.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/providers.dart' show ExposureTrackingProvider;
+import 'package:amplitude_experiment/src/providers.dart'
+    show ExposureTrackingProvider;
 
 /// Web implementation of [ExperimentPlatform]
 class ExperimentWebPlugin extends ExperimentPlatform {
@@ -64,13 +66,17 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   }
 
   @override
-  Future<void> fetch(String instanceName, ExperimentUser? user) async {
+  Future<void> fetch(
+    String instanceName,
+    ExperimentUser? user,
+    FetchOptions? options,
+  ) async {
     final client = _getClient(instanceName);
 
-    final promise = user != null
-        ? client.fetch(UserCodec.toJSObject(user))
-        : client.fetch();
+    final userObj = user != null ? UserCodec.toJSObject(user) : null;
+    final optionsObj = options != null ? OptionsCodec.toJSObject(options) : null;
 
+    final promise = client.fetch(userObj, optionsObj);
     await promise.toDart;
   }
 
@@ -142,7 +148,6 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   Future<void> exposure(String instanceName, String key) async {
     final client = _getClient(instanceName);
     client.exposure(key);
-    await Future.value('Exposure tracked');
   }
 
   @override

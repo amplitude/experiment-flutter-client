@@ -133,7 +133,7 @@ abstract class AmplitudeExperimentHostApi {
   void stop(String instanceName);
 
   @async
-  void fetch(String instanceName, ExperimentUser? user);
+  void fetch(String instanceName, ExperimentUser? user, FetchOptions? options);
 
   Variant variant(
     String instanceName,

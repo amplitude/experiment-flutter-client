@@ -471,7 +471,7 @@ interface AmplitudeExperimentHostApi {
   fun initWithAmplitude(apiKey: String, config: ExperimentConfigData)
   fun start(instanceName: String, user: ExperimentUser?, callback: (Result<Unit>) -> Unit)
   fun stop(instanceName: String)
-  fun fetch(instanceName: String, user: ExperimentUser?, callback: (Result<Unit>) -> Unit)
+  fun fetch(instanceName: String, user: ExperimentUser?, options: FetchOptions?, callback: (Result<Unit>) -> Unit)
   fun variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?): Variant
   fun all(instanceName: String, user: ExperimentUser): Map<String, Variant>
   fun clear(instanceName: String)
@@ -572,7 +572,8 @@ interface AmplitudeExperimentHostApi {
             val args = message as List<Any?>
             val instanceNameArg = args[0] as String
             val userArg = args[1] as ExperimentUser?
-            api.fetch(instanceNameArg, userArg) { result: Result<Unit> ->
+            val optionsArg = args[2] as FetchOptions?
+            api.fetch(instanceNameArg, userArg, optionsArg) { result: Result<Unit> ->
               val error = result.exceptionOrNull()
               if (error != null) {
                 reply.reply(AmplitudeExperimentApiPigeonUtils.wrapError(error))

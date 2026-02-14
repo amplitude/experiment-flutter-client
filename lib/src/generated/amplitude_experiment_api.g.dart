@@ -635,14 +635,14 @@ class AmplitudeExperimentHostApi {
     }
   }
 
-  Future<void> fetch(String instanceName, ExperimentUser? user) async {
+  Future<void> fetch(String instanceName, ExperimentUser? user, FetchOptions? options) async {
     final pigeonVar_channelName = 'dev.flutter.pigeon.amplitude_experiment.AmplitudeExperimentHostApi.fetch$pigeonVar_messageChannelSuffix';
     final pigeonVar_channel = BasicMessageChannel<Object?>(
       pigeonVar_channelName,
       pigeonChannelCodec,
       binaryMessenger: pigeonVar_binaryMessenger,
     );
-    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[instanceName, user]);
+    final Future<Object?> pigeonVar_sendFuture = pigeonVar_channel.send(<Object?>[instanceName, user, options]);
     final pigeonVar_replyList = await pigeonVar_sendFuture as List<Object?>?;
     if (pigeonVar_replyList == null) {
       throw _createConnectionError(pigeonVar_channelName);

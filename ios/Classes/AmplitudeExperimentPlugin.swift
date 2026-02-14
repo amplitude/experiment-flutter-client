@@ -57,11 +57,12 @@ public class AmplitudeExperimentPlugin: NSObject, FlutterPlugin, AmplitudeExperi
         client.stop()
     }
 
-    func fetch(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void) {
+    func fetch(instanceName: String, user: ExperimentUser?, options: FetchOptions?, completion: @escaping (Result<Void, Error>) -> Void) {
         do {
             let client = try requireClient(instanceName)
             let sdkUser = ExperimentSdkCodec.convertUser(user)
-            client.fetch(user: sdkUser) { _, error in
+            let sdkOptions = ExperimentSdkCodec.convertFetchOptions(options)
+            client.fetch(user: sdkUser, options: sdkOptions) { _, error in
                 if let error = error {
                     completion(.failure(error))
                 } else {

@@ -16,6 +16,7 @@ class MockExperimentPlatform
   Variant? lastFallbackVariant;
   ExperimentUser? lastUser;
   bool? lastTracksAssignment;
+  FetchOptions? lastFetchOptions;
   bool shouldThrowOnInit = false;
   final Map<String, ExposureTrackingProvider> _trackingProviderMap = {};
 
@@ -49,9 +50,14 @@ class MockExperimentPlatform
   }
 
   @override
-  Future<void> fetch(String instanceName, ExperimentUser? user) async {
+  Future<void> fetch(
+    String instanceName,
+    ExperimentUser? user,
+    FetchOptions? options,
+  ) async {
     lastInstanceName = instanceName;
     lastUser = user;
+    lastFetchOptions = options;
   }
 
   @override
@@ -220,22 +226,24 @@ void main() {
         expect(mockPlatform.lastUser?.userId, 'user-123');
       });
 
-      test('delegates to platform with instanceName and resolved user when null passed',
-          () async {
-        final config = ExperimentConfig(instanceName: 'test-instance');
-        final client = ExperimentClient(
-          apiKey: 'key',
-          config: config,
-          withAnalytics: false,
-        );
-        await client.isBuilt;
+      test(
+        'delegates to platform with instanceName and resolved user when null passed',
+        () async {
+          final config = ExperimentConfig(instanceName: 'test-instance');
+          final client = ExperimentClient(
+            apiKey: 'key',
+            config: config,
+            withAnalytics: false,
+          );
+          await client.isBuilt;
 
-        await client.start(null);
+          await client.start(null);
 
-        expect(mockPlatform.lastInstanceName, 'test-instance');
-        // _resolveUser() always produces an ExperimentUser (merged result)
-        expect(mockPlatform.lastUser, isNotNull);
-      });
+          expect(mockPlatform.lastInstanceName, 'test-instance');
+          // _resolveUser() always produces an ExperimentUser (merged result)
+          expect(mockPlatform.lastUser, isNotNull);
+        },
+      );
     });
 
     group('stop', () {
@@ -274,8 +282,7 @@ void main() {
         expect(mockPlatform.lastUser?.userId, 'user-123');
       });
 
-      test('delegates to platform with resolved user when no user passed',
-          () async {
+      test('passes FetchOptions to platform', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = ExperimentClient(
           apiKey: 'key',
@@ -284,12 +291,31 @@ void main() {
         );
         await client.isBuilt;
 
-        await client.fetch();
+        final user = ExperimentUser(userId: 'user-123');
+        final options = FetchOptions(flagKeys: ['flag-1', 'flag-2']);
+        await client.fetch(user, options);
 
-        expect(mockPlatform.lastInstanceName, 'test-instance');
-        // _resolveUser() always produces an ExperimentUser (merged result)
-        expect(mockPlatform.lastUser, isNotNull);
+        expect(mockPlatform.lastFetchOptions?.flagKeys, ['flag-1', 'flag-2']);
       });
+
+      test(
+        'delegates to platform with resolved user when no user passed',
+        () async {
+          final config = ExperimentConfig(instanceName: 'test-instance');
+          final client = ExperimentClient(
+            apiKey: 'key',
+            config: config,
+            withAnalytics: false,
+          );
+          await client.isBuilt;
+
+          await client.fetch();
+
+          expect(mockPlatform.lastInstanceName, 'test-instance');
+          // _resolveUser() always produces an ExperimentUser (merged result)
+          expect(mockPlatform.lastUser, isNotNull);
+        },
+      );
     });
 
     group('variant', () {

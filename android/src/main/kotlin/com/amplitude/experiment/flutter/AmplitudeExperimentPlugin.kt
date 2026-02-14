@@ -70,11 +70,12 @@ class AmplitudeExperimentPlugin :
     override fun fetch(
         instanceName: String,
         user: ExperimentUser?,
+        options: FetchOptions?,
         callback: (Result<Unit>) -> Unit
     ) {
         executor.execute {
             try {
-                getClient(instanceName).fetch(convertUser(user)).get()
+                getClient(instanceName).fetch(convertUser(user), convertFetchOptions(options)).get()
                 callback(Result.success(Unit))
             } catch (e: Exception) {
                callback(Result.failure(e))

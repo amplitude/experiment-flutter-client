@@ -529,7 +529,7 @@ protocol AmplitudeExperimentHostApi {
   func initializeExperimentWithAmplitude(apiKey: String, config: ExperimentConfigData) throws
   func start(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void)
   func stop(instanceName: String) throws
-  func fetch(instanceName: String, user: ExperimentUser?, completion: @escaping (Result<Void, Error>) -> Void)
+  func fetch(instanceName: String, user: ExperimentUser?, options: FetchOptions?, completion: @escaping (Result<Void, Error>) -> Void)
   func variant(instanceName: String, user: ExperimentUser, flagKey: String, fallbackVariant: Variant?) throws -> Variant
   func all(instanceName: String, user: ExperimentUser) throws -> [String: Variant]
   func clear(instanceName: String) throws
@@ -616,7 +616,8 @@ class AmplitudeExperimentHostApiSetup {
         let args = message as! [Any?]
         let instanceNameArg = args[0] as! String
         let userArg: ExperimentUser? = nilOrValue(args[1])
-        api.fetch(instanceName: instanceNameArg, user: userArg) { result in
+        let optionsArg: FetchOptions? = nilOrValue(args[2])
+        api.fetch(instanceName: instanceNameArg, user: userArg, options: optionsArg) { result in
           switch result {
           case .success:
             reply(wrapResult(nil))

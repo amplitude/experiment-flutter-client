@@ -49,10 +49,13 @@ class ExperimentClient {
     return await ExperimentPlatform.instance.stop(_instanceName);
   }
 
-  Future<ExperimentClient> fetch([ExperimentUser? user]) async {
+  Future<ExperimentClient> fetch([
+    ExperimentUser? user,
+    FetchOptions? options,
+  ]) async {
     final mergedUser = _resolveUser(user);
     _user = mergedUser;
-    await ExperimentPlatform.instance.fetch(_instanceName, mergedUser);
+    await ExperimentPlatform.instance.fetch(_instanceName, mergedUser, options);
     return this;
   }
 

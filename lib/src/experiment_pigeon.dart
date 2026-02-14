@@ -25,8 +25,12 @@ class ExperimentPigeon extends ExperimentPlatform {
   }
 
   @override
-  Future<void> fetch(String instanceName, ExperimentUser? user) async {
-    await _api.fetch(instanceName, user);
+  Future<void> fetch(
+    String instanceName,
+    ExperimentUser? user,
+    FetchOptions? options,
+  ) async {
+    await _api.fetch(instanceName, user, options);
   }
 
   @override

@@ -143,9 +143,7 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       await _amplitude!.setUserId(username);
 
       // Fetch latest variants from Experiment
-      await _experiment!.fetch(
-        ExperimentUser(userId: username, deviceId: 'sample-device-id'),
-      );
+      await _experiment!.fetch(ExperimentUser(userId: username));
 
       // Get welcome message variant
       final variant = await _experiment!.variant('flutter-welcome-message');

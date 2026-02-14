@@ -66,7 +66,7 @@ class AmplitudeExperimentPluginTests: XCTestCase {
     func testFetch_withNonExistentInstance_callsBackWithFailure() {
         let expectation = expectation(description: "fetch completion called")
         var completionError: Error?
-        plugin.fetch(instanceName: "non-existent-instance", user: nil) { result in
+        plugin.fetch(instanceName: "non-existent-instance", user: nil, options: nil) { result in
             if case .failure(let error) = result {
                 completionError = error
             }

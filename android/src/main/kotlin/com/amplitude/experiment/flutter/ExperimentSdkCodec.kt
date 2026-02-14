@@ -10,6 +10,8 @@ import com.amplitude.experiment.ExperimentUser
 import com.amplitude.experiment.flutter.Exposure as FlutterExposure
 import com.amplitude.experiment.Exposure
 import com.amplitude.experiment.ExposureTrackingProvider
+import com.amplitude.experiment.FetchOptions as SdkFetchOptions
+import com.amplitude.experiment.flutter.FetchOptions as FlutterFetchOptions
 
 fun convertUser(flutterUser: FlutterExperimentUser?): ExperimentUser? {
     return flutterUser?.let {
@@ -76,6 +78,10 @@ fun convertConfig(flutterConfig: FlutterConfig, api: CustomProviderApi): Experim
         builder.exposureTrackingProvider(generateExposureTrackingProvider(flutterConfig.instanceName, api))
     }
     return builder.build()
+}
+
+fun convertFetchOptions(options: FlutterFetchOptions?): SdkFetchOptions? {
+    return options?.let { SdkFetchOptions(it.flagKeys) }
 }
 
 fun convertExposure(exposure: Exposure): FlutterExposure {

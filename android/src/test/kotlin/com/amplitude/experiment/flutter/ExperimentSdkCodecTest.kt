@@ -198,4 +198,25 @@ internal class ExperimentSdkCodecTest {
         assertNotNull(sdk.initialVariants)
         assertEquals(0, sdk.initialVariants.size)
     }
+
+    // ---------- convertFetchOptions ----------
+
+    @Test
+    fun convertFetchOptions_null_returnsNull() {
+        assertNull(convertFetchOptions(null))
+    }
+
+    @Test
+    fun convertFetchOptions_withFlagKeys_mapsFlagKeys() {
+        val pigeon = FetchOptions(flagKeys = listOf("flag-1", "flag-2"))
+        val sdk = requireNotNull(convertFetchOptions(pigeon))
+        assertEquals(listOf("flag-1", "flag-2"), sdk.flagKeys)
+    }
+
+    @Test
+    fun convertFetchOptions_withNullFlagKeys_mapsNullFlagKeys() {
+        val pigeon = FetchOptions(flagKeys = null)
+        val sdk = requireNotNull(convertFetchOptions(pigeon))
+        assertNull(sdk.flagKeys)
+    }
 }

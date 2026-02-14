@@ -123,6 +123,12 @@ enum ExperimentSdkCodec {
         )
     }
 
+    /// Convert Pigeon FetchOptions to SDK FetchOptions.
+    static func convertFetchOptions(_ pigeon: FetchOptions?) -> AmplitudeExperiment.FetchOptions? {
+        guard let pigeon = pigeon else { return nil }
+        return AmplitudeExperiment.FetchOptions(pigeon.flagKeys)
+    }
+
     private static func convertVariants(_ pigeon: [String: Variant]) -> [String: AmplitudeExperiment.Variant] {
         pigeon.mapValues { convertVariant($0)! }
     }

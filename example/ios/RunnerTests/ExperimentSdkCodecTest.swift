@@ -182,4 +182,25 @@ class ExperimentSdkCodecTest: XCTestCase {
         XCTAssertEqual(sdk.serverZone, AmplitudeExperiment.ServerZone.US)
         XCTAssertEqual(sdk.initialVariants.count, 0)
     }
+
+    // MARK: - convertFetchOptions
+
+    func testConvertFetchOptions_nil_returnsNil() {
+        let sdk = ExperimentSdkCodec.convertFetchOptions(nil)
+        XCTAssertNil(sdk)
+    }
+
+    func testConvertFetchOptions_withFlagKeys_mapsFlagKeys() {
+        let pigeon = FetchOptions(flagKeys: ["flag-1", "flag-2"])
+        let sdk = ExperimentSdkCodec.convertFetchOptions(pigeon)
+        XCTAssertNotNil(sdk)
+        XCTAssertEqual(sdk?.flagKeys, ["flag-1", "flag-2"])
+    }
+
+    func testConvertFetchOptions_withNilFlagKeys_mapsNilFlagKeys() {
+        let pigeon = FetchOptions(flagKeys: nil)
+        let sdk = ExperimentSdkCodec.convertFetchOptions(pigeon)
+        XCTAssertNotNil(sdk)
+        XCTAssertNil(sdk?.flagKeys)
+    }
 }
