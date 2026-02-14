@@ -52,7 +52,6 @@ enum ExperimentSdkCodec {
             version: sdk.version,
             os: sdk.os,
             deviceModel: sdk.deviceModel,
-            deviceBrand: nil,
             deviceManufacturer: sdk.deviceManufacturer,
             carrier: sdk.carrier,
             library: sdk.library,

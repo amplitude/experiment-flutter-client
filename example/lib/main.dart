@@ -12,27 +12,6 @@ void main() {
   runApp(const MyApp());
 }
 
-// class CustomUserProvider implements UserProvider {
-//   int _currentid = 1;
-
-//   @override
-//   ExperimentUser getUser() {
-//     String userid = 'fluttertester$_currentid';
-//     print(userid);
-//     _currentid = _currentid + 1;
-//     return ExperimentUser(userId: userid);
-//   }
-// }
-
-// class CustomTrackingProvider implements ExposureTrackingProvider {
-//   @override
-//   void track(Exposure exposure) {
-//     String output =
-//         'tracking exposure: ${exposure.flagKey} ${exposure.variant} ${exposure.experimentKey} ${exposure.metadata?.toString()} ${exposure.time}';
-//     print(output);
-//   }
-// }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

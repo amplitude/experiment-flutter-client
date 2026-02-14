@@ -459,6 +459,126 @@ void main() {
       });
     });
 
+    group('user resolution', () {
+      test('merges all scalar fields from provider when explicit user is empty',
+          () async {
+        final provider = _TestUserProvider(ExperimentUser(
+          userId: 'provider-user',
+          deviceId: 'provider-device',
+          country: 'US',
+          city: 'San Francisco',
+          region: 'CA',
+          dma: 'dma-1',
+          language: 'en',
+          platform: 'iOS',
+          version: '2.0',
+          os: 'iOS 17',
+          deviceModel: 'iPhone',
+          deviceBrand: 'Apple',
+          deviceManufacturer: 'Apple Inc',
+          carrier: 'Verizon',
+          ipAddress: '1.2.3.4',
+        ));
+        final config = ExperimentConfig(
+          instanceName: 'test-instance',
+          userProvider: provider,
+        );
+        final client = ExperimentClient(
+          apiKey: 'key',
+          config: config,
+          withAnalytics: false,
+        );
+        await client.isBuilt;
+
+        await client.fetch(ExperimentUser());
+
+        final merged = mockPlatform.lastUser!;
+        expect(merged.userId, 'provider-user');
+        expect(merged.deviceId, 'provider-device');
+        expect(merged.country, 'US');
+        expect(merged.city, 'San Francisco');
+        expect(merged.region, 'CA');
+        expect(merged.dma, 'dma-1');
+        expect(merged.language, 'en');
+        expect(merged.platform, 'iOS');
+        expect(merged.version, '2.0');
+        expect(merged.os, 'iOS 17');
+        expect(merged.deviceModel, 'iPhone');
+        expect(merged.deviceBrand, 'Apple');
+        expect(merged.deviceManufacturer, 'Apple Inc');
+        expect(merged.carrier, 'Verizon');
+        expect(merged.ipAddress, '1.2.3.4');
+      });
+
+      test('sdk user fields take precedence over provider', () async {
+        final provider = _TestUserProvider(ExperimentUser(
+          userId: 'provider-user',
+          country: 'GB',
+          city: 'London',
+          region: 'England',
+          dma: 'provider-dma',
+          carrier: 'provider-carrier',
+          ipAddress: '10.0.0.1',
+          deviceBrand: 'provider-brand',
+        ));
+        final config = ExperimentConfig(
+          instanceName: 'test-instance',
+          userProvider: provider,
+        );
+        final client = ExperimentClient(
+          apiKey: 'key',
+          config: config,
+          withAnalytics: false,
+        );
+        await client.isBuilt;
+
+        await client.fetch(ExperimentUser(
+          userId: 'sdk-user',
+          country: 'US',
+          city: 'NYC',
+          region: 'NY',
+          dma: 'sdk-dma',
+          carrier: 'sdk-carrier',
+          ipAddress: '192.168.1.1',
+          deviceBrand: 'sdk-brand',
+        ));
+
+        final merged = mockPlatform.lastUser!;
+        expect(merged.userId, 'sdk-user');
+        expect(merged.country, 'US');
+        expect(merged.city, 'NYC');
+        expect(merged.region, 'NY');
+        expect(merged.dma, 'sdk-dma');
+        expect(merged.carrier, 'sdk-carrier');
+        expect(merged.ipAddress, '192.168.1.1');
+        expect(merged.deviceBrand, 'sdk-brand');
+      });
+
+      test('merges map fields with sdk taking precedence', () async {
+        final provider = _TestUserProvider(ExperimentUser(
+          userProperties: {'color': 'blue', 'size': 'large'},
+        ));
+        final config = ExperimentConfig(
+          instanceName: 'test-instance',
+          userProvider: provider,
+        );
+        final client = ExperimentClient(
+          apiKey: 'key',
+          config: config,
+          withAnalytics: false,
+        );
+        await client.isBuilt;
+
+        await client.fetch(ExperimentUser(
+          userProperties: {'color': 'red'},
+        ));
+
+        final merged = mockPlatform.lastUser!;
+        expect(merged.userProperties?['color'], 'red');
+        expect(merged.userProperties?['size'], 'large');
+      });
+    });
+
     group('setTracksAssignment', () {
       test(
         'delegates to platform with instanceName and tracksAssignment',
@@ -481,4 +601,12 @@ void main() {
       );
     });
   });
+}
+
+class _TestUserProvider implements UserProvider {
+  final ExperimentUser _user;
+  _TestUserProvider(this._user);
+
+  @override
+  ExperimentUser getUser() => _user;
 }

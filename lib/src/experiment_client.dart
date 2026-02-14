@@ -118,6 +118,13 @@ class ExperimentClient {
       deviceId: sdkUser?.deviceId ?? provider?.deviceId,
       version: sdkUser?.version ?? provider?.version,
       platform: sdkUser?.platform ?? provider?.platform,
+      country: sdkUser?.country ?? provider?.country,
+      city: sdkUser?.city ?? provider?.city,
+      region: sdkUser?.region ?? provider?.region,
+      dma: sdkUser?.dma ?? provider?.dma,
+      ipAddress: sdkUser?.ipAddress ?? provider?.ipAddress,
+      deviceBrand: sdkUser?.deviceBrand ?? provider?.deviceBrand,
+      carrier: sdkUser?.carrier ?? provider?.carrier,
       os: sdkUser?.os ?? provider?.os,
       deviceModel: sdkUser?.deviceModel ?? provider?.deviceModel,
       deviceManufacturer:
