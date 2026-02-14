@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:amplitude_experiment/src/experiment_config.dart';
-import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
+import 'package:amplitude_experiment/amplitude_experiment.dart';
 
 void main() {
   group('ExperimentConfig', () {

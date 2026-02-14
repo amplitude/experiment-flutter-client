@@ -5,12 +5,13 @@ import android.content.Context
 import com.amplitude.experiment.Experiment
 import com.amplitude.experiment.ExperimentClient
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import java.util.concurrent.ConcurrentHashMap
 
 class AmplitudeExperimentPlugin :
     FlutterPlugin,
     AmplitudeExperimentHostApi {
     private lateinit var ctxt: Context
-    private var instances:  Map<String, ExperimentClient> = mutableMapOf()
+    private var instances:  Map<String, ExperimentClient> = ConcurrentHashMap()
     private lateinit var providerApi: CustomProviderApi
 
     private val executor = java.util.concurrent.Executors.newCachedThreadPool()
@@ -22,6 +23,7 @@ class AmplitudeExperimentPlugin :
 
     override fun onDetachedFromEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         AmplitudeExperimentHostApi.setUp(flutterPluginBinding.binaryMessenger, null)
+        executor.shutdown()
     }
 
     override fun init(
