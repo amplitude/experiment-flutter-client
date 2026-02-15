@@ -9,7 +9,7 @@ abstract class ExperimentClient {
 
   Future<void> stop();
 
-  Future<ExperimentClient> fetch([
+  Future<void> fetch([
     ExperimentUser? user,
     FetchOptions? options,
   ]);
@@ -22,9 +22,9 @@ abstract class ExperimentClient {
 
   Future<void> exposure(String flagKey);
 
-  ExperimentUser getUser();
+  Future<ExperimentUser> getUser();
 
-  void setUser(ExperimentUser user);
+  Future<void> setUser(ExperimentUser user);
 
   Future<void> setTracksAssignment(bool tracksAssignment);
 }

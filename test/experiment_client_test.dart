@@ -232,14 +232,13 @@ void main() {
     });
 
     group('fetch', () {
-      test('delegates to platform and returns self', () async {
+      test('delegates to platform with user', () async {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = await Experiment.initialize('key', config);
 
         final user = ExperimentUser(userId: 'user-123');
-        final result = await client.fetch(user);
+        await client.fetch(user);
 
-        expect(result, same(client));
         expect(mockPlatform.lastInstanceName, 'test-instance');
         expect(mockPlatform.lastUser?.userId, 'user-123');
       });
@@ -340,7 +339,7 @@ void main() {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = await Experiment.initialize('key', config);
 
-        final user = client.getUser();
+        final user = await client.getUser();
 
         expect(user.userId, isNull);
       });
@@ -349,8 +348,8 @@ void main() {
         final config = ExperimentConfig(instanceName: 'test-instance');
         final client = await Experiment.initialize('key', config);
 
-        client.setUser(ExperimentUser(userId: 'user-123'));
-        final user = client.getUser();
+        await client.setUser(ExperimentUser(userId: 'user-123'));
+        final user = await client.getUser();
 
         expect(user.userId, 'user-123');
       });
@@ -362,9 +361,9 @@ void main() {
         final client = await Experiment.initialize('key', config);
 
         final user = ExperimentUser(userId: 'user-123');
-        client.setUser(user);
+        await client.setUser(user);
 
-        expect(client.getUser().userId, 'user-123');
+        expect((await client.getUser()).userId, 'user-123');
       });
     });
 

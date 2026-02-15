@@ -55,14 +55,13 @@ class ExperimentClientImpl implements ExperimentClient {
   }
 
   @override
-  Future<ExperimentClient> fetch([
+  Future<void> fetch([
     ExperimentUser? user,
     FetchOptions? options,
   ]) async {
     final mergedUser = _resolveUser(user);
     _user = mergedUser;
     await ExperimentPlatform.instance.fetch(_instanceName, mergedUser, options);
-    return this;
   }
 
   @override
@@ -95,12 +94,12 @@ class ExperimentClientImpl implements ExperimentClient {
   }
 
   @override
-  ExperimentUser getUser() {
+  Future<ExperimentUser> getUser() async {
     return _user ?? ExperimentUser();
   }
 
   @override
-  void setUser(ExperimentUser user) {
+  Future<void> setUser(ExperimentUser user) async {
     _user = user;
   }
 

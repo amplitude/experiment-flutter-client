@@ -5,9 +5,9 @@
   <br />
 </p>
 
-# Amplitude-{LanguageName}
+# experiment-flutter-client
 
-This is Amplitude's latest version of the {LanguageName} SDK.
+This is Amplitude's latest version of the Experiment Flutter SDK.
 
 ## Need Help?
 If you have any issues using our SDK, feel free to [create a GitHub issue](https://github.com/amplitude/Amplitude-SDK-Template/issues/new) or submit a request on [Amplitude Help](https://help.amplitude.com/hc/en-us/requests/new).
