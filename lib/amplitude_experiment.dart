@@ -6,7 +6,7 @@
 library amplitude_experiment;
 
 // Factory entry point
-export 'experiment.dart';
+export 'src/experiment.dart';
 
 // Core API
 export 'src/experiment_client.dart';
@@ -15,16 +15,9 @@ export 'src/experiment_config.dart';
 // Provider interfaces
 export 'src/providers.dart';
 
-// User extension helpers
-export 'src/experiment_user_extensions.dart';
-
-// Public data models and enums from Pigeon
-export 'src/generated/amplitude_experiment_api.g.dart'
-    show
-        ExperimentUser,
-        Variant,
-        Exposure,
-        FetchOptions,
-        LogLevel,
-        Source,
-        ServerZone;
+// Public data models
+export 'src/models/experiment_user.dart';
+export 'src/models/variant.dart';
+export 'src/models/exposure.dart';
+export 'src/models/fetch_options.dart';
+export 'src/models/enums.dart';

@@ -1,8 +1,11 @@
-import 'experiment_platform_interface.dart';
-import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
+import 'package:amplitude_experiment/src/experiment_platform_interface.dart';
 import 'package:amplitude_experiment/src/experiment_client.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
+import 'package:amplitude_experiment/src/models/experiment_user.dart';
+import 'package:amplitude_experiment/src/models/variant.dart';
+import 'package:amplitude_experiment/src/models/fetch_options.dart';
 import 'package:amplitude_experiment/src/providers.dart';
+import 'package:amplitude_experiment/src/pigeon_mappers.dart';
 
 class ExperimentClientImpl implements ExperimentClient {
   final String _instanceName;
@@ -46,7 +49,10 @@ class ExperimentClientImpl implements ExperimentClient {
   Future<void> start(ExperimentUser? user) {
     final mergedUser = _resolveUser(user);
     _user = mergedUser;
-    return ExperimentPlatform.instance.start(_instanceName, mergedUser);
+    return ExperimentPlatform.instance.start(
+      _instanceName,
+      mergedUser.toPigeon(),
+    );
   }
 
   @override
@@ -61,26 +67,35 @@ class ExperimentClientImpl implements ExperimentClient {
   ]) async {
     final mergedUser = _resolveUser(user);
     _user = mergedUser;
-    await ExperimentPlatform.instance.fetch(_instanceName, mergedUser, options);
-  }
-
-  @override
-  Future<Variant> variant(String flagKey, [Variant? fallbackVariant]) {
-    final mergedUser = _resolveUser();
-    _user = mergedUser;
-    return ExperimentPlatform.instance.variant(
+    await ExperimentPlatform.instance.fetch(
       _instanceName,
-      mergedUser,
-      flagKey,
-      fallbackVariant,
+      mergedUser.toPigeon(),
+      options?.toPigeon(),
     );
   }
 
   @override
-  Future<Map<String, Variant>> all() {
+  Future<Variant> variant(String flagKey, [Variant? fallbackVariant]) async {
     final mergedUser = _resolveUser();
     _user = mergedUser;
-    return ExperimentPlatform.instance.all(_instanceName, mergedUser);
+    final result = await ExperimentPlatform.instance.variant(
+      _instanceName,
+      mergedUser.toPigeon(),
+      flagKey,
+      fallbackVariant?.toPigeon(),
+    );
+    return variantFromPigeon(result);
+  }
+
+  @override
+  Future<Map<String, Variant>> all() async {
+    final mergedUser = _resolveUser();
+    _user = mergedUser;
+    final result = await ExperimentPlatform.instance.all(
+      _instanceName,
+      mergedUser.toPigeon(),
+    );
+    return result.map((k, v) => MapEntry(k, variantFromPigeon(v)));
   }
 
   @override
@@ -95,7 +110,7 @@ class ExperimentClientImpl implements ExperimentClient {
 
   @override
   Future<ExperimentUser> getUser() async {
-    return _user ?? ExperimentUser();
+    return _user ?? const ExperimentUser();
   }
 
   @override

@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:amplitude_experiment/amplitude_experiment.dart';
 import 'package:amplitude_experiment/src/experiment_platform_interface.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart'
+    as pigeon;
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockExperimentPlatform
@@ -10,10 +12,10 @@ class MockExperimentPlatform
   ExperimentConfig? lastConfig;
   String? lastInstanceName;
   String? lastFlagKey;
-  Variant? lastFallbackVariant;
-  ExperimentUser? lastUser;
+  pigeon.Variant? lastFallbackVariant;
+  pigeon.ExperimentUser? lastUser;
   bool? lastTracksAssignment;
-  FetchOptions? lastFetchOptions;
+  pigeon.FetchOptions? lastFetchOptions;
   bool shouldThrowOnInit = false;
   final Map<String, ExposureTrackingProvider> _trackingProviderMap = {};
 
@@ -36,7 +38,7 @@ class MockExperimentPlatform
   }
 
   @override
-  Future<void> start(String instanceName, ExperimentUser? user) async {
+  Future<void> start(String instanceName, pigeon.ExperimentUser? user) async {
     lastInstanceName = instanceName;
     lastUser = user;
   }
@@ -49,8 +51,8 @@ class MockExperimentPlatform
   @override
   Future<void> fetch(
     String instanceName,
-    ExperimentUser? user,
-    FetchOptions? options,
+    pigeon.ExperimentUser? user,
+    pigeon.FetchOptions? options,
   ) async {
     lastInstanceName = instanceName;
     lastUser = user;
@@ -58,29 +60,29 @@ class MockExperimentPlatform
   }
 
   @override
-  Future<Variant> variant(
+  Future<pigeon.Variant> variant(
     String instanceName,
-    ExperimentUser? user,
+    pigeon.ExperimentUser? user,
     String flagKey,
-    Variant? fallbackVariant,
+    pigeon.Variant? fallbackVariant,
   ) async {
     lastInstanceName = instanceName;
     lastUser = user;
     lastFlagKey = flagKey;
     lastFallbackVariant = fallbackVariant;
-    return Variant(key: flagKey, value: 'test-value');
+    return pigeon.Variant(key: flagKey, value: 'test-value');
   }
 
   @override
-  Future<Map<String, Variant>> all(
+  Future<Map<String, pigeon.Variant>> all(
     String instanceName,
-    ExperimentUser? user,
+    pigeon.ExperimentUser? user,
   ) async {
     lastInstanceName = instanceName;
     lastUser = user;
     return {
-      'flag1': Variant(key: 'flag1', value: 'value1'),
-      'flag2': Variant(key: 'flag2', value: 'value2'),
+      'flag1': pigeon.Variant(key: 'flag1', value: 'value1'),
+      'flag2': pigeon.Variant(key: 'flag2', value: 'value2'),
     };
   }
 
@@ -96,15 +98,15 @@ class MockExperimentPlatform
   }
 
   @override
-  Future<void> setUser(String instanceName, ExperimentUser user) async {
+  Future<void> setUser(String instanceName, pigeon.ExperimentUser user) async {
     lastInstanceName = instanceName;
     lastUser = user;
   }
 
   @override
-  Future<ExperimentUser> getUser(String instanceName) async {
+  Future<pigeon.ExperimentUser> getUser(String instanceName) async {
     lastInstanceName = instanceName;
-    return ExperimentUser(userId: 'test-user');
+    return pigeon.ExperimentUser(userId: 'test-user');
   }
 
   @override
