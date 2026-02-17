@@ -84,7 +84,10 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
       );
       await _amplitude!.isBuilt;
 
-      // Initialize Experiment with Amplitude integration
+      // Initialize Experiment with Amplitude integration.
+      // The Experiment instanceName must match the Amplitude Analytics instance
+      // name (case-sensitive) for automatic identity sharing to work. Both SDKs
+      // default to '$default_instance', so no action is needed for single-instance usage.
       _experiment = await Experiment.initializeWithAmplitude(
         _experimentDeploymentKey,
         ExperimentConfig(

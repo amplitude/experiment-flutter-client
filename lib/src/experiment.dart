@@ -32,6 +32,12 @@ class Experiment {
   ///
   /// The client automatically shares user identity and lifecycle events
   /// with the Amplitude Analytics SDK identified by [apiKey].
+  ///
+  /// **Important:** The [ExperimentConfig.instanceName] must exactly match
+  /// (case-sensitive) the instance name used when initializing the Amplitude
+  /// Analytics SDK. If the names do not match, the integration will fail to
+  /// locate the Analytics instance. Both SDKs default to `$default_instance`,
+  /// so no action is needed when using a single default instance of each.
   static Future<ExperimentClient> initializeWithAmplitude(
     String apiKey,
     ExperimentConfig config,
