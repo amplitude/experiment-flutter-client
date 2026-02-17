@@ -4,6 +4,15 @@ import 'package:flutter/material.dart';
 
 import 'package:amplitude_experiment/amplitude_experiment.dart';
 
+/// API keys are provided at build time via --dart-define-from-file:
+///
+///   flutter run --dart-define-from-file=.env.json
+///
+/// Copy .env.example.json to .env.json and fill in your keys.
+/// See .env.example.json for the required variables.
+const _amplitudeApiKey = String.fromEnvironment('AMPLITUDE_API_KEY');
+const _experimentDeploymentKey = String.fromEnvironment('EXPERIMENT_DEPLOYMENT_KEY');
+
 void main() {
   runApp(const MyApp());
 }
@@ -56,16 +65,28 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
 
   /// Initialize Amplitude and Experiment instances
   Future<void> _initializeApp() async {
+    if (_amplitudeApiKey.isEmpty || _experimentDeploymentKey.isEmpty) {
+      setState(() {
+        _isInitializing = false;
+        _errorMessage =
+            'API keys not configured.\n\n'
+            'Copy .env.example.json to .env.json, fill in your keys, '
+            'then run:\n\n'
+            'flutter run --dart-define-from-file=.env.json';
+      });
+      return;
+    }
+
     try {
       // Initialize Amplitude
       _amplitude = Amplitude(
-        Configuration(apiKey: 'API_KEY'),
+        Configuration(apiKey: _amplitudeApiKey),
       );
       await _amplitude!.isBuilt;
 
       // Initialize Experiment with Amplitude integration
       _experiment = await Experiment.initializeWithAmplitude(
-        DEPLOY_KEY,
+        _experimentDeploymentKey,
         ExperimentConfig(
           // trackingProvider: CustomTrackingProvider(),
           // userProvider: CustomUserProvider(),
