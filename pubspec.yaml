@@ -1,6 +1,6 @@
 name: amplitude_experiment
 description: "The official Amplitude Experiment Flutter SDK"
-version: 0.1.0
+version: 0.1.0-alpha.1
 homepage: "https://github.com/amplitude/experiment-flutter-client"
 
 environment:
