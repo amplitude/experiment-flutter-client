@@ -3,6 +3,7 @@ import 'dart:js_interop_unsafe';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
 import 'package:amplitude_experiment/src/providers.dart';
+import 'package:amplitude_experiment/src/pigeon_mappers.dart';
 import 'package:amplitude_experiment/src/web/codec/exposure_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/variant_codec.dart';
@@ -83,8 +84,8 @@ class ConfigCodec {
   static JSObject _buildTrackingProviderJS(ExposureTrackingProvider provider) {
     final obj = <String, dynamic>{}.jsify() as JSObject;
     obj['track'] = ((JSObject jsExposure) {
-      final exposure = ExposureCodec.fromJSObject(jsExposure);
-      provider.track(exposure);
+      final pigeonExposure = ExposureCodec.fromJSObject(jsExposure);
+      provider.track(exposureFromPigeon(pigeonExposure));
     }).toJS;
     return obj;
   }
@@ -93,7 +94,7 @@ class ConfigCodec {
     final obj = <String, dynamic>{}.jsify() as JSObject;
     obj['getUser'] = (() {
       final user = provider.getUser();
-      return UserCodec.toJSObject(user);
+      return UserCodec.toJSObject(user.toPigeon());
     }).toJS;
     return obj;
   }
