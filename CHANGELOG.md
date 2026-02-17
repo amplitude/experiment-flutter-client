@@ -1,3 +1,5 @@
-## 0.0.1
+## 0.1.0-alpha.1
 
-* TODO: Describe initial release.
+### Features
+
+* initial Experiment Flutter SDK
