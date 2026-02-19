@@ -1,0 +1,37 @@
+# Directories to exclude
+.git/
+.github/
+.husky/
+.idea/
+.vscode/
+.dart_tool/
+.claude/
+.cursor/
+
+build/
+coverage/
+docs/
+pigeons/
+samples/
+scripts/
+test/
+tool/
+tools/
+example/linux/
+example/macos/
+example/windows/
+
+devtools_extension/
+extension/
+
+# Files to exclude
+*.iml
+.gitignore
+.metadata
+commitlint.yaml
+CONTRIBUTING.md
+AGENTS.md
+build.yaml
+release-please-config.json
+.release-please-manifest.json
+RELEASING.md

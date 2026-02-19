@@ -1,0 +1,33 @@
+name: amplitude_experiment
+description: "The official Amplitude Experiment Flutter SDK"
+version: 0.1.0-alpha.1
+homepage: "https://github.com/amplitude/experiment-flutter-client"
+
+environment:
+  sdk: ^3.10.3
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  plugin_platform_interface: ^2.0.2
+  flutter_web_plugins:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  pigeon: ^26.1.7
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.amplitude.experiment.flutter
+        pluginClass: AmplitudeExperimentPlugin
+      ios:
+        pluginClass: AmplitudeExperimentPlugin
+      web: 
+        pluginClass: ExperimentWebPlugin
+        fileName: src/experiment_web_plugin.dart
