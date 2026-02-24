@@ -28,12 +28,16 @@ class VariantCodec {
       return Variant();
     }
 
-    // Normalize to a plain Map (dartify() can return IdentityMap, etc.)
     final variantMap = CodecUtils.toPlainMap(dartified);
     if (variantMap == null) {
       return Variant();
     }
 
+    return fromMap(variantMap);
+  }
+
+  /// Converts a plain Dart Map to a Variant.
+  static Variant fromMap(Map<String, dynamic> variantMap) {
     final key = variantMap['key'];
     final value = variantMap['value'];
     final payload = variantMap['payload'];

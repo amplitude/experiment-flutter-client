@@ -1,10 +1,7 @@
 import 'dart:js_interop';
 
 @JS('Experiment')
-@staticInterop
-class Experiment {
-  external factory Experiment._();
-
+extension type Experiment._(JSObject _) implements JSObject {
   external static ExperimentClient initialize(String apiKey, JSObject? config);
   external static ExperimentClient initializeWithAmplitudeAnalytics(
     String apiKey,
@@ -40,4 +37,23 @@ extension type ExperimentClient(JSObject _) implements JSObject {
 
   // setUser(user: ExperimentUser): void
   external void setUser(JSObject user);
+
+  // setTracksAssignment(tracksAssignment: boolean): void
+  external void setTracksAssignment(bool tracksAssignment);
+}
+
+@JS('Object.keys')
+external JSArray<JSString> objectKeys(JSObject o);
+
+extension type JSExposureTrackingProvider._(JSObject _) implements JSObject {
+  external factory JSExposureTrackingProvider({JSFunction track});
+}
+
+extension type JSUserProvider._(JSObject _) implements JSObject {
+  external factory JSUserProvider({JSFunction getUser});
+}
+
+extension type JSExperimentConfig._(JSObject _) implements JSObject {
+  external set exposureTrackingProvider(JSExposureTrackingProvider? value);
+  external set userProvider(JSUserProvider? value);
 }
