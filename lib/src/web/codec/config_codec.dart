@@ -1,5 +1,4 @@
 import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
 import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
 import 'package:amplitude_experiment/src/providers.dart';
@@ -7,15 +6,12 @@ import 'package:amplitude_experiment/src/pigeon_mappers.dart';
 import 'package:amplitude_experiment/src/web/codec/exposure_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/variant_codec.dart';
+import 'package:amplitude_experiment/src/web/experiment_js.dart';
 
 /// Codec for converting ExperimentConfig between Dart and JS objects.
 class ConfigCodec {
   /// Converts an ExperimentConfig to a JSObject for the JavaScript SDK.
-  static JSObject toJSObject(
-    ExperimentConfig c,
-    // ExposureTrackingProvider? trackingProvider,
-    // UserProvider? userProvider,
-  ) {
+  static JSObject toJSObject(ExperimentConfig c) {
     final config = c.pigeonConfig;
 
     final configMap = <String, dynamic>{
@@ -68,34 +64,36 @@ class ConfigCodec {
         break;
     }
 
-    final configObj = configMap.jsify() as JSObject;
+    final configObj = configMap.jsify() as JSExperimentConfig;
     if (c.trackingProvider != null) {
-      configObj['exposureTrackingProvider'] = _buildTrackingProviderJS(
+      configObj.exposureTrackingProvider = _buildTrackingProviderJS(
         c.trackingProvider!,
       );
     }
     if (c.userProvider != null) {
-      configObj['userProvider'] = _buildUserProviderJS(c.userProvider!);
+      configObj.userProvider = _buildUserProviderJS(c.userProvider!);
     }
 
     return configObj;
   }
 
-  static JSObject _buildTrackingProviderJS(ExposureTrackingProvider provider) {
-    final obj = <String, dynamic>{}.jsify() as JSObject;
-    obj['track'] = ((JSObject jsExposure) {
-      final pigeonExposure = ExposureCodec.fromJSObject(jsExposure);
-      provider.track(exposureFromPigeon(pigeonExposure));
-    }).toJS;
-    return obj;
+  static JSExposureTrackingProvider _buildTrackingProviderJS(
+    ExposureTrackingProvider provider,
+  ) {
+    return JSExposureTrackingProvider(
+      track: ((JSObject jsExposure) {
+        final pigeonExposure = ExposureCodec.fromJSObject(jsExposure);
+        provider.track(exposureFromPigeon(pigeonExposure));
+      }).toJS,
+    );
   }
 
-  static JSObject _buildUserProviderJS(UserProvider provider) {
-    final obj = <String, dynamic>{}.jsify() as JSObject;
-    obj['getUser'] = (() {
-      final user = provider.getUser();
-      return UserCodec.toJSObject(user.toPigeon());
-    }).toJS;
-    return obj;
+  static JSUserProvider _buildUserProviderJS(UserProvider provider) {
+    return JSUserProvider(
+      getUser: (() {
+        final user = provider.getUser();
+        return UserCodec.toJSObject(user.toPigeon());
+      }).toJS,
+    );
   }
 }

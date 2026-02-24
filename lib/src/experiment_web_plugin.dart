@@ -1,5 +1,4 @@
 import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
 import 'dart:async';
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:amplitude_experiment/src/experiment_platform_interface.dart';
@@ -9,6 +8,7 @@ import 'package:amplitude_experiment/src/web/codec/config_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/user_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/variant_codec.dart';
 import 'package:amplitude_experiment/src/web/codec/options_codec.dart';
+import 'package:amplitude_experiment/src/web/codec/codec_utils.dart';
 import 'package:amplitude_experiment/src/experiment_config.dart';
 import 'package:amplitude_experiment/src/providers.dart'
     show ExposureTrackingProvider;
@@ -106,28 +106,25 @@ class ExperimentWebPlugin extends ExperimentPlatform {
     ExperimentUser? user,
   ) async {
     final client = _getClient(instanceName);
-    final allFn = client['all'] as JSFunction?;
-    if (allFn == null) {
-      throw UnsupportedError('Client.all not found');
+    final allVariants = client.all();
+    final dartified = allVariants.dartify();
+    if (dartified == null) {
+      return {};
     }
 
-    final allVariants =
-        allFn.callAsFunction(client, <JSAny>[].toJS) as JSObject;
+    final allMap = CodecUtils.toPlainMap(dartified);
+    if (allMap == null) {
+      return {};
+    }
+
     final Map<String, Variant> result = {};
-
-    // Get all keys from the JS object using Object.keys
-    final objectKeys = globalContext['Object'] as JSObject;
-    final keysFn = objectKeys['keys'] as JSFunction;
-    final keys =
-        keysFn.callAsFunction(objectKeys, [allVariants].toJS)
-            as JSArray<JSString>;
-
-    for (var i = 0; i < keys.length; i++) {
-      final key = keys[i];
-      final keyStr = key.toDart;
-      final variantObj = allVariants[keyStr] as JSObject?;
-      if (variantObj != null) {
-        result[keyStr] = VariantCodec.fromJSObject(variantObj);
+    for (final entry in allMap.entries) {
+      final variantRaw = entry.value;
+      if (variantRaw != null) {
+        final variantMap = CodecUtils.toPlainMap(variantRaw);
+        if (variantMap != null) {
+          result[entry.key] = VariantCodec.fromMap(variantMap);
+        }
       }
     }
 
@@ -137,11 +134,7 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   @override
   Future<void> clear(String instanceName) async {
     final client = _getClient(instanceName);
-    final clearFn = client['clear'] as JSFunction?;
-    if (clearFn == null) {
-      throw UnsupportedError('Client.clear not found');
-    }
-    clearFn.callAsFunction(client, <JSAny>[].toJS);
+    client.clear();
   }
 
   @override
@@ -153,30 +146,15 @@ class ExperimentWebPlugin extends ExperimentPlatform {
   @override
   Future<ExperimentUser> getUser(String instanceName) async {
     final client = _getClient(instanceName);
-    final getUserFn = client['getUser'] as JSFunction?;
-    if (getUserFn == null) {
-      throw UnsupportedError('Client.getUser not found');
-    }
-
-    final userObj =
-        getUserFn.callAsFunction(client, <JSAny>[].toJS) as JSObject?;
-
-    if (userObj == null) {
-      return ExperimentUser();
-    }
-
+    final userObj = client.getUser();
     return UserCodec.fromJSObject(userObj);
   }
 
   @override
   Future<void> setUser(String instanceName, ExperimentUser user) async {
     final client = _getClient(instanceName);
-    final setUserFn = client['setUser'] as JSFunction?;
-    if (setUserFn == null) {
-      throw UnsupportedError('Client.setUser not found');
-    }
     final userObj = UserCodec.toJSObject(user);
-    setUserFn.callAsFunction(client, [userObj].toJS);
+    client.setUser(userObj);
   }
 
   @override
@@ -185,11 +163,7 @@ class ExperimentWebPlugin extends ExperimentPlatform {
     bool tracksAssignment,
   ) async {
     final client = _getClient(instanceName);
-    final setTracksAssignmentFn = client['setTracksAssignment'] as JSFunction?;
-    if (setTracksAssignmentFn == null) {
-      throw UnsupportedError('Client.setTracksAssignment not found');
-    }
-    setTracksAssignmentFn.callAsFunction(client, [tracksAssignment.toJS].toJS);
+    client.setTracksAssignment(tracksAssignment);
   }
 
   /// No-op on web. Tracking providers are wired through the config at init
