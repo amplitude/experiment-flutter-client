@@ -6,6 +6,12 @@ import Foundation
  * Amplitude Experiment SDK types. Mirrors the Android ExperimentSdkCodec.kt.
  */
 enum ExperimentSdkCodec {
+    private static let flutterLibraryVersion = "0.1.0-alpha.1"
+    private static let iosLibraryVersion = "1.19.0"
+    private static let flutterLibrary =
+        "experiment-flutter-client/\(flutterLibraryVersion)" +
+        "_experiment-ios-client/\(iosLibraryVersion)"
+
     /// Convert Pigeon ExperimentUser to SDK ExperimentUser.
     ///
     /// Note: `deviceBrand` and `ipAddress` from the pigeon user are not
@@ -26,7 +32,7 @@ enum ExperimentSdkCodec {
         builder.deviceModel(pigeon.deviceModel)
         builder.deviceManufacturer(pigeon.deviceManufacturer)
         builder.carrier(pigeon.carrier)
-        builder.library(pigeon.library)
+        builder.library(pigeon.library ?? ExperimentSdkCodec.flutterLibrary)
         builder.userProperties(pigeon.userProperties)
         builder.groups(pigeon.groups)
         builder.groupProperties(pigeon.groupProperties)
