@@ -4,6 +4,10 @@ import 'package:amplitude_experiment/src/web/codec/codec_utils.dart';
 
 /// Codec for converting ExperimentUser objects between Dart and JS.
 class UserCodec {
+  static const _flutterLibraryVersion = '0.1.0-alpha.1';
+  static const _flutterLibrary =
+      'experiment-flutter-client/${_flutterLibraryVersion}_experiment-js-client';
+
   /// Converts an ExperimentUser to a JSObject for the JavaScript SDK.
   static JSObject toJSObject(ExperimentUser user) {
     final userMap = <String, dynamic>{};
@@ -24,7 +28,7 @@ class UserCodec {
       userMap['device_manufacturer'] = user.deviceManufacturer;
     }
     if (user.carrier != null) userMap['carrier'] = user.carrier;
-    if (user.library != null) userMap['library'] = user.library;
+    userMap['library'] = user.library ?? _flutterLibrary;
     if (user.ipAddress != null) userMap['ip_address'] = user.ipAddress;
     if (user.userProperties != null) {
       userMap['user_properties'] = user.userProperties;

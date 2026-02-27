@@ -14,6 +14,12 @@ import com.amplitude.experiment.ExposureTrackingProvider
 import com.amplitude.experiment.FetchOptions as SdkFetchOptions
 import com.amplitude.experiment.flutter.FetchOptions as FlutterFetchOptions
 
+private const val FLUTTER_LIBRARY_VERSION = "0.1.0-alpha.1"
+private const val ANDROID_LIBRARY_VERSION = "1.15.0"
+private const val FLUTTER_LIBRARY =
+    "experiment-flutter-client/$FLUTTER_LIBRARY_VERSION" +
+    "_experiment-android-client/$ANDROID_LIBRARY_VERSION"
+
 fun convertUser(flutterUser: FlutterExperimentUser?): ExperimentUser? {
     return flutterUser?.let {
         val builder = ExperimentUser.Builder()
@@ -31,7 +37,7 @@ fun convertUser(flutterUser: FlutterExperimentUser?): ExperimentUser? {
          builder.deviceBrand(it.deviceBrand)
          builder.deviceManufacturer(it.deviceManufacturer)
          builder.carrier(it.carrier)
-         builder.library(it.library)
+         builder.library(it.library ?: FLUTTER_LIBRARY)
 
         builder.userProperties(it.userProperties)
         builder.groups(groupsFromPigeon(it.groups))

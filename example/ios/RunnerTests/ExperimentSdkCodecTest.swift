@@ -109,6 +109,21 @@ class ExperimentSdkCodecTest: XCTestCase {
         XCTAssertEqual(g1?.count, 2)
     }
 
+    func testConvertUser_nilLibrary_usesFlutterLibraryDefault() {
+        let pigeon = TestDataHelpers.createPigeonUser(library: nil)
+        let sdk = ExperimentSdkCodec.convertUser(pigeon)
+        XCTAssertEqual(
+            sdk?.library,
+            "experiment-flutter-client/0.1.0-alpha.1_experiment-ios-client/1.19.0"
+        )
+    }
+
+    func testConvertUser_explicitLibrary_preservesValue() {
+        let pigeon = TestDataHelpers.createPigeonUser(library: "custom-lib/1.0")
+        let sdk = ExperimentSdkCodec.convertUser(pigeon)
+        XCTAssertEqual(sdk?.library, "custom-lib/1.0")
+    }
+
     func testConvertUser_userProperties_preserved() {
         let props: [String: Any] = ["p1": "v1", "p2": 2]
         let pigeon = TestDataHelpers.createPigeonUser(userProperties: props)

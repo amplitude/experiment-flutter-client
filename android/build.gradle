@@ -47,19 +47,6 @@ android {
         minSdk = 24
     }
 
-//    dependencies {
-//        implementation("com.amplitude:experiment-android-client:1.14.0")
-//        testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0") // Use the latest version
-//        testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0") // Use the latest version
-//
-//        // Robolectric core dependency
-//
-//        // Robolectric JUnit 5 Extension
-//        testImplementation("tech.apter.junit5.jupiter:robolectric-extension:0.9.0")
-//        testImplementation("org.jetbrains.kotlin:kotlin-test")
-//        testImplementation("org.mockito:mockito-core:5.0.0")
-//    }
-
     testOptions {
         unitTests {
             includeAndroidResources = true
@@ -78,7 +65,8 @@ android {
 
 dependencies {
     // 1. Client Library
-    implementation("com.amplitude:experiment-android-client:1.14.0")
+    implementation("com.amplitude:experiment-android-client:1.15.0")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.mockito:mockito-core:5.11.0")
     testImplementation('junit:junit:4.13')
