@@ -1,43 +1,38 @@
 name: Semantic PR Check
 
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, edited]
+
+permissions:
+  pull-requests: read
 
 jobs:
   pr-title-check:
-    name: Check PR for semantic title
-    runs-on: ubuntu-18.04
+    name: Validate PR title
+    runs-on: ubuntu-latest
     steps:
-      - name: PR title is valid
-        if: >
-          startsWith(github.event.pull_request.title, 'feat:') || startsWith(github.event.pull_request.title, 'feat(') ||
-          startsWith(github.event.pull_request.title, 'fix:') || startsWith(github.event.pull_request.title, 'fix(') ||
-          startsWith(github.event.pull_request.title, 'perf:') || startsWith(github.event.pull_request.title, 'perf(') ||
-          startsWith(github.event.pull_request.title, 'docs:') || startsWith(github.event.pull_request.title, 'docs(') ||
-          startsWith(github.event.pull_request.title, 'test:') || startsWith(github.event.pull_request.title, 'test(') ||
-          startsWith(github.event.pull_request.title, 'refactor:') || startsWith(github.event.pull_request.title, 'refactor(') ||
-          startsWith(github.event.pull_request.title, 'style:') || startsWith(github.event.pull_request.title, 'style(') ||
-          startsWith(github.event.pull_request.title, 'build:') || startsWith(github.event.pull_request.title, 'build(') ||
-          startsWith(github.event.pull_request.title, 'ci:') || startsWith(github.event.pull_request.title, 'ci(') ||
-          startsWith(github.event.pull_request.title, 'chore:') || startsWith(github.event.pull_request.title, 'chore(') ||
-          startsWith(github.event.pull_request.title, 'revert:') || startsWith(github.event.pull_request.title, 'revert(')
-        run: |
-          echo 'Title checks passed'
+      - name: Validate PR title follows conventional commits
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            docs
+            test
+            refactor
+            style
+            build
+            ci
+            chore
+            revert
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            must start with a lowercase letter.
 
-      - name: PR title is invalid
-        if: >
-          !startsWith(github.event.pull_request.title, 'feat:') && !startsWith(github.event.pull_request.title, 'feat(') &&
-          !startsWith(github.event.pull_request.title, 'fix:') && !startsWith(github.event.pull_request.title, 'fix(') &&
-          !startsWith(github.event.pull_request.title, 'perf:') && !startsWith(github.event.pull_request.title, 'perf(') &&
-          !startsWith(github.event.pull_request.title, 'docs:') && !startsWith(github.event.pull_request.title, 'docs(') &&
-          !startsWith(github.event.pull_request.title, 'test:') && !startsWith(github.event.pull_request.title, 'test(') &&
-          !startsWith(github.event.pull_request.title, 'refactor:') && !startsWith(github.event.pull_request.title, 'refactor(') &&
-          !startsWith(github.event.pull_request.title, 'style:') && !startsWith(github.event.pull_request.title, 'style(') &&
-          !startsWith(github.event.pull_request.title, 'build:') && !startsWith(github.event.pull_request.title, 'build(') &&
-          !startsWith(github.event.pull_request.title, 'ci:') && !startsWith(github.event.pull_request.title, 'ci(') &&
-          !startsWith(github.event.pull_request.title, 'chore:') && !startsWith(github.event.pull_request.title, 'chore(') &&
-          !startsWith(github.event.pull_request.title, 'revert:') && !startsWith(github.event.pull_request.title, 'revert(')
-        run: |
-          echo 'Pull request title is not valid. Please check github.com/amplitude/Amplitude-Python/blob/main/CONTRIBUTING.md#pr-commit-title-conventions'
-          exit 1
+            Please check: https://github.com/amplitude/experiment-flutter-client/blob/main/CONTRIBUTING.md#pr-commit-title-conventions
+          validateSingleCommit: true

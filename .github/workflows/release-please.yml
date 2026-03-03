@@ -1,0 +1,50 @@
+# Release Please automates versioning, changelogs, GitHub Releases, and tags.
+# Config: release-please-config.json | Manifest: .release-please-manifest.json
+#
+# Note: Config uses release-type "simple" instead of "dart" because the Dart
+# pubspec updater has a bug that mangles prerelease versions (e.g. producing
+# 0.1.0-alpha.8+-alpha.7). See: https://github.com/googleapis/release-please/issues/2400
+# Instead, we use generic updaters via extra-files with x-release-please-version
+# annotations to update pubspec.yaml, platform codec files, and README.md.
+#
+# === Graduating from alpha to stable 1.0.0 ===
+#
+# 1. In release-please-config.json, change:
+#      "prerelease": true   →  "prerelease": false
+#    and remove "prerelease-type" and "versioning" keys.
+#
+# 2. The next release PR will produce v1.0.0 (stripping the alpha suffix).
+#
+# 3. After v1.0.0 is released, also remove "bump-minor-pre-major" and
+#    "bump-patch-for-minor-pre-major" so that standard semver applies:
+#      - fix:           patch bump  (1.0.0 → 1.0.1)
+#      - feat:          minor bump  (1.0.1 → 1.1.0)
+#      - feat!/fix!:    major bump  (1.1.0 → 2.0.0)
+#
+name: Release Please
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_PRIVATE_KEY }}
+
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
