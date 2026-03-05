@@ -5,7 +5,7 @@ import 'package:amplitude_experiment/src/web/codec/codec_utils.dart';
 /// Codec for converting ExperimentUser objects between Dart and JS.
 class UserCodec {
   static const _flutterLibraryVersion =
-      '0.1.0-alpha.1'; // x-release-please-version
+      '0.1.0-alpha.2'; // x-release-please-version
   static const _flutterLibrary =
       'experiment-flutter-client/${_flutterLibraryVersion}_experiment-js-client';
 
