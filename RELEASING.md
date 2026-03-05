@@ -6,17 +6,6 @@ This project uses [release-please](https://github.com/googleapis/release-please)
 
 Before releases can run, the following must be configured in the repository:
 
-### GitHub App (for release-please)
-
-A GitHub App is required so that release-created events trigger downstream workflows (e.g., publish). Personal access tokens don't trigger workflow events.
-
-| Secret | Value |
-|--------|-------|
-| `RELEASE_APP_ID` | Numeric App ID of the GitHub App |
-| `RELEASE_PRIVATE_KEY` | PEM-formatted private key |
-
-The GitHub App needs **Contents** (read/write) and **Pull requests** (read/write) permissions on this repository.
-
 ### pub.dev environment (for publishing)
 
 - Create a GitHub environment named `pub.dev` under **Settings → Environments**
@@ -32,16 +21,14 @@ commit → main ──► release-please opens/updates PR
                          │
                     release-please creates GitHub Release + tag (vX.Y.Z-alpha.N)
                          │
-                    publish.yml triggers on tag push
-                         │
-                    flutter pub publish --force
+                    run Publish to pub.dev with the new tag
 ```
 
 1. Push a conventional commit to `main` (directly or via PR merge).
 2. The `release-please.yml` workflow runs and either opens a new release PR or updates an existing one.
 3. The release PR bumps versions in all tracked files (via `x-release-please-version` annotations), updates `CHANGELOG.md`, and updates `.release-please-manifest.json`.
 4. When the release PR is merged, release-please creates a GitHub Release and a git tag (e.g., `v0.1.0-alpha.3`).
-5. The tag push triggers `publish.yml`, which runs `flutter pub publish --force`.
+5. Run the Publish to pub.dev with under the new tag.
 
 ## Commits that trigger releases
 
