@@ -114,7 +114,7 @@ class ExperimentSdkCodecTest: XCTestCase {
         let sdk = ExperimentSdkCodec.convertUser(pigeon)
         XCTAssertEqual(
             sdk?.library,
-            "experiment-flutter-client/0.1.0-alpha.1_experiment-ios-client/1.19.0"
+            "experiment-flutter-client/0.1.0-beta.1_experiment-ios-client/1.19.0"
         )
     }
 
