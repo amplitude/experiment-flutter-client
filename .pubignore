@@ -17,6 +17,8 @@ scripts/
 test/
 tool/
 tools/
+example/integration_test/
+example/test/
 example/linux/
 example/macos/
 example/windows/
@@ -28,10 +30,12 @@ extension/
 *.iml
 .gitignore
 .metadata
+analysis_options.yaml
 commitlint.yaml
 CONTRIBUTING.md
 AGENTS.md
 build.yaml
+pubspec.lock
 release-please-config.json
 .release-please-manifest.json
 RELEASING.md
