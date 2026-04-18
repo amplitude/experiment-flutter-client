@@ -112,10 +112,7 @@ class ExperimentSdkCodecTest: XCTestCase {
     func testConvertUser_nilLibrary_usesFlutterLibraryDefault() {
         let pigeon = TestDataHelpers.createPigeonUser(library: nil)
         let sdk = ExperimentSdkCodec.convertUser(pigeon)
-        XCTAssertEqual(
-            sdk?.library,
-            "experiment-flutter-client/0.1.0-beta.1_experiment-ios-client/1.19.0"
-        )
+        XCTAssertEqual(sdk?.library, ExperimentSdkCodec.flutterLibrary)
     }
 
     func testConvertUser_explicitLibrary_preservesValue() {

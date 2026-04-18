@@ -125,10 +125,7 @@ internal class ExperimentSdkCodecTest {
     fun convertUser_nullLibrary_usesFlutterLibraryDefault() {
         val pigeon = TestDataHelpers.createPigeonUser(library = null)
         val sdk = requireNotNull(convertUser(pigeon))
-        assertEquals(
-            "experiment-flutter-client/0.1.0-beta.1_experiment-android-client/1.15.0",
-            sdk.library,
-        )
+        assertEquals(FLUTTER_LIBRARY, sdk.library)
     }
 
     @Test

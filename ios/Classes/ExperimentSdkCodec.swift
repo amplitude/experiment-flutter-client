@@ -8,7 +8,7 @@ import Foundation
 enum ExperimentSdkCodec {
     private static let flutterLibraryVersion = "0.1.0-beta.1" // x-release-please-version
     private static let iosLibraryVersion = "1.19.0"
-    private static let flutterLibrary =
+    static let flutterLibrary =
         "experiment-flutter-client/\(flutterLibraryVersion)" +
         "_experiment-ios-client/\(iosLibraryVersion)"
 
