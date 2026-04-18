@@ -12,6 +12,7 @@
 Icon?
 **/Pods/
 **/.symlinks/
+Runner.xcworkspace/
 profile
 xcuserdata
 **/.generated/
