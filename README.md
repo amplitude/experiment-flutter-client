@@ -140,4 +140,4 @@ See `ExperimentConfig` API docs for the full list.
 
 ## Learn More
 
-Visit the [Amplitude Experiment documentation](https://amplitude.com/docs/experiment) for guides on creating flags, targeting users, and running experiments.
+Visit the [Amplitude Experiment documentation](https://amplitude.com/docs/experiment-home) for guides on creating flags, targeting users, and running experiments.
