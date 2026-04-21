@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-beta.2](https://github.com/amplitude/experiment-flutter-client/compare/v0.1.0-beta.1...v0.1.0-beta.2) (2026-04-20)
+
+
+### Bug Fixes
+
+* relax Dart SDK constraint from ^3.10.3 to ^3.8.0 ([#13](https://github.com/amplitude/experiment-flutter-client/issues/13)) ([9a6b98d](https://github.com/amplitude/experiment-flutter-client/commit/9a6b98de820b8ce11eddd99baa5af7221e59142f))
+
 ## [0.1.0-beta.1](https://github.com/amplitude/experiment-flutter-client/compare/v0.1.0-alpha.2...v0.1.0-beta.1) (2026-03-07)
 
 
