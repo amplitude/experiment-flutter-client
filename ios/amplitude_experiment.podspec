@@ -7,11 +7,11 @@ Pod::Spec.new do |s|
   s.version          = '0.1.0-beta.2' # x-release-please-version
   s.summary          = 'A new Flutter plugin project.'
   s.description      = <<-DESC
-A new Flutter plugin project.
+The official Amplitude Experiment Flutter SDK for evaluating feature flags and running experiments across iOS, Android, and Web.
                        DESC
-  s.homepage         = 'http://example.com'
+  s.homepage         = 'https://github.com/amplitude/experiment-flutter-client'
   s.license          = { :file => '../LICENSE' }
-  s.author           = { 'Your Company' => 'email@example.com' }
+  s.author           = { 'Amplitude' => 'support@amplitude.com' }
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
@@ -22,9 +22,5 @@ A new Flutter plugin project.
   s.swift_version = '5.0'
   s.dependency 'AmplitudeExperiment', '1.19.0'
 
-  # If your plugin requires a privacy manifest, for example if it uses any
-  # required reason APIs, update the PrivacyInfo.xcprivacy file to describe your
-  # plugin's privacy impact, and then uncomment this line. For more information,
-  # see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
-  # s.resource_bundles = {'experiment_flutter_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'amplitude_experiment_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
 end

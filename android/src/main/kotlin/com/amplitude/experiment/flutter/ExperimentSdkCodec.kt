@@ -16,7 +16,7 @@ import com.amplitude.experiment.flutter.FetchOptions as FlutterFetchOptions
 
 private const val FLUTTER_LIBRARY_VERSION = "0.1.0-beta.2" // x-release-please-version
 private const val ANDROID_LIBRARY_VERSION = "1.15.0"
-private const val FLUTTER_LIBRARY =
+internal const val FLUTTER_LIBRARY =
     "experiment-flutter-client/$FLUTTER_LIBRARY_VERSION" +
     "_experiment-android-client/$ANDROID_LIBRARY_VERSION"
 
