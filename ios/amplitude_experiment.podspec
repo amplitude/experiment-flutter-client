@@ -13,7 +13,7 @@ The official Amplitude Experiment Flutter SDK for evaluating feature flags and r
   s.license          = { :file => '../LICENSE' }
   s.author           = { 'Amplitude' => 'support@amplitude.com' }
   s.source           = { :path => '.' }
-  s.source_files = 'Classes/**/*'
+  s.source_files = 'amplitude_experiment/Sources/amplitude_experiment/**/*.swift'
   s.dependency 'Flutter'
   s.platform = :ios, '13.0'
 
@@ -22,5 +22,5 @@ The official Amplitude Experiment Flutter SDK for evaluating feature flags and r
   s.swift_version = '5.0'
   s.dependency 'AmplitudeExperiment', '1.19.0'
 
-  s.resource_bundles = {'amplitude_experiment_privacy' => ['Resources/PrivacyInfo.xcprivacy']}
+  s.resource_bundles = {'amplitude_experiment_privacy' => ['amplitude_experiment/Sources/amplitude_experiment/PrivacyInfo.xcprivacy']}
 end
