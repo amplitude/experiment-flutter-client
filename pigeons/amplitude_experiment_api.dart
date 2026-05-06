@@ -7,7 +7,7 @@ import 'package:pigeon/pigeon.dart';
     dartOptions: DartOptions(
       copyrightHeader: <String>['dart format off', 'coverage:ignore-file'],
     ),
-    swiftOut: 'ios/Classes/AmplitudeExperimentApi.g.swift',
+    swiftOut: 'ios/amplitude_experiment/Sources/amplitude_experiment/AmplitudeExperimentApi.g.swift',
     swiftOptions: SwiftOptions(),
     kotlinOut:
         'android/src/main/kotlin/com/amplitude/experiment/flutter/AmplitudeExperimentApi.g.kt',
