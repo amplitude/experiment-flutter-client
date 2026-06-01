@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-beta.3](https://github.com/amplitude/experiment-flutter-client/compare/v0.1.0-beta.2...v0.1.0-beta.3) (2026-06-01)
+
+
+### Bug Fixes
+
+* honor serverZone:EU on Flutter (Android + Web) ([#21](https://github.com/amplitude/experiment-flutter-client/issues/21)) ([d8b9ec7](https://github.com/amplitude/experiment-flutter-client/commit/d8b9ec73c0c132403c24cbf5a69e6c692e3ecc25))
+
 ## [0.1.0-beta.2](https://github.com/amplitude/experiment-flutter-client/compare/v0.1.0-beta.1...v0.1.0-beta.2) (2026-04-20)
 
 
