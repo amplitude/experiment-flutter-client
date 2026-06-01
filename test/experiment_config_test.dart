@@ -116,5 +116,19 @@ void main() {
         );
       },
     );
+
+    test('a blank URL is treated as not set and not forwarded', () {
+      final config = ExperimentConfig(
+        serverZone: ServerZone.eu,
+        serverUrl: '',
+        flagsServerUrl: '',
+      );
+      // Blank normalizes to the default for reads, and is withheld from the
+      // bridge so native serverZone resolution still applies.
+      expect(config.serverUrl, ExperimentConfigDefaults.serverUrl);
+      expect(config.flagsServerUrl, ExperimentConfigDefaults.flagsServerUrl);
+      expect(config.pigeonConfig.serverUrl, isEmpty);
+      expect(config.pigeonConfig.flagsServerUrl, isEmpty);
+    });
   });
 }

@@ -93,8 +93,10 @@ class ExperimentConfig {
 
   /// Whether [serverUrl] was explicitly provided by the caller.
   ///
-  /// When `false`, the default URL is intentionally withheld from the native
-  /// bridge so the native SDK applies its own [serverZone] -> host routing.
+  /// `true` only when a non-empty value was passed; a `null` or blank value is
+  /// treated as "not set". When `false`, the default URL is intentionally
+  /// withheld from the native bridge so the native SDK applies its own
+  /// [serverZone] -> host routing.
   /// Forwarding the Dart default (which lacks a trailing slash) would
   /// otherwise defeat the native EU override and silently route EU traffic to
   /// the US host.
@@ -152,11 +154,14 @@ class ExperimentConfig {
         ExperimentConfigDefaults.automaticFetchOnAmplitudeIdentityChange,
     this.trackingProvider,
     this.userProvider,
-  }) : serverUrl = serverUrl ?? ExperimentConfigDefaults.serverUrl,
-       flagsServerUrl =
-           flagsServerUrl ?? ExperimentConfigDefaults.flagsServerUrl,
-       _serverUrlExplicitlySet = serverUrl != null,
-       _flagsServerUrlExplicitlySet = flagsServerUrl != null;
+  }) : serverUrl = (serverUrl?.isNotEmpty ?? false)
+           ? serverUrl!
+           : ExperimentConfigDefaults.serverUrl,
+       flagsServerUrl = (flagsServerUrl?.isNotEmpty ?? false)
+           ? flagsServerUrl!
+           : ExperimentConfigDefaults.flagsServerUrl,
+       _serverUrlExplicitlySet = serverUrl?.isNotEmpty ?? false,
+       _flagsServerUrlExplicitlySet = flagsServerUrl?.isNotEmpty ?? false;
 
   pigeon.ExperimentConfigData get pigeonConfig {
     return pigeon.ExperimentConfigData(
