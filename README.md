@@ -136,6 +136,19 @@ All config fields have sensible defaults. Common options:
 | `automaticExposureTracking` | `true` | Track exposures on `variant()` calls |
 | `fetchOnStart` | `true` | Fetch flags when `start()` is called |
 
+### EU data residency
+
+To send traffic to Amplitude's EU servers, set `serverZone` to `ServerZone.eu`:
+
+```dart
+final config = ExperimentConfig(serverZone: ServerZone.eu);
+```
+
+That is all that is required: the SDK automatically routes to the EU hosts
+(`api.lab.eu.amplitude.com` and `flag.lab.eu.amplitude.com`). Only set
+`serverUrl` / `flagsServerUrl` when you need a custom proxy host; doing so
+overrides the automatic `serverZone` routing.
+
 See `ExperimentConfig` API docs for the full list.
 
 ## Learn More

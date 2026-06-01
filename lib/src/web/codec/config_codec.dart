@@ -25,6 +25,10 @@ class ConfigCodec {
       'fetchTimeoutMillis': config.fetchTimeoutMillis,
     };
 
+    // An empty URL is the sentinel for "left at the Flutter default". Omitting
+    // it lets the JS SDK resolve the host from serverZone, so serverZone == EU
+    // routes to the EU host instead of being short-circuited by a forwarded
+    // default US URL.
     if (config.serverUrl.isNotEmpty) {
       configMap['serverUrl'] = config.serverUrl;
     }
