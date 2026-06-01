@@ -86,8 +86,16 @@ enum ExperimentSdkCodec {
         builder.initialVariants(convertVariants(pigeon.initialVariants))
         builder.source(convertSource(pigeon.source))
         builder.serverZone(convertServerZone(pigeon.serverZone))
-        builder.serverUrl(pigeon.serverUrl)
-        builder.flagsServerUrl(pigeon.flagsServerUrl)
+        // Only forward explicitly-overridden URLs. An empty value is the
+        // sentinel for "left at the Flutter default", in which case the native
+        // SDK resolves the host from serverZone (so serverZone == .eu routes to
+        // the EU host instead of the forwarded US default).
+        if !pigeon.serverUrl.isEmpty {
+            builder.serverUrl(pigeon.serverUrl)
+        }
+        if !pigeon.flagsServerUrl.isEmpty {
+            builder.flagsServerUrl(pigeon.flagsServerUrl)
+        }
         builder.fetchTimeoutMillis(Int(pigeon.fetchTimeoutMillis))
         builder.fetchRetryOnFailure(pigeon.retryFetchOnFailure)
         builder.automaticExposureTracking(pigeon.automaticExposureTracking)

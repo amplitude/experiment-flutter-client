@@ -76,10 +76,36 @@ class ExperimentConfig {
   final ServerZone serverZone;
 
   /// The server URL for remote evaluation.
+  ///
+  /// Defaults to [ExperimentConfigDefaults.serverUrl]. When left at the
+  /// default, the URL is NOT forwarded across the platform bridge so each
+  /// native SDK resolves the correct host from [serverZone] (e.g. the EU
+  /// host for [ServerZone.eu]). See [_serverUrlExplicitlySet].
   final String serverUrl;
 
   /// The server URL for local evaluation flag data.
+  ///
+  /// Defaults to [ExperimentConfigDefaults.flagsServerUrl]. When left at the
+  /// default, the URL is NOT forwarded across the platform bridge so each
+  /// native SDK resolves the correct host from [serverZone]. See
+  /// [_flagsServerUrlExplicitlySet].
   final String flagsServerUrl;
+
+  /// Whether [serverUrl] was explicitly provided by the caller.
+  ///
+  /// `true` only when a non-empty value was passed; a `null` or blank value is
+  /// treated as "not set". When `false`, the default URL is intentionally
+  /// withheld from the native bridge so the native SDK applies its own
+  /// [serverZone] -> host routing.
+  /// Forwarding the Dart default (which lacks a trailing slash) would
+  /// otherwise defeat the native EU override and silently route EU traffic to
+  /// the US host.
+  final bool _serverUrlExplicitlySet;
+
+  /// Whether [flagsServerUrl] was explicitly provided by the caller.
+  ///
+  /// See [_serverUrlExplicitlySet] for the rationale.
+  final bool _flagsServerUrlExplicitlySet;
 
   /// The fetch timeout in milliseconds.
   final int fetchTimeoutMillis;
@@ -116,8 +142,8 @@ class ExperimentConfig {
     this.initialVariants = ExperimentConfigDefaults.initialVariants,
     this.source = ExperimentConfigDefaults.source,
     this.serverZone = ExperimentConfigDefaults.serverZone,
-    this.serverUrl = ExperimentConfigDefaults.serverUrl,
-    this.flagsServerUrl = ExperimentConfigDefaults.flagsServerUrl,
+    String? serverUrl,
+    String? flagsServerUrl,
     this.fetchTimeoutMillis = ExperimentConfigDefaults.fetchTimeoutMillis,
     this.retryFetchOnFailure = ExperimentConfigDefaults.retryFetchOnFailure,
     this.automaticExposureTracking =
@@ -128,7 +154,14 @@ class ExperimentConfig {
         ExperimentConfigDefaults.automaticFetchOnAmplitudeIdentityChange,
     this.trackingProvider,
     this.userProvider,
-  });
+  }) : serverUrl = (serverUrl?.isNotEmpty ?? false)
+           ? serverUrl!
+           : ExperimentConfigDefaults.serverUrl,
+       flagsServerUrl = (flagsServerUrl?.isNotEmpty ?? false)
+           ? flagsServerUrl!
+           : ExperimentConfigDefaults.flagsServerUrl,
+       _serverUrlExplicitlySet = serverUrl?.isNotEmpty ?? false,
+       _flagsServerUrlExplicitlySet = flagsServerUrl?.isNotEmpty ?? false;
 
   pigeon.ExperimentConfigData get pigeonConfig {
     return pigeon.ExperimentConfigData(
@@ -136,12 +169,14 @@ class ExperimentConfig {
       logLevel: logLevelToPigeon(logLevel),
       fallbackVariant: fallbackVariant?.toPigeon() ?? pigeon.Variant(),
       initialFlags: initialFlags,
-      initialVariants:
-          initialVariants.map((k, v) => MapEntry(k, v.toPigeon())),
+      initialVariants: initialVariants.map((k, v) => MapEntry(k, v.toPigeon())),
       source: sourceToPigeon(source),
       serverZone: serverZoneToPigeon(serverZone),
-      serverUrl: serverUrl,
-      flagsServerUrl: flagsServerUrl,
+      // Forward an empty sentinel when the URL was left at its default so the
+      // native SDK resolves the host from serverZone. Only forward an explicit
+      // override. This keeps serverZone == EU routing to the EU host.
+      serverUrl: _serverUrlExplicitlySet ? serverUrl : '',
+      flagsServerUrl: _flagsServerUrlExplicitlySet ? flagsServerUrl : '',
       fetchTimeoutMillis: fetchTimeoutMillis,
       retryFetchOnFailure: retryFetchOnFailure,
       automaticExposureTracking: automaticExposureTracking,

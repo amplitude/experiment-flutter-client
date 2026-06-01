@@ -73,8 +73,16 @@ fun convertConfig(flutterConfig: FlutterConfig, api: CustomProviderApi): Experim
     builder.initialVariants(variantsFromPigeon(flutterConfig.initialVariants))
     builder.source(parseSource(flutterConfig.source))
     builder.serverZone(parseServerZone(flutterConfig.serverZone))
-    builder.serverUrl(flutterConfig.serverUrl)
-    builder.flagsServerUrl(flutterConfig.flagsServerUrl)
+    // Only forward explicitly-overridden URLs. An empty value is the sentinel
+    // for "left at the Flutter default", in which case we let the native SDK
+    // resolve the host from serverZone (so serverZone == EU routes to the EU
+    // host instead of being silently overridden by the forwarded US default).
+    if (flutterConfig.serverUrl.isNotEmpty()) {
+        builder.serverUrl(flutterConfig.serverUrl)
+    }
+    if (flutterConfig.flagsServerUrl.isNotEmpty()) {
+        builder.flagsServerUrl(flutterConfig.flagsServerUrl)
+    }
     builder.fetchTimeoutMillis(flutterConfig.fetchTimeoutMillis)
     builder.retryFetchOnFailure(flutterConfig.retryFetchOnFailure)
     builder.automaticExposureTracking(flutterConfig.automaticExposureTracking)

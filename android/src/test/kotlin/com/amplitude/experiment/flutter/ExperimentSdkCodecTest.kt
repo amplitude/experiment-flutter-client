@@ -213,6 +213,38 @@ internal class ExperimentSdkCodecTest {
         assertEquals(0, sdk.initialVariants.size)
     }
 
+    @Test
+    fun convertConfig_emptyServerUrls_keepNativeDefaultsForServerZoneResolution() {
+        // An empty URL is the sentinel for "left at the Flutter default". The
+        // codec must NOT forward it; otherwise it overrides the native default
+        // and defeats the native serverZone -> host resolution (EU support).
+        val baseline = com.amplitude.experiment.ExperimentConfig.builder()
+            .serverZone(SdkServerZone.EU)
+            .build()
+        val pigeon = TestDataHelpers.createPigeonConfig(
+            serverZone = ServerZone.EU,
+            serverUrl = "",
+            flagsServerUrl = "",
+        )
+        val sdk = convertConfig(pigeon, mockApi)
+        assertEquals(SdkServerZone.EU, sdk.serverZone)
+        // URLs untouched => identical to a config built without explicit URLs,
+        // so the native client applies the EU host.
+        assertEquals(baseline.serverUrl, sdk.serverUrl)
+        assertEquals(baseline.flagsServerUrl, sdk.flagsServerUrl)
+    }
+
+    @Test
+    fun convertConfig_explicitServerUrls_areForwarded() {
+        val pigeon = TestDataHelpers.createPigeonConfig(
+            serverUrl = "https://proxy.example.com",
+            flagsServerUrl = "https://flags.proxy.example.com",
+        )
+        val sdk = convertConfig(pigeon, mockApi)
+        assertEquals("https://proxy.example.com", sdk.serverUrl)
+        assertEquals("https://flags.proxy.example.com", sdk.flagsServerUrl)
+    }
+
     // ---------- convertFetchOptions ----------
 
     @Test
