@@ -51,7 +51,7 @@ release-please updates these files via `x-release-please-version` annotations:
 | `pubspec.yaml` | `version:` field |
 | `lib/src/web/codec/user_codec.dart` | `_flutterLibraryVersion` constant |
 | `android/.../ExperimentSdkCodec.kt` | `FLUTTER_LIBRARY_VERSION` constant |
-| `ios/Classes/ExperimentSdkCodec.swift` | `flutterLibraryVersion` constant |
+| `ios/amplitude_experiment/Sources/amplitude_experiment/ExperimentSdkCodec.swift` | `flutterLibraryVersion` constant |
 | `ios/amplitude_experiment.podspec` | `s.version` field |
 | `android/build.gradle` | `version` property |
 | `README.md` | Installation version in `pubspec.yaml` snippet |
