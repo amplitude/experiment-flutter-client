@@ -16,7 +16,7 @@
         { "type": "generic", "path": "pubspec.yaml" },
         { "type": "generic", "path": "lib/src/web/codec/user_codec.dart" },
         { "type": "generic", "path": "android/src/main/kotlin/com/amplitude/experiment/flutter/ExperimentSdkCodec.kt" },
-        { "type": "generic", "path": "ios/Classes/ExperimentSdkCodec.swift" },
+        { "type": "generic", "path": "ios/amplitude_experiment/Sources/amplitude_experiment/ExperimentSdkCodec.swift" },
         { "type": "generic", "path": "ios/amplitude_experiment.podspec" },
         { "type": "generic", "path": "android/build.gradle" },
         { "type": "generic", "path": "README.md" }
