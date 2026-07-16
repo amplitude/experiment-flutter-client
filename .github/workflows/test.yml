@@ -1,0 +1,147 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dart:
+    name: Format, analyze & test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Verify publishability
+        run: flutter pub publish --dry-run
+
+  pana:
+    name: Package score
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # Baseline is 150/160; --exit-code-threshold is the number of points
+      # the package may miss before the job fails. Tighten as metadata
+      # improvements land.
+      - name: Run pana
+        run: |
+          dart pub global activate pana
+          dart pub global run pana --no-warning --exit-code-threshold 10 .
+
+  android:
+    name: Android unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Java
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # The plugin's Android module cannot build standalone; it resolves the
+      # Android Gradle Plugin and Flutter embedding through the example app.
+      - name: Configure example Android project
+        run: flutter build apk --debug --config-only
+        working-directory: example
+
+      - name: Run Android unit tests
+        run: ./gradlew :amplitude_experiment:testDebugUnitTest
+        working-directory: example/android
+
+  ios:
+    name: iOS unit tests
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      # Pin the CocoaPods integration path: with Swift Package Manager mode
+      # enabled, `pod install` produces a project that lacks the plugin
+      # module. Pods is also the path most consumers use and validates the
+      # podspec.
+      - name: Use CocoaPods integration
+        run: flutter config --no-enable-swift-package-manager
+
+      - name: Configure example iOS project
+        run: flutter build ios --config-only --simulator --debug
+        working-directory: example
+
+      - name: Install pods
+        run: pod install --repo-update
+        working-directory: example/ios
+
+      - name: Run iOS unit tests
+        working-directory: example/ios
+        run: |
+          DEVICE=$(xcrun simctl list devices available | grep -m1 -oE 'iPhone [^(]+' | sed 's/ *$//')
+          echo "Using simulator: $DEVICE"
+          xcodebuild test \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,name=$DEVICE" \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+
+  web:
+    name: Web example build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Build web example
+        run: flutter build web
+        working-directory: example
