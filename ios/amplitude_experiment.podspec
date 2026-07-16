@@ -20,7 +20,7 @@ The official Amplitude Experiment Flutter SDK for evaluating feature flags and r
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
-  s.dependency 'AmplitudeExperiment', '1.19.0'
+  s.dependency 'AmplitudeExperiment', '>= 1.20.2', '< 2.0.0'
 
   s.resource_bundles = {'amplitude_experiment_privacy' => ['amplitude_experiment/Sources/amplitude_experiment/PrivacyInfo.xcprivacy']}
 end
