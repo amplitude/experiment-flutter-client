@@ -4,9 +4,7 @@ import 'package:amplitude_experiment/src/web/codec/codec_utils.dart';
 
 class ExposureCodec {
   static Map<String, dynamic> toMap(Exposure exposure) {
-    final map = <String, dynamic>{
-      'flag_key': exposure.flagKey,
-    };
+    final map = <String, dynamic>{'flag_key': exposure.flagKey};
     if (exposure.variant != null) map['variant'] = exposure.variant;
     if (exposure.experimentKey != null) {
       map['experiment_key'] = exposure.experimentKey;

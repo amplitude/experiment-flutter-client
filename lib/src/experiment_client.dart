@@ -20,10 +20,7 @@ abstract class ExperimentClient {
   ///
   /// Optionally pass [options] to limit which flags are fetched.
   /// If [user] is omitted, the most recently resolved user is used.
-  Future<void> fetch([
-    ExperimentUser? user,
-    FetchOptions? options,
-  ]);
+  Future<void> fetch([ExperimentUser? user, FetchOptions? options]);
 
   /// Returns the variant for a single [flagKey].
   ///

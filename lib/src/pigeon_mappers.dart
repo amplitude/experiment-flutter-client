@@ -10,46 +10,46 @@ import 'package:amplitude_experiment/src/models/enums.dart';
 
 extension VariantToPigeon on Variant {
   pigeon.Variant toPigeon() => pigeon.Variant(
-        key: key,
-        value: value,
-        payload: payload,
-        expKey: expKey,
-        metadata: metadata,
-      );
+    key: key,
+    value: value,
+    payload: payload,
+    expKey: expKey,
+    metadata: metadata,
+  );
 }
 
 Variant variantFromPigeon(pigeon.Variant p) => Variant(
-      key: p.key,
-      value: p.value,
-      payload: p.payload,
-      expKey: p.expKey,
-      metadata: p.metadata,
-    );
+  key: p.key,
+  value: p.value,
+  payload: p.payload,
+  expKey: p.expKey,
+  metadata: p.metadata,
+);
 
 // ── ExperimentUser ───────────────────────────────────
 
 extension ExperimentUserToPigeon on ExperimentUser {
   pigeon.ExperimentUser toPigeon() => pigeon.ExperimentUser(
-        deviceId: deviceId,
-        userId: userId,
-        country: country,
-        city: city,
-        region: region,
-        dma: dma,
-        language: language,
-        platform: platform,
-        version: version,
-        os: os,
-        deviceModel: deviceModel,
-        deviceBrand: deviceBrand,
-        deviceManufacturer: deviceManufacturer,
-        carrier: carrier,
-        library: library,
-        ipAddress: ipAddress,
-        userProperties: userProperties,
-        groups: groups,
-        groupProperties: groupProperties,
-      );
+    deviceId: deviceId,
+    userId: userId,
+    country: country,
+    city: city,
+    region: region,
+    dma: dma,
+    language: language,
+    platform: platform,
+    version: version,
+    os: os,
+    deviceModel: deviceModel,
+    deviceBrand: deviceBrand,
+    deviceManufacturer: deviceManufacturer,
+    carrier: carrier,
+    library: library,
+    ipAddress: ipAddress,
+    userProperties: userProperties,
+    groups: groups,
+    groupProperties: groupProperties,
+  );
 }
 
 ExperimentUser experimentUserFromPigeon(pigeon.ExperimentUser p) =>
@@ -78,12 +78,12 @@ ExperimentUser experimentUserFromPigeon(pigeon.ExperimentUser p) =>
 // ── Exposure ─────────────────────────────────────────
 
 Exposure exposureFromPigeon(pigeon.Exposure p) => Exposure(
-      flagKey: p.flagKey,
-      variant: p.variant,
-      experimentKey: p.experimentKey,
-      metadata: p.metadata,
-      time: p.time,
-    );
+  flagKey: p.flagKey,
+  variant: p.variant,
+  experimentKey: p.experimentKey,
+  metadata: p.metadata,
+  time: p.time,
+);
 
 // ── FetchOptions ─────────────────────────────────────
 

@@ -11,7 +11,9 @@ import 'package:amplitude_experiment/amplitude_experiment.dart';
 /// Copy .env.example.json to .env.json and fill in your keys.
 /// See .env.example.json for the required variables.
 const _amplitudeApiKey = String.fromEnvironment('AMPLITUDE_API_KEY');
-const _experimentDeploymentKey = String.fromEnvironment('EXPERIMENT_DEPLOYMENT_KEY');
+const _experimentDeploymentKey = String.fromEnvironment(
+  'EXPERIMENT_DEPLOYMENT_KEY',
+);
 
 void main() {
   runApp(const MyApp());
@@ -79,9 +81,7 @@ class _LoginExamplePageState extends State<LoginExamplePage> {
 
     try {
       // Initialize Amplitude
-      _amplitude = Amplitude(
-        Configuration(apiKey: _amplitudeApiKey),
-      );
+      _amplitude = Amplitude(Configuration(apiKey: _amplitudeApiKey));
       await _amplitude!.isBuilt;
 
       // Initialize Experiment with Amplitude integration.

@@ -74,7 +74,9 @@ class ExperimentWebPlugin extends ExperimentPlatform {
     final client = _getClient(instanceName);
 
     final userObj = user != null ? UserCodec.toJSObject(user) : null;
-    final optionsObj = options != null ? OptionsCodec.toJSObject(options) : null;
+    final optionsObj = options != null
+        ? OptionsCodec.toJSObject(options)
+        : null;
 
     final promise = client.fetch(userObj, optionsObj);
     await promise.toDart;
