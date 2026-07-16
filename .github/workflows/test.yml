@@ -120,13 +120,13 @@ jobs:
       - name: Run iOS unit tests
         working-directory: example/ios
         run: |
-          DEVICE=$(xcrun simctl list devices available | grep -m1 'iPhone' | sed -E 's/.*iPhone/iPhone/' | sed -E 's/ *\([0-9A-F-]+\).*//' | sed 's/ *$//')
-          echo "Using simulator: $DEVICE"
+          DEVICE_ID=$(xcrun simctl list devices available | grep -m1 'iPhone' | sed -E 's/.*\(([0-9A-F-]+)\).*/\1/')
+          echo "Using simulator ID: $DEVICE_ID"
           xcodebuild test \
             -workspace Runner.xcworkspace \
             -scheme Runner \
             -configuration Debug \
-            -destination "platform=iOS Simulator,name=$DEVICE" \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
 
   web:
