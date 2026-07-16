@@ -18,7 +18,11 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/amplitude/experiment-ios-client.git",
-            from: "1.19.0"
+            from: "1.20.2"
+        ),
+        .package(
+            url: "https://github.com/amplitude/AmplitudeCore-Swift.git",
+            from: "1.0.12"
         ),
     ],
     targets: [
@@ -39,6 +43,10 @@ let package = Package(
             name: "amplitude_experiment",
             dependencies: [
                 "AmplitudeExperiment",
+                .product(
+                    name: "AmplitudeCoreFramework",
+                    package: "AmplitudeCore-Swift"
+                ),
             ],
             resources: [
                 .process("PrivacyInfo.xcprivacy"),

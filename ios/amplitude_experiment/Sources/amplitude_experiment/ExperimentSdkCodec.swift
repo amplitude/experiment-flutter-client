@@ -1,3 +1,4 @@
+import AmplitudeCore
 import AmplitudeExperiment
 import Foundation
 
@@ -7,7 +8,7 @@ import Foundation
  */
 enum ExperimentSdkCodec {
     private static let flutterLibraryVersion = "0.1.0-beta.3" // x-release-please-version
-    private static let iosLibraryVersion = "1.19.0"
+    private static let iosLibraryVersion = "1.20.2"
     static let flutterLibrary =
         "experiment-flutter-client/\(flutterLibraryVersion)" +
         "_experiment-ios-client/\(iosLibraryVersion)"
@@ -79,6 +80,7 @@ enum ExperimentSdkCodec {
     static func convertConfig(_ pigeon: ExperimentConfigData, api: CustomProviderApi) -> AmplitudeExperiment.ExperimentConfig {
         let builder = AmplitudeExperiment.ExperimentConfigBuilder()
         builder.instanceName(pigeon.instanceName)
+        builder.logLevel(convertLogLevel(pigeon.logLevel))
         if let fallback = convertVariant(pigeon.fallbackVariant) {
             builder.fallbackVariant(fallback)
         }
@@ -101,6 +103,7 @@ enum ExperimentSdkCodec {
         builder.automaticExposureTracking(pigeon.automaticExposureTracking)
         builder.fetchOnStart(pigeon.fetchOnStart)
         builder.pollOnStart(pigeon.pollOnStart)
+        builder.flagConfigPollingIntervalMillis(Int(pigeon.flagConfigPollingIntervalMillis))
         builder.automaticFetchOnAmplitudeIdentityChange(pigeon.automaticFetchOnAmplitudeIdentityChange)
         if pigeon.hasTrackingProvider {
             builder.exposureTrackingProvider(
@@ -164,6 +167,19 @@ enum ExperimentSdkCodec {
         switch pigeon {
         case .us: return AmplitudeExperiment.ServerZone.US
         case .eu: return AmplitudeExperiment.ServerZone.EU
+        }
+    }
+
+    // AmplitudeCore.LogLevel has no info or verbose cases: `.log` is the
+    // info-equivalent level, and `.debug` is the most verbose available.
+    private static func convertLogLevel(_ pigeon: LogLevel) -> AmplitudeCore.LogLevel {
+        switch pigeon {
+        case .none: return AmplitudeCore.LogLevel.off
+        case .error: return AmplitudeCore.LogLevel.error
+        case .warn: return AmplitudeCore.LogLevel.warn
+        case .info: return AmplitudeCore.LogLevel.log
+        case .debug: return AmplitudeCore.LogLevel.debug
+        case .verbose: return AmplitudeCore.LogLevel.debug
         }
     }
 }

@@ -115,6 +115,7 @@ enum LogLevel {
   warn,
   info,
   debug,
+  verbose,
 }
 
 enum Source {
@@ -333,6 +334,7 @@ class ExperimentConfigData {
     required this.automaticExposureTracking,
     required this.fetchOnStart,
     required this.pollOnStart,
+    required this.flagConfigPollingIntervalMillis,
     required this.automaticFetchOnAmplitudeIdentityChange,
     required this.hasTrackingProvider,
   });
@@ -365,6 +367,8 @@ class ExperimentConfigData {
 
   bool pollOnStart;
 
+  int flagConfigPollingIntervalMillis;
+
   bool automaticFetchOnAmplitudeIdentityChange;
 
   bool hasTrackingProvider;
@@ -385,6 +389,7 @@ class ExperimentConfigData {
       automaticExposureTracking,
       fetchOnStart,
       pollOnStart,
+      flagConfigPollingIntervalMillis,
       automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider,
     ];
@@ -410,8 +415,9 @@ class ExperimentConfigData {
       automaticExposureTracking: result[11]! as bool,
       fetchOnStart: result[12]! as bool,
       pollOnStart: result[13]! as bool,
-      automaticFetchOnAmplitudeIdentityChange: result[14]! as bool,
-      hasTrackingProvider: result[15]! as bool,
+      flagConfigPollingIntervalMillis: result[14]! as int,
+      automaticFetchOnAmplitudeIdentityChange: result[15]! as bool,
+      hasTrackingProvider: result[16]! as bool,
     );
   }
 
@@ -424,7 +430,7 @@ class ExperimentConfigData {
     if (identical(this, other)) {
       return true;
     }
-    return _deepEquals(instanceName, other.instanceName) && _deepEquals(logLevel, other.logLevel) && _deepEquals(fallbackVariant, other.fallbackVariant) && _deepEquals(initialFlags, other.initialFlags) && _deepEquals(initialVariants, other.initialVariants) && _deepEquals(source, other.source) && _deepEquals(serverZone, other.serverZone) && _deepEquals(serverUrl, other.serverUrl) && _deepEquals(flagsServerUrl, other.flagsServerUrl) && _deepEquals(fetchTimeoutMillis, other.fetchTimeoutMillis) && _deepEquals(retryFetchOnFailure, other.retryFetchOnFailure) && _deepEquals(automaticExposureTracking, other.automaticExposureTracking) && _deepEquals(fetchOnStart, other.fetchOnStart) && _deepEquals(pollOnStart, other.pollOnStart) && _deepEquals(automaticFetchOnAmplitudeIdentityChange, other.automaticFetchOnAmplitudeIdentityChange) && _deepEquals(hasTrackingProvider, other.hasTrackingProvider);
+    return _deepEquals(instanceName, other.instanceName) && _deepEquals(logLevel, other.logLevel) && _deepEquals(fallbackVariant, other.fallbackVariant) && _deepEquals(initialFlags, other.initialFlags) && _deepEquals(initialVariants, other.initialVariants) && _deepEquals(source, other.source) && _deepEquals(serverZone, other.serverZone) && _deepEquals(serverUrl, other.serverUrl) && _deepEquals(flagsServerUrl, other.flagsServerUrl) && _deepEquals(fetchTimeoutMillis, other.fetchTimeoutMillis) && _deepEquals(retryFetchOnFailure, other.retryFetchOnFailure) && _deepEquals(automaticExposureTracking, other.automaticExposureTracking) && _deepEquals(fetchOnStart, other.fetchOnStart) && _deepEquals(pollOnStart, other.pollOnStart) && _deepEquals(flagConfigPollingIntervalMillis, other.flagConfigPollingIntervalMillis) && _deepEquals(automaticFetchOnAmplitudeIdentityChange, other.automaticFetchOnAmplitudeIdentityChange) && _deepEquals(hasTrackingProvider, other.hasTrackingProvider);
   }
 
   @override

@@ -184,6 +184,7 @@ enum LogLevel: Int {
   case warn = 2
   case info = 3
   case debug = 4
+  case verbose = 5
 }
 
 enum Source: Int {
@@ -384,6 +385,7 @@ struct ExperimentConfigData: Hashable {
   var automaticExposureTracking: Bool
   var fetchOnStart: Bool
   var pollOnStart: Bool
+  var flagConfigPollingIntervalMillis: Int64
   var automaticFetchOnAmplitudeIdentityChange: Bool
   var hasTrackingProvider: Bool
 
@@ -404,8 +406,9 @@ struct ExperimentConfigData: Hashable {
     let automaticExposureTracking = pigeonVar_list[11] as! Bool
     let fetchOnStart = pigeonVar_list[12] as! Bool
     let pollOnStart = pigeonVar_list[13] as! Bool
-    let automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[14] as! Bool
-    let hasTrackingProvider = pigeonVar_list[15] as! Bool
+    let flagConfigPollingIntervalMillis = pigeonVar_list[14] as! Int64
+    let automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[15] as! Bool
+    let hasTrackingProvider = pigeonVar_list[16] as! Bool
 
     return ExperimentConfigData(
       instanceName: instanceName,
@@ -422,6 +425,7 @@ struct ExperimentConfigData: Hashable {
       automaticExposureTracking: automaticExposureTracking,
       fetchOnStart: fetchOnStart,
       pollOnStart: pollOnStart,
+      flagConfigPollingIntervalMillis: flagConfigPollingIntervalMillis,
       automaticFetchOnAmplitudeIdentityChange: automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider: hasTrackingProvider
     )
@@ -442,6 +446,7 @@ struct ExperimentConfigData: Hashable {
       automaticExposureTracking,
       fetchOnStart,
       pollOnStart,
+      flagConfigPollingIntervalMillis,
       automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider,
     ]
@@ -450,7 +455,7 @@ struct ExperimentConfigData: Hashable {
     if Swift.type(of: lhs) != Swift.type(of: rhs) {
       return false
     }
-    return deepEqualsAmplitudeExperimentApi(lhs.instanceName, rhs.instanceName) && deepEqualsAmplitudeExperimentApi(lhs.logLevel, rhs.logLevel) && deepEqualsAmplitudeExperimentApi(lhs.fallbackVariant, rhs.fallbackVariant) && deepEqualsAmplitudeExperimentApi(lhs.initialFlags, rhs.initialFlags) && deepEqualsAmplitudeExperimentApi(lhs.initialVariants, rhs.initialVariants) && deepEqualsAmplitudeExperimentApi(lhs.source, rhs.source) && deepEqualsAmplitudeExperimentApi(lhs.serverZone, rhs.serverZone) && deepEqualsAmplitudeExperimentApi(lhs.serverUrl, rhs.serverUrl) && deepEqualsAmplitudeExperimentApi(lhs.flagsServerUrl, rhs.flagsServerUrl) && deepEqualsAmplitudeExperimentApi(lhs.fetchTimeoutMillis, rhs.fetchTimeoutMillis) && deepEqualsAmplitudeExperimentApi(lhs.retryFetchOnFailure, rhs.retryFetchOnFailure) && deepEqualsAmplitudeExperimentApi(lhs.automaticExposureTracking, rhs.automaticExposureTracking) && deepEqualsAmplitudeExperimentApi(lhs.fetchOnStart, rhs.fetchOnStart) && deepEqualsAmplitudeExperimentApi(lhs.pollOnStart, rhs.pollOnStart) && deepEqualsAmplitudeExperimentApi(lhs.automaticFetchOnAmplitudeIdentityChange, rhs.automaticFetchOnAmplitudeIdentityChange) && deepEqualsAmplitudeExperimentApi(lhs.hasTrackingProvider, rhs.hasTrackingProvider)
+    return deepEqualsAmplitudeExperimentApi(lhs.instanceName, rhs.instanceName) && deepEqualsAmplitudeExperimentApi(lhs.logLevel, rhs.logLevel) && deepEqualsAmplitudeExperimentApi(lhs.fallbackVariant, rhs.fallbackVariant) && deepEqualsAmplitudeExperimentApi(lhs.initialFlags, rhs.initialFlags) && deepEqualsAmplitudeExperimentApi(lhs.initialVariants, rhs.initialVariants) && deepEqualsAmplitudeExperimentApi(lhs.source, rhs.source) && deepEqualsAmplitudeExperimentApi(lhs.serverZone, rhs.serverZone) && deepEqualsAmplitudeExperimentApi(lhs.serverUrl, rhs.serverUrl) && deepEqualsAmplitudeExperimentApi(lhs.flagsServerUrl, rhs.flagsServerUrl) && deepEqualsAmplitudeExperimentApi(lhs.fetchTimeoutMillis, rhs.fetchTimeoutMillis) && deepEqualsAmplitudeExperimentApi(lhs.retryFetchOnFailure, rhs.retryFetchOnFailure) && deepEqualsAmplitudeExperimentApi(lhs.automaticExposureTracking, rhs.automaticExposureTracking) && deepEqualsAmplitudeExperimentApi(lhs.fetchOnStart, rhs.fetchOnStart) && deepEqualsAmplitudeExperimentApi(lhs.pollOnStart, rhs.pollOnStart) && deepEqualsAmplitudeExperimentApi(lhs.flagConfigPollingIntervalMillis, rhs.flagConfigPollingIntervalMillis) && deepEqualsAmplitudeExperimentApi(lhs.automaticFetchOnAmplitudeIdentityChange, rhs.automaticFetchOnAmplitudeIdentityChange) && deepEqualsAmplitudeExperimentApi(lhs.hasTrackingProvider, rhs.hasTrackingProvider)
   }
 
   func hash(into hasher: inout Hasher) {
@@ -469,6 +474,7 @@ struct ExperimentConfigData: Hashable {
     deepHashAmplitudeExperimentApi(value: automaticExposureTracking, hasher: &hasher)
     deepHashAmplitudeExperimentApi(value: fetchOnStart, hasher: &hasher)
     deepHashAmplitudeExperimentApi(value: pollOnStart, hasher: &hasher)
+    deepHashAmplitudeExperimentApi(value: flagConfigPollingIntervalMillis, hasher: &hasher)
     deepHashAmplitudeExperimentApi(value: automaticFetchOnAmplitudeIdentityChange, hasher: &hasher)
     deepHashAmplitudeExperimentApi(value: hasTrackingProvider, hasher: &hasher)
   }

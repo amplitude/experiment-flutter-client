@@ -200,7 +200,8 @@ enum class LogLevel(val raw: Int) {
   ERROR(1),
   WARN(2),
   INFO(3),
-  DEBUG(4);
+  DEBUG(4),
+  VERBOSE(5);
 
   companion object {
     fun ofRaw(raw: Int): LogLevel? {
@@ -403,6 +404,7 @@ data class ExperimentConfigData (
   val automaticExposureTracking: Boolean,
   val fetchOnStart: Boolean,
   val pollOnStart: Boolean,
+  val flagConfigPollingIntervalMillis: Long,
   val automaticFetchOnAmplitudeIdentityChange: Boolean,
   val hasTrackingProvider: Boolean
 )
@@ -423,9 +425,10 @@ data class ExperimentConfigData (
       val automaticExposureTracking = pigeonVar_list[11] as Boolean
       val fetchOnStart = pigeonVar_list[12] as Boolean
       val pollOnStart = pigeonVar_list[13] as Boolean
-      val automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[14] as Boolean
-      val hasTrackingProvider = pigeonVar_list[15] as Boolean
-      return ExperimentConfigData(instanceName, logLevel, fallbackVariant, initialFlags, initialVariants, source, serverZone, serverUrl, flagsServerUrl, fetchTimeoutMillis, retryFetchOnFailure, automaticExposureTracking, fetchOnStart, pollOnStart, automaticFetchOnAmplitudeIdentityChange, hasTrackingProvider)
+      val flagConfigPollingIntervalMillis = pigeonVar_list[14] as Long
+      val automaticFetchOnAmplitudeIdentityChange = pigeonVar_list[15] as Boolean
+      val hasTrackingProvider = pigeonVar_list[16] as Boolean
+      return ExperimentConfigData(instanceName, logLevel, fallbackVariant, initialFlags, initialVariants, source, serverZone, serverUrl, flagsServerUrl, fetchTimeoutMillis, retryFetchOnFailure, automaticExposureTracking, fetchOnStart, pollOnStart, flagConfigPollingIntervalMillis, automaticFetchOnAmplitudeIdentityChange, hasTrackingProvider)
     }
   }
   fun toList(): List<Any?> {
@@ -444,6 +447,7 @@ data class ExperimentConfigData (
       automaticExposureTracking,
       fetchOnStart,
       pollOnStart,
+      flagConfigPollingIntervalMillis,
       automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider,
     )
@@ -456,7 +460,7 @@ data class ExperimentConfigData (
       return true
     }
     val other = other as ExperimentConfigData
-    return AmplitudeExperimentApiPigeonUtils.deepEquals(this.instanceName, other.instanceName) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.logLevel, other.logLevel) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.fallbackVariant, other.fallbackVariant) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.initialFlags, other.initialFlags) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.initialVariants, other.initialVariants) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.source, other.source) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.serverZone, other.serverZone) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.serverUrl, other.serverUrl) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.flagsServerUrl, other.flagsServerUrl) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.fetchTimeoutMillis, other.fetchTimeoutMillis) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.retryFetchOnFailure, other.retryFetchOnFailure) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.automaticExposureTracking, other.automaticExposureTracking) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.fetchOnStart, other.fetchOnStart) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.pollOnStart, other.pollOnStart) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.automaticFetchOnAmplitudeIdentityChange, other.automaticFetchOnAmplitudeIdentityChange) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.hasTrackingProvider, other.hasTrackingProvider)
+    return AmplitudeExperimentApiPigeonUtils.deepEquals(this.instanceName, other.instanceName) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.logLevel, other.logLevel) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.fallbackVariant, other.fallbackVariant) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.initialFlags, other.initialFlags) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.initialVariants, other.initialVariants) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.source, other.source) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.serverZone, other.serverZone) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.serverUrl, other.serverUrl) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.flagsServerUrl, other.flagsServerUrl) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.fetchTimeoutMillis, other.fetchTimeoutMillis) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.retryFetchOnFailure, other.retryFetchOnFailure) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.automaticExposureTracking, other.automaticExposureTracking) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.fetchOnStart, other.fetchOnStart) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.pollOnStart, other.pollOnStart) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.flagConfigPollingIntervalMillis, other.flagConfigPollingIntervalMillis) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.automaticFetchOnAmplitudeIdentityChange, other.automaticFetchOnAmplitudeIdentityChange) && AmplitudeExperimentApiPigeonUtils.deepEquals(this.hasTrackingProvider, other.hasTrackingProvider)
   }
 
   override fun hashCode(): Int {
@@ -475,6 +479,7 @@ data class ExperimentConfigData (
     result = 31 * result + AmplitudeExperimentApiPigeonUtils.deepHash(this.automaticExposureTracking)
     result = 31 * result + AmplitudeExperimentApiPigeonUtils.deepHash(this.fetchOnStart)
     result = 31 * result + AmplitudeExperimentApiPigeonUtils.deepHash(this.pollOnStart)
+    result = 31 * result + AmplitudeExperimentApiPigeonUtils.deepHash(this.flagConfigPollingIntervalMillis)
     result = 31 * result + AmplitudeExperimentApiPigeonUtils.deepHash(this.automaticFetchOnAmplitudeIdentityChange)
     result = 31 * result + AmplitudeExperimentApiPigeonUtils.deepHash(this.hasTrackingProvider)
     return result

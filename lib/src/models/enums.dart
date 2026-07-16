@@ -14,6 +14,9 @@ enum LogLevel {
 
   /// All messages including debug output.
   debug,
+
+  /// All messages including verbose details.
+  verbose,
 }
 
 /// Determines where the SDK reads flag and variant data from.

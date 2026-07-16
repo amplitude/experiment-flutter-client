@@ -90,7 +90,8 @@ object TestDataHelpers {
         retryFetchOnFailure: Boolean = true,
         automaticExposureTracking: Boolean = true,
         fetchOnStart: Boolean = true,
-        pollOnStart: Boolean = false,
+        pollOnStart: Boolean = true,
+        flagConfigPollingIntervalMillis: Long = 300000L,
         automaticFetchOnAmplitudeIdentityChange: Boolean = false,
         hasTrackingProvider: Boolean = false,
     ): ExperimentConfigData = ExperimentConfigData(
@@ -108,6 +109,7 @@ object TestDataHelpers {
         automaticExposureTracking = automaticExposureTracking,
         fetchOnStart = fetchOnStart,
         pollOnStart = pollOnStart,
+        flagConfigPollingIntervalMillis = flagConfigPollingIntervalMillis,
         automaticFetchOnAmplitudeIdentityChange = automaticFetchOnAmplitudeIdentityChange,
         hasTrackingProvider = hasTrackingProvider,
     )

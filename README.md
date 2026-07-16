@@ -135,6 +135,8 @@ All config fields have sensible defaults. Common options:
 | `serverZone` | `ServerZone.us` | Data center region (`us` or `eu`) |
 | `automaticExposureTracking` | `true` | Track exposures on `variant()` calls |
 | `fetchOnStart` | `true` | Fetch flags when `start()` is called |
+| `pollOnStart` | `true` | Poll for flag configuration updates after `start()` is called |
+| `flagConfigPollingIntervalMillis` | `300000` | Interval in milliseconds between flag configuration polls |
 
 ### EU data residency
 

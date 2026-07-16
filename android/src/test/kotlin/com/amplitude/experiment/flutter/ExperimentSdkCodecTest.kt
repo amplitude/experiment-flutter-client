@@ -3,6 +3,7 @@ package com.amplitude.experiment.flutter
 import com.amplitude.experiment.Source as SdkSource
 import com.amplitude.experiment.ServerZone as SdkServerZone
 import com.amplitude.experiment.Variant as SdkVariant
+import com.amplitude.experiment.util.LogLevel as SdkLogLevel
 import io.flutter.plugin.common.BinaryMessenger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -149,6 +150,7 @@ internal class ExperimentSdkCodecTest {
     fun convertConfig_pigeonToSdk_mapsAllFields() {
         val pigeon = TestDataHelpers.createPigeonConfig(
             instanceName = "my-instance",
+            logLevel = LogLevel.VERBOSE,
             initialFlags = "flag1,flag2",
             serverUrl = "https://api.test.com",
             flagsServerUrl = "https://flags.test.com",
@@ -156,7 +158,8 @@ internal class ExperimentSdkCodecTest {
             retryFetchOnFailure = false,
             automaticExposureTracking = false,
             fetchOnStart = false,
-            pollOnStart = true,
+            pollOnStart = false,
+            flagConfigPollingIntervalMillis = 60000L,
             automaticFetchOnAmplitudeIdentityChange = true,
             source = Source.INITIAL_VARIANTS,
             serverZone = ServerZone.EU,
@@ -166,6 +169,7 @@ internal class ExperimentSdkCodecTest {
         )
         val sdk = convertConfig(pigeon, mockApi)
         assertEquals("my-instance", sdk.instanceName)
+        assertEquals(SdkLogLevel.VERBOSE, sdk.logLevel)
         assertEquals("flag1,flag2", sdk.initialFlags)
         assertEquals("https://api.test.com", sdk.serverUrl)
         assertEquals("https://flags.test.com", sdk.flagsServerUrl)
@@ -173,7 +177,8 @@ internal class ExperimentSdkCodecTest {
         assertEquals(false, sdk.retryFetchOnFailure)
         assertEquals(false, sdk.automaticExposureTracking)
         assertEquals(false, sdk.fetchOnStart)
-        assertEquals(true, sdk.pollOnStart)
+        assertEquals(false, sdk.pollOnStart)
+        assertEquals(60000L, sdk.flagConfigPollingIntervalMillis)
         assertEquals(true, sdk.automaticFetchOnAmplitudeIdentityChange)
         assertEquals(SdkSource.INITIAL_VARIANTS, sdk.source)
         assertEquals(SdkServerZone.EU, sdk.serverZone)
@@ -197,6 +202,22 @@ internal class ExperimentSdkCodecTest {
     }
 
     @Test
+    fun convertConfig_logLevel_mapsAllValuesToSdk() {
+        val expected = mapOf(
+            LogLevel.NONE to SdkLogLevel.DISABLE,
+            LogLevel.ERROR to SdkLogLevel.ERROR,
+            LogLevel.WARN to SdkLogLevel.WARN,
+            LogLevel.INFO to SdkLogLevel.INFO,
+            LogLevel.DEBUG to SdkLogLevel.DEBUG,
+            LogLevel.VERBOSE to SdkLogLevel.VERBOSE,
+        )
+        for ((pigeonLevel, sdkLevel) in expected) {
+            val sdk = convertConfig(TestDataHelpers.createPigeonConfig(logLevel = pigeonLevel), mockApi)
+            assertEquals(sdkLevel, sdk.logLevel)
+        }
+    }
+
+    @Test
     fun convertConfig_defaultPigeonConfig_producesValidSdkConfig() {
         val pigeon = TestDataHelpers.createPigeonConfig()
         val sdk = convertConfig(pigeon, mockApi)
@@ -205,7 +226,8 @@ internal class ExperimentSdkCodecTest {
         assertEquals(true, sdk.retryFetchOnFailure)
         assertEquals(true, sdk.automaticExposureTracking)
         assertEquals(true, sdk.fetchOnStart)
-        assertEquals(false, sdk.pollOnStart)
+        assertEquals(true, sdk.pollOnStart)
+        assertEquals(300000L, sdk.flagConfigPollingIntervalMillis)
         assertEquals(false, sdk.automaticFetchOnAmplitudeIdentityChange)
         assertEquals(SdkSource.LOCAL_STORAGE, sdk.source)
         assertEquals(SdkServerZone.US, sdk.serverZone)

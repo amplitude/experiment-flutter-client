@@ -38,8 +38,13 @@ abstract class ExperimentConfigDefaults {
   /// Whether to fetch flags on start by default.
   static const bool fetchOnStart = true;
 
-  /// Whether to poll on start by default.
-  static const bool pollOnStart = false;
+  /// Whether to periodically refresh local-evaluation flag configurations
+  /// after `start()` by default.
+  static const bool pollOnStart = true;
+
+  /// Default flag configuration polling interval in milliseconds.
+  static const int flagConfigPollingIntervalMillis =
+      Constants.flagConfigPollingIntervalMillis;
 
   /// Whether to automatically fetch on Amplitude identity change by default.
   static const bool automaticFetchOnAmplitudeIdentityChange = false;
@@ -120,8 +125,13 @@ class ExperimentConfig {
   /// Whether to fetch flags when [ExperimentClient.start] is called.
   final bool fetchOnStart;
 
-  /// Whether to start polling for flag updates on start.
+  /// Whether to periodically poll for local-evaluation flag configuration
+  /// updates after [ExperimentClient.start] is called.
   final bool pollOnStart;
+
+  /// The interval in milliseconds between flag configuration polls when
+  /// [pollOnStart] is enabled.
+  final int flagConfigPollingIntervalMillis;
 
   /// Whether to automatically re-fetch flags when the Amplitude identity
   /// changes.
@@ -150,6 +160,8 @@ class ExperimentConfig {
         ExperimentConfigDefaults.automaticExposureTracking,
     this.fetchOnStart = ExperimentConfigDefaults.fetchOnStart,
     this.pollOnStart = ExperimentConfigDefaults.pollOnStart,
+    this.flagConfigPollingIntervalMillis =
+        ExperimentConfigDefaults.flagConfigPollingIntervalMillis,
     this.automaticFetchOnAmplitudeIdentityChange =
         ExperimentConfigDefaults.automaticFetchOnAmplitudeIdentityChange,
     this.trackingProvider,
@@ -182,6 +194,7 @@ class ExperimentConfig {
       automaticExposureTracking: automaticExposureTracking,
       fetchOnStart: fetchOnStart,
       pollOnStart: pollOnStart,
+      flagConfigPollingIntervalMillis: flagConfigPollingIntervalMillis,
       automaticFetchOnAmplitudeIdentityChange:
           automaticFetchOnAmplitudeIdentityChange,
       hasTrackingProvider: trackingProvider != null,

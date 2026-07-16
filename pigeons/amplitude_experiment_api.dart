@@ -16,7 +16,7 @@ import 'package:pigeon/pigeon.dart';
   ),
 )
 // Enums (must be defined before use in classes)
-enum LogLevel { none, error, warn, info, debug }
+enum LogLevel { none, error, warn, info, debug, verbose }
 
 enum Source { localStorage, initialVariants }
 
@@ -97,6 +97,7 @@ class ExperimentConfigData {
   bool automaticExposureTracking;
   bool fetchOnStart;
   bool pollOnStart;
+  int flagConfigPollingIntervalMillis;
   bool automaticFetchOnAmplitudeIdentityChange;
   bool hasTrackingProvider;
 
@@ -115,6 +116,7 @@ class ExperimentConfigData {
     required this.automaticExposureTracking,
     required this.fetchOnStart,
     required this.pollOnStart,
+    required this.flagConfigPollingIntervalMillis,
     required this.automaticFetchOnAmplitudeIdentityChange,
     required this.hasTrackingProvider,
   });

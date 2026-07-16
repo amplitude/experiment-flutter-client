@@ -69,6 +69,7 @@ fun convertUser(user: ExperimentUser): FlutterExperimentUser {
 fun convertConfig(flutterConfig: FlutterConfig, api: CustomProviderApi): ExperimentConfig {
     val builder = ExperimentConfig.builder()
     builder.instanceName(flutterConfig.instanceName)
+    builder.logLevel(parseLogLevel(flutterConfig.logLevel))
     builder.initialFlags(flutterConfig.initialFlags)
     builder.initialVariants(variantsFromPigeon(flutterConfig.initialVariants))
     builder.source(parseSource(flutterConfig.source))
@@ -88,6 +89,7 @@ fun convertConfig(flutterConfig: FlutterConfig, api: CustomProviderApi): Experim
     builder.automaticExposureTracking(flutterConfig.automaticExposureTracking)
     builder.fetchOnStart(flutterConfig.fetchOnStart)
     builder.pollOnStart(flutterConfig.pollOnStart)
+    builder.flagConfigPollingIntervalMillis(flutterConfig.flagConfigPollingIntervalMillis)
     builder.automaticFetchOnAmplitudeIdentityChange(flutterConfig.automaticFetchOnAmplitudeIdentityChange)
     if (flutterConfig.hasTrackingProvider) {
         builder.exposureTrackingProvider(generateExposureTrackingProvider(flutterConfig.instanceName, api))
@@ -146,6 +148,17 @@ private fun parseServerZone(flutterServerZone: ServerZone): com.amplitude.experi
     return when (flutterServerZone) {
         ServerZone.US -> com.amplitude.experiment.ServerZone.US
         ServerZone.EU -> com.amplitude.experiment.ServerZone.EU
+    }
+}
+
+private fun parseLogLevel(flutterLogLevel: LogLevel): com.amplitude.experiment.util.LogLevel {
+    return when (flutterLogLevel) {
+        LogLevel.NONE -> com.amplitude.experiment.util.LogLevel.DISABLE
+        LogLevel.ERROR -> com.amplitude.experiment.util.LogLevel.ERROR
+        LogLevel.WARN -> com.amplitude.experiment.util.LogLevel.WARN
+        LogLevel.INFO -> com.amplitude.experiment.util.LogLevel.INFO
+        LogLevel.DEBUG -> com.amplitude.experiment.util.LogLevel.DEBUG
+        LogLevel.VERBOSE -> com.amplitude.experiment.util.LogLevel.VERBOSE
     }
 }
 
