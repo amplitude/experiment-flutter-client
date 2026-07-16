@@ -3,4 +3,5 @@ class Constants {
   static const String serverUrl = 'https://api.lab.amplitude.com';
   static const String flagsServerUrl = 'https://flag.lab.amplitude.com';
   static const int fetchTimeoutMillis = 10000;
+  static const int flagConfigPollingIntervalMillis = 300000;
 }

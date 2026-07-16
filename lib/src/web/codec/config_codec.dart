@@ -23,6 +23,10 @@ class ConfigCodec {
       'automaticFetchOnAmplitudeIdentityChange':
           config.automaticFetchOnAmplitudeIdentityChange,
       'fetchTimeoutMillis': config.fetchTimeoutMillis,
+      'flagConfigPollingIntervalMillis': config.flagConfigPollingIntervalMillis,
+      // The JS SDK takes logLevel as a numeric enum (Disable=0 .. Verbose=5)
+      // whose values match the LogLevel enum order exactly.
+      'logLevel': config.logLevel.index,
     };
 
     // An empty URL is the sentinel for "left at the Flutter default". Omitting

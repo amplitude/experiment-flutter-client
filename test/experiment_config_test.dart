@@ -1,5 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:amplitude_experiment/amplitude_experiment.dart';
+import 'package:amplitude_experiment/src/generated/amplitude_experiment_api.g.dart'
+    as pigeon_api;
 
 void main() {
   group('ExperimentConfig', () {
@@ -11,6 +13,8 @@ void main() {
       expect(config.serverZone, ServerZone.us);
       expect(config.fallbackVariant, isNull);
       expect(config.initialVariants, isEmpty);
+      expect(config.pollOnStart, true);
+      expect(config.flagConfigPollingIntervalMillis, 300000);
     });
 
     test('uses provided values when provided', () {
@@ -46,15 +50,28 @@ void main() {
     test('pigeonConfig converts fields correctly', () {
       final config = ExperimentConfig(
         instanceName: 'test-instance',
+        logLevel: LogLevel.verbose,
         serverUrl: 'https://test.com',
         fetchTimeoutMillis: 5000,
         retryFetchOnFailure: false,
+        pollOnStart: false,
+        flagConfigPollingIntervalMillis: 60000,
       );
       final pigeon = config.pigeonConfig;
       expect(pigeon.instanceName, 'test-instance');
+      expect(pigeon.logLevel, pigeon_api.LogLevel.verbose);
       expect(pigeon.serverUrl, 'https://test.com');
       expect(pigeon.fetchTimeoutMillis, 5000);
       expect(pigeon.retryFetchOnFailure, false);
+      expect(pigeon.pollOnStart, false);
+      expect(pigeon.flagConfigPollingIntervalMillis, 60000);
+    });
+
+    test('pigeonConfig maps every LogLevel to the pigeon value by name', () {
+      for (final level in LogLevel.values) {
+        final pigeon = ExperimentConfig(logLevel: level).pigeonConfig;
+        expect(pigeon.logLevel.name, level.name);
+      }
     });
 
     // Regression tests for serverZone:EU being silently ignored because the
