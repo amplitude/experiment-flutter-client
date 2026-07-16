@@ -2,6 +2,8 @@
 ///
 /// If this file compiles and the tests pass, the barrel file correctly
 /// exports everything an integrator needs.
+library;
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:amplitude_experiment/amplitude_experiment.dart';
 

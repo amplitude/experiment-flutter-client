@@ -3,7 +3,7 @@
 /// Use [Experiment.initialize] or [Experiment.initializeWithAmplitude] to
 /// create an [ExperimentClient], then call methods like [ExperimentClient.fetch]
 /// and [ExperimentClient.variant] to evaluate feature flags.
-library amplitude_experiment;
+library;
 
 // Factory entry point
 export 'src/experiment.dart';

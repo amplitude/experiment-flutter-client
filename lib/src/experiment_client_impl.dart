@@ -15,8 +15,8 @@ class ExperimentClientImpl implements ExperimentClient {
   ExperimentClientImpl._({
     required String instanceName,
     UserProvider? userProvider,
-  })  : _instanceName = instanceName,
-        _userProvider = userProvider;
+  }) : _instanceName = instanceName,
+       _userProvider = userProvider;
 
   static Future<ExperimentClientImpl> create({
     required String apiKey,
@@ -61,10 +61,7 @@ class ExperimentClientImpl implements ExperimentClient {
   }
 
   @override
-  Future<void> fetch([
-    ExperimentUser? user,
-    FetchOptions? options,
-  ]) async {
+  Future<void> fetch([ExperimentUser? user, FetchOptions? options]) async {
     final mergedUser = _resolveUser(user);
     _user = mergedUser;
     await ExperimentPlatform.instance.fetch(
