@@ -18,7 +18,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/amplitude/experiment-ios-client.git",
-            from: "1.19.0"
+            from: "1.20.2"
         ),
     ],
     targets: [

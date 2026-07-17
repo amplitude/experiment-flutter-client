@@ -30,7 +30,7 @@ flutter pub get
 The Flutter Experiment SDK uses Dart's JavaScript interoperability to enable the [Experiment JavaScript SDK](/docs/sdks/experiment-sdks/experiment-javascript) for Flutter Web. This requires that you make the SDK available within the global JavaScript scope. Add the following script tag to `web/index.html` in your Flutter project:
 
 ```html
-<script src="https://unpkg.com/@amplitude/experiment-js-client@1.20.1/dist/experiment.umd.js"></script>
+<script src="https://unpkg.com/@amplitude/experiment-js-client@1.21.3/dist/experiment.umd.js"></script>
 ```
 
 
