@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.0.0](https://github.com/amplitude/experiment-flutter-client/compare/v0.1.0-beta.3...v1.0.0) (2026-08-20)
+
+
+### Features
+
+* align config surface with native SDKs ([#27](https://github.com/amplitude/experiment-flutter-client/issues/27)) ([7fd6abf](https://github.com/amplitude/experiment-flutter-client/commit/7fd6abfd1226a00b1e9f2d0851e5577ecfe51e4a))
+* update native experiment SDKs to latest releases ([#26](https://github.com/amplitude/experiment-flutter-client/issues/26)) ([f8bd3b3](https://github.com/amplitude/experiment-flutter-client/commit/f8bd3b3fe822d3974e19ed08de95ff7a0ac67a81))
+
+
+### Bug Fixes
+
+* update release-please path for relocated ios codec ([#23](https://github.com/amplitude/experiment-flutter-client/issues/23)) ([7d771d7](https://github.com/amplitude/experiment-flutter-client/commit/7d771d746929f66b10cf70e71e3960c4ca56e914))
+
 ## [0.1.0-beta.3](https://github.com/amplitude/experiment-flutter-client/compare/v0.1.0-beta.2...v0.1.0-beta.3) (2026-06-01)
 
 

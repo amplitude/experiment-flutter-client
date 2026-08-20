@@ -7,7 +7,7 @@ import Foundation
  * Amplitude Experiment SDK types. Mirrors the Android ExperimentSdkCodec.kt.
  */
 enum ExperimentSdkCodec {
-    private static let flutterLibraryVersion = "0.1.0-beta.3" // x-release-please-version
+    private static let flutterLibraryVersion = "1.0.0" // x-release-please-version
     private static let iosLibraryVersion = "1.20.2"
     static let flutterLibrary =
         "experiment-flutter-client/\(flutterLibraryVersion)" +

@@ -1,6 +1,6 @@
 name: amplitude_experiment
 description: "The official Amplitude Experiment Flutter SDK for feature flags and experimentation across iOS, Android, and Web."
-version: 0.1.0-beta.3 # x-release-please-version
+version: 1.0.0 # x-release-please-version
 homepage: "https://amplitude.com/docs/experiment-home"
 repository: "https://github.com/amplitude/experiment-flutter-client"
 issue_tracker: "https://github.com/amplitude/experiment-flutter-client/issues"
