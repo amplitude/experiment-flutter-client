@@ -90,10 +90,10 @@ flutter pub publish             # publish
 
 You must be an authenticated uploader on pub.dev.
 
-## Post-1.0.0 cleanup
+## Pinning a specific release version
 
-`release-please-config.json` carries a one-shot `"release-as": "1.0.0"` used to
-graduate from `0.1.0-beta.x` (standard version stripping would have produced
-`0.x`, not `1.0.0`). After the `v1.0.0` release is created, remove the
-`"release-as"` key so subsequent releases version normally per the commit
-prefix table above.
+For a one-off version override (as was done to graduate from `0.1.0-beta.x`
+to `1.0.0`), set `"release-as": "<version>"` in `release-please-config.json`,
+merge, let the release PR regenerate, and remove the key immediately after
+the release is created — while present it pins every subsequent release PR
+to that version.
