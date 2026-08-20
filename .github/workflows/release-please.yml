@@ -7,19 +7,9 @@
 # Instead, we use generic updaters via extra-files with x-release-please-version
 # annotations to update pubspec.yaml, platform codec files, and README.md.
 #
-# === Graduating from alpha to stable 1.0.0 ===
-#
-# 1. In release-please-config.json, change:
-#      "prerelease": true   →  "prerelease": false
-#    and remove "prerelease-type" and "versioning" keys.
-#
-# 2. The next release PR will produce v1.0.0 (stripping the alpha suffix).
-#
-# 3. After v1.0.0 is released, also remove "bump-minor-pre-major" and
-#    "bump-patch-for-minor-pre-major" so that standard semver applies:
-#      - fix:           patch bump  (1.0.0 → 1.0.1)
-#      - feat:          minor bump  (1.0.1 → 1.1.0)
-#      - feat!/fix!:    major bump  (1.1.0 → 2.0.0)
+# The config carries a one-shot "release-as": "1.0.0" to graduate from the
+# 0.1.0-beta.x prerelease line. Remove it after the v1.0.0 release is created
+# (see RELEASING.md, "Post-1.0.0 cleanup").
 #
 name: Release Please
 
