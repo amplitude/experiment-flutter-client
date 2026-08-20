@@ -1,5 +1,5 @@
 group = "com.amplitude.experiment.flutter"
-version = "0.1.0-beta.3" // x-release-please-version
+version = "1.0.0" // x-release-please-version
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"

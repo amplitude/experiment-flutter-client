@@ -14,7 +14,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  amplitude_experiment: ^0.1.0-beta.3 # x-release-please-version
+  amplitude_experiment: ^1.0.0 # x-release-please-version
 ```
 
 Then run:
