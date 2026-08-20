@@ -1,5 +1,6 @@
 PODS:
   - amplitude_experiment (0.1.0-beta.3):
+    - AmplitudeCore (< 2.0.0, >= 1.0.12)
     - AmplitudeExperiment (< 2.0.0, >= 1.20.2)
     - Flutter
   - amplitude_flutter (4.4.0):
@@ -42,7 +43,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/integration_test/ios"
 
 SPEC CHECKSUMS:
-  amplitude_experiment: 96698707a68618bfd88062bc4f9eb7b10f749281
+  amplitude_experiment: 7bacc5d741fdea3d3fb1b4de923f9fa8aa8f9f60
   amplitude_flutter: a430a891abbd9e486f53d2ab499af9ead0bb8047
   AmplitudeCore: d0952b5b193f6926777bcaf73ad2bea47a7706da
   AmplitudeExperiment: ac0b773132736844ab029edd39112b27d6ea740b

@@ -93,7 +93,8 @@ enum TestDataHelpers {
         retryFetchOnFailure: Bool = true,
         automaticExposureTracking: Bool = true,
         fetchOnStart: Bool = true,
-        pollOnStart: Bool = false,
+        pollOnStart: Bool = true,
+        flagConfigPollingIntervalMillis: Int64 = 300000,
         automaticFetchOnAmplitudeIdentityChange: Bool = false,
         hasTrackingProvider: Bool = false
     ) -> ExperimentConfigData {
@@ -112,6 +113,7 @@ enum TestDataHelpers {
             automaticExposureTracking: automaticExposureTracking,
             fetchOnStart: fetchOnStart,
             pollOnStart: pollOnStart,
+            flagConfigPollingIntervalMillis: flagConfigPollingIntervalMillis,
             automaticFetchOnAmplitudeIdentityChange: automaticFetchOnAmplitudeIdentityChange,
             hasTrackingProvider: hasTrackingProvider
         )

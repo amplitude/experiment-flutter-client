@@ -21,6 +21,7 @@ The official Amplitude Experiment Flutter SDK for evaluating feature flags and r
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
   s.dependency 'AmplitudeExperiment', '>= 1.20.2', '< 2.0.0'
+  s.dependency 'AmplitudeCore', '>= 1.0.12', '< 2.0.0'
 
   s.resource_bundles = {'amplitude_experiment_privacy' => ['amplitude_experiment/Sources/amplitude_experiment/PrivacyInfo.xcprivacy']}
 end

@@ -1,4 +1,5 @@
 import XCTest
+import AmplitudeCore
 import AmplitudeExperiment
 @testable import amplitude_experiment
 
@@ -137,6 +138,7 @@ class ExperimentSdkCodecTest: XCTestCase {
     func testConvertConfig_pigeonToSdk_mapsAllFields() {
         let pigeon = TestDataHelpers.createPigeonConfig(
             instanceName: "my-instance",
+            logLevel: .verbose,
             initialFlags: "flag1,flag2",
             initialVariants: ["f1": TestDataHelpers.createPigeonVariant(value: "on")],
             source: .initialVariants,
@@ -147,11 +149,13 @@ class ExperimentSdkCodecTest: XCTestCase {
             retryFetchOnFailure: false,
             automaticExposureTracking: false,
             fetchOnStart: false,
-            pollOnStart: true,
+            pollOnStart: false,
+            flagConfigPollingIntervalMillis: 60000,
             automaticFetchOnAmplitudeIdentityChange: true,
         )
         let sdk = ExperimentSdkCodec.convertConfig(pigeon, api: TestDataHelpers.createMockProviderApi())
         XCTAssertEqual(sdk.instanceName, "my-instance")
+        XCTAssertEqual(sdk.logger.logLevel, AmplitudeCore.LogLevel.debug)
         XCTAssertEqual(sdk.initialFlags, "flag1,flag2")
         XCTAssertEqual(sdk.serverUrl, "https://api.test.com")
         XCTAssertEqual(sdk.flagsServerUrl, "https://flags.test.com")
@@ -159,7 +163,8 @@ class ExperimentSdkCodecTest: XCTestCase {
         XCTAssertEqual(sdk.retryFetchOnFailure, false)
         XCTAssertEqual(sdk.automaticExposureTracking, false)
         XCTAssertEqual(sdk.fetchOnStart, false)
-        XCTAssertEqual(sdk.pollOnStart, true)
+        XCTAssertEqual(sdk.pollOnStart, false)
+        XCTAssertEqual(sdk.flagConfigPollingIntervalMillis, 60000)
         XCTAssertEqual(sdk.automaticFetchOnAmplitudeIdentityChange, true)
         XCTAssertEqual(sdk.source, AmplitudeExperiment.Source.InitialVariants)
         XCTAssertEqual(sdk.serverZone, AmplitudeExperiment.ServerZone.EU)
@@ -180,6 +185,23 @@ class ExperimentSdkCodecTest: XCTestCase {
         XCTAssertEqual(sdkEu.serverZone, AmplitudeExperiment.ServerZone.EU)
     }
 
+    func testConvertConfig_logLevel_mapsAllValuesToSdk() {
+        // AmplitudeCore.LogLevel has no info or verbose cases: info maps to
+        // .log (its info-equivalent) and verbose to .debug (most verbose).
+        let expected: [(amplitude_experiment.LogLevel, AmplitudeCore.LogLevel)] = [
+            (.none, .off),
+            (.error, .error),
+            (.warn, .warn),
+            (.info, .log),
+            (.debug, .debug),
+            (.verbose, .debug),
+        ]
+        for (pigeonLevel, sdkLevel) in expected {
+            let sdk = ExperimentSdkCodec.convertConfig(TestDataHelpers.createPigeonConfig(logLevel: pigeonLevel), api: TestDataHelpers.createMockProviderApi())
+            XCTAssertEqual(sdk.logger.logLevel, sdkLevel)
+        }
+    }
+
     func testConvertConfig_defaultPigeonConfig_producesValidSdkConfig() {
         let pigeon = TestDataHelpers.createPigeonConfig()
         let sdk = ExperimentSdkCodec.convertConfig(pigeon, api: TestDataHelpers.createMockProviderApi())
@@ -188,7 +210,8 @@ class ExperimentSdkCodecTest: XCTestCase {
         XCTAssertEqual(sdk.retryFetchOnFailure, true)
         XCTAssertEqual(sdk.automaticExposureTracking, true)
         XCTAssertEqual(sdk.fetchOnStart, true)
-        XCTAssertEqual(sdk.pollOnStart, false)
+        XCTAssertEqual(sdk.pollOnStart, true)
+        XCTAssertEqual(sdk.flagConfigPollingIntervalMillis, 300000)
         XCTAssertEqual(sdk.automaticFetchOnAmplitudeIdentityChange, false)
         XCTAssertEqual(sdk.source, AmplitudeExperiment.Source.LocalStorage)
         XCTAssertEqual(sdk.serverZone, AmplitudeExperiment.ServerZone.US)
