@@ -19,7 +19,7 @@ commit → main ──► release-please opens/updates PR
                          │
                     merge PR
                          │
-                    release-please creates GitHub Release + tag (vX.Y.Z-alpha.N)
+                    release-please creates GitHub Release + tag (vX.Y.Z)
                          │
                     run Publish to pub.dev with the new tag
 ```
@@ -27,18 +27,18 @@ commit → main ──► release-please opens/updates PR
 1. Push a conventional commit to `main` (directly or via PR merge).
 2. The `release-please.yml` workflow runs and either opens a new release PR or updates an existing one.
 3. The release PR bumps versions in all tracked files (via `x-release-please-version` annotations), updates `CHANGELOG.md`, and updates `.release-please-manifest.json`.
-4. When the release PR is merged, release-please creates a GitHub Release and a git tag (e.g., `v0.1.0-alpha.3`).
+4. When the release PR is merged, release-please creates a GitHub Release and a git tag (e.g., `v1.0.0`).
 5. Run the Publish to pub.dev with under the new tag.
 
 ## Commits that trigger releases
 
 Only commits with these prefixes increment the version:
 
-| Prefix | Effect (during alpha) |
-|--------|----------------------|
-| `feat:` / `feat!:` | Bumps alpha counter (e.g., `alpha.2` → `alpha.3`) |
-| `fix:` / `fix!:` | Bumps alpha counter |
-| `perf:` | Bumps alpha counter |
+| Prefix | Effect |
+|--------|--------|
+| `feat:` | Minor bump (1.0.1 → 1.1.0) |
+| `fix:` / `perf:` | Patch bump (1.0.0 → 1.0.1) |
+| `feat!:` / `fix!:` | Major bump (1.1.0 → 2.0.0) |
 
 Other prefixes (`chore:`, `docs:`, `ci:`, `test:`, `refactor:`, `style:`, `build:`, `revert:`) are included in the changelog but do **not** trigger a version bump on their own.
 
@@ -90,17 +90,10 @@ flutter pub publish             # publish
 
 You must be an authenticated uploader on pub.dev.
 
-## Graduating from alpha to stable 1.0.0
+## Post-1.0.0 cleanup
 
-1. In `release-please-config.json`, change:
-   ```json
-   "prerelease": false
-   ```
-   and remove the `"prerelease-type"` and `"versioning"` keys.
-
-2. The next release PR will produce `v1.0.0` (stripping the alpha suffix).
-
-3. After `v1.0.0` is released, also remove `"bump-minor-pre-major"` and `"bump-patch-for-minor-pre-major"` so that standard semver applies:
-   - `fix:` → patch bump (1.0.0 → 1.0.1)
-   - `feat:` → minor bump (1.0.1 → 1.1.0)
-   - `feat!:` / `fix!:` → major bump (1.1.0 → 2.0.0)
+`release-please-config.json` carries a one-shot `"release-as": "1.0.0"` used to
+graduate from `0.1.0-beta.x` (standard version stripping would have produced
+`0.x`, not `1.0.0`). After the `v1.0.0` release is created, remove the
+`"release-as"` key so subsequent releases version normally per the commit
+prefix table above.
