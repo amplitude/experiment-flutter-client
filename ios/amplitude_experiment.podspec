@@ -5,7 +5,7 @@
 Pod::Spec.new do |s|
   s.name             = 'amplitude_experiment'
   s.version          = '0.1.0-beta.3' # x-release-please-version
-  s.summary          = 'A new Flutter plugin project.'
+  s.summary          = 'The official Amplitude Experiment Flutter SDK.'
   s.description      = <<-DESC
 The official Amplitude Experiment Flutter SDK for evaluating feature flags and running experiments across iOS, Android, and Web.
                        DESC

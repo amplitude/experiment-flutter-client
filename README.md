@@ -6,8 +6,8 @@
 </p>
 
 # Amplitude Experiment Flutter SDK
-> **Warning**
-> This SDK is currently in alpha. APIs may change and there will likely be breaking changes leading up to the stable release.
+> **Note**
+> This SDK is currently in beta. The API surface is stable and breaking changes are not expected before the 1.0.0 release.
 
 This is Amplitude's official Experiment Flutter SDK for evaluating feature flags and running experiments across iOS, Android, and Web.
 

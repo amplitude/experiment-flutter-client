@@ -1,11 +1,18 @@
 name: amplitude_experiment
-description: "The official Amplitude Experiment Flutter SDK"
+description: "The official Amplitude Experiment Flutter SDK for feature flags and experimentation across iOS, Android, and Web."
 version: 0.1.0-beta.3 # x-release-please-version
-homepage: "https://github.com/amplitude/experiment-flutter-client"
+homepage: "https://amplitude.com/docs/experiment-home"
+repository: "https://github.com/amplitude/experiment-flutter-client"
+issue_tracker: "https://github.com/amplitude/experiment-flutter-client/issues"
+topics:
+  - experiment
+  - feature-flags
+  - ab-testing
+  - amplitude
 
 environment:
   sdk: ^3.8.0
-  flutter: '>=3.3.0'
+  flutter: '>=3.32.0'
 
 dependencies:
   flutter:
