@@ -7,10 +7,6 @@
 # Instead, we use generic updaters via extra-files with x-release-please-version
 # annotations to update pubspec.yaml, platform codec files, and README.md.
 #
-# The config carries a one-shot "release-as": "1.0.0" to graduate from the
-# 0.1.0-beta.x prerelease line. Remove it after the v1.0.0 release is created
-# (see RELEASING.md, "Post-1.0.0 cleanup").
-#
 name: Release Please
 
 on:
