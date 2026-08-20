@@ -52,13 +52,12 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # Baseline is 150/160; --exit-code-threshold is the number of points
-      # the package may miss before the job fails. Tighten as metadata
-      # improvements land.
+      # Baseline is 160/160; --exit-code-threshold is the number of points
+      # the package may miss before the job fails.
       - name: Run pana
         run: |
           dart pub global activate pana
-          dart pub global run pana --no-warning --exit-code-threshold 10 .
+          dart pub global run pana --no-warning --exit-code-threshold 0 .
 
   android:
     name: Android unit tests
